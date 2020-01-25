@@ -5,8 +5,8 @@ setup(
     name="tap-pendo",
     version="0.0.1",
     description="Singer.io tap for extracting data",
-    author="Stitch",
-    url="http://singer.io",
+    author="wclark@agari.com",
+    url="https://github.com/jwalterclark/tap-pendo",
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_pendo"],
     install_requires=[
