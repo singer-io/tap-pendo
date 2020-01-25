@@ -14,9 +14,9 @@ REQUIRED_CONFIG_KEYS = ["start_date", "x_pendo_integration_key"]
 LOGGER = singer.get_logger()
 
 
-def do_discover(client):
+def do_discover(config):
     LOGGER.info("Starting discover")
-    catalog = {"streams": discover_streams(client)}
+    catalog = {"streams": discover_streams(config)}
     json.dump(catalog, sys.stdout, indent=2)
     LOGGER.info("Finished discover")
 
@@ -82,29 +82,6 @@ def load_schemas():
             schemas[file_raw] = json.load(file)
 
     return schemas
-
-
-def discover():
-    raw_schemas = load_schemas()
-    streams = []
-
-    for schema_name, schema in raw_schemas.items():
-
-        # TODO: populate any metadata and stream's key properties here..
-        stream_metadata = []
-        stream_key_properties = []
-
-        # create and add catalog entry
-        catalog_entry = {
-            'stream': schema_name,
-            'tap_stream_id': schema_name,
-            'schema': schema,
-            'metadata': [],
-            'key_properties': []
-        }
-        streams.append(catalog_entry)
-
-    return {'streams': streams}
 
 
 def get_selected_streams(catalog):
@@ -183,14 +160,14 @@ def main():
 
     # If discover flag was passed, run discovery mode and dump output to stdout
     if args.discover:
-        catalog = discover()
+        catalog = do_discover(args.config)
         print(json.dumps(catalog, indent=2))
     # Otherwise run in sync mode
     else:
         if args.catalog:
             catalog = args.catalog
         else:
-            catalog = discover()
+            catalog = do_discover(args.config)
 
         sync(args.config, args.state, catalog)
 

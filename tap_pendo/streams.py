@@ -5,7 +5,8 @@ import singer
 import backoff
 import requests
 from requests.exceptions import HTTPError
-from tap_pendo import utils
+from singer import metadata, utils
+from tap_pendo import utils as tap_pendo_utils
 
 KEY_PROPERTIES = ['id']
 BASE_URL = "https://app.pendo.io"
@@ -99,6 +100,10 @@ LOGGER = singer.get_logger()
 session = requests.Session()
 
 
+def get_abs_path(path):
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
+
+
 def get_url(endpoint, **kwargs):
     return BASE_URL + endpoints[endpoint]['endpoint'].format(**kwargs)
 
@@ -134,7 +139,7 @@ class Stream():
                           max_tries=5,
                           giveup=lambda e: e.response is not None and 400 <= e.response.status_code < 500,
                           factor=2)
-    @utils.ratelimit(1, 2)
+    @tap_pendo_utils.ratelimit(1, 2)
     def request(self, endpoint, **kwargs):
         # params = params or {}
         headers = {

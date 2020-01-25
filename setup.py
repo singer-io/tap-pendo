@@ -10,9 +10,9 @@ setup(
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_pendo"],
     install_requires=[
-        'singer-python',
+        'singer-python==5.2.1',
         "requests",
-        'backoff==1.8.0'
+        'backoff==1.3.2'
     ],
     entry_points="""
     [console_scripts]
