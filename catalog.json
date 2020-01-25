@@ -2168,7 +2168,7 @@
           "breadcrumb": [],
           "metadata": {
             "table-key-properties": [
-              "id"
+              "visitorId"
             ],
             "forced-replication-method": "INCREMENTAL",
             "valid-replication-keys": [
