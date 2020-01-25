@@ -1,0 +1,100 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "visitorId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "ts": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "parsedUserAgent": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "version": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "os": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "duration": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "lastTs": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "untaggedUrl": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "uri": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "featureId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "pageId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "guideId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "guideStepId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  }
+}

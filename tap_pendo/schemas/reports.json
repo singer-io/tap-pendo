@@ -1,0 +1,331 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "createdByUser": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "first": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "role": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    },
+    "createdAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "lastUpdatedByUser": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "first": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "role": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    },
+    "lastUpdatedAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "kind": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "rootVersionId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "stableVersionId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "type": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "shared": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "definition": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "config": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "segmentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        },
+        "generator": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "kind": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "timeSeries": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "type": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        },
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        }
+      }
+    },
+    "aggregation": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "fields": {
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "type": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "title": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "field": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          }
+        },
+        "pipeline": {
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "source": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "events": {
+                    "type": [
+                      "null"
+                    ]
+                  },
+                  "timeSeries": {
+                    "type": [
+                      "null",
+                      "object"
+                    ],
+                    "properties": {
+                      "period": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "first": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "last": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "identified": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "group": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "group": {
+                    "type": [
+                      "null",
+                      "array"
+                    ],
+                    "items": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    }
+                  }
+                }
+              },
+              "select": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "visitorId": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "lastRunAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
+  }
+}

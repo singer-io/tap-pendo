@@ -1,0 +1,164 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "email": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "accountIds": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "string"
+        ]
+      }
+    },
+    "metadata": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "agent": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "email": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "ipaddress": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "language": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        },
+        "auto": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "accountid": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "accountids": {
+              "type": [
+                "null",
+                "array"
+              ],
+              "items": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            },
+            "firstvisit": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "id": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "idhash": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "lastbrowsername": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "lastbrowserversion": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "lastoperatingsystem": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "lastservername": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "lastupdated": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "lastuseragent": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "lastvisit": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "nid": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "accountId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    }
+  }
+}

@@ -1,0 +1,296 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "createdByUser": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "first": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "role": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    },
+    "createdAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "lastUpdatedByUser": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "first": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "role": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    },
+    "lastUpdatedAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "kind": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "rootVersionId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "stableVersionId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "color": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "group": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "description": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "color": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "length": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "createdByUser": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "id": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "username": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "first": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "last": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "role": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            }
+          }
+        },
+        "createdAt": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        },
+        "lastUpdatedByUser": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "id": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "username": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "first": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "last": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "role": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            }
+          }
+        },
+        "lastUpdatedAt": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    },
+    "dirty": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "rules": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "rule": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "designerHint": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "parsedRule": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

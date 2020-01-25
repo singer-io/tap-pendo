@@ -1,0 +1,60 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "metadata": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "auto": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "firstvisit": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "id": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "idhash": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "lastupdated": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "lastvisit": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,461 @@
+{
+  "type": [
+    "null",
+    "object"
+  ],
+  "properties": {
+    "createdByUser": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "first": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "role": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    },
+    "createdAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "lastUpdatedByUser": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "id": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "first": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "last": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "role": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    },
+    "lastUpdatedAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "kind": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "rootVersionId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "stableVersionId": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "id": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "name": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "state": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "launchMethod": {
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    "isMultiStep": {
+      "type": [
+        "null",
+        "boolean"
+      ]
+    },
+    "steps": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "guideId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pageId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "regexUrlRule": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "elementPathRule": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contentType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contentUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contentUrlCss": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contentUrlJs": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rank": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "advanceMethod": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "attributes": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "height": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "width": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "autoHeight": {
+                "type": [
+                  "null",
+                  "boolean"
+                ]
+              },
+              "css": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          },
+          "lastUpdatedAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "resetAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      }
+    },
+    "attributes": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "properties": {
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "device": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "type": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        },
+        "badge": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "position": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "color": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "name": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "offsets": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "top": {
+                  "type": [
+                    "null",
+                    "integer"
+                  ]
+                },
+                "right": {
+                  "type": [
+                    "null",
+                    "integer"
+                  ]
+                },
+                "left": {
+                  "type": [
+                    "null",
+                    "integer"
+                  ]
+                }
+              }
+            },
+            "showOnEvent": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "useHover": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "isOnlyShowOnce": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            },
+            "canChangeBadgeColor": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            },
+            "imageUrl": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "width": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "height": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            }
+          }
+        },
+        "priority": {
+          "type": [
+            "null",
+            "integer"
+          ]
+        }
+      }
+    },
+    "audience": {
+      "type": [
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "source": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "visitors": {
+                "type": [
+                  "null"
+                ]
+              }
+            }
+          },
+          "select": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "visitorId": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          },
+          "identified": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "resetAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    },
+    "publishedAt": {
+      "type": [
+        "null",
+        "integer"
+      ]
+    }
+  }
+}
