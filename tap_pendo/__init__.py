@@ -17,6 +17,7 @@ LOGGER = singer.get_logger()
 def do_discover(config):
     LOGGER.info("Starting discover")
     catalog = {"streams": discover_streams(config)}
+    print(catalog)
     json.dump(catalog, sys.stdout, indent=2)
     LOGGER.info("Finished discover")
 
@@ -161,7 +162,6 @@ def main():
     # If discover flag was passed, run discovery mode and dump output to stdout
     if args.discover:
         catalog = do_discover(args.config)
-        print(json.dumps(catalog, indent=2))
     # Otherwise run in sync mode
     else:
         if args.catalog:
