@@ -17,7 +17,6 @@ LOGGER = singer.get_logger()
 def do_discover(config):
     LOGGER.info("Starting discover")
     catalog = {"streams": discover_streams(config)}
-    print(catalog)
     json.dump(catalog, sys.stdout, indent=2)
     LOGGER.info("Finished discover")
 
