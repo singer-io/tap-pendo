@@ -293,6 +293,7 @@ class VisitorHistory(Stream):
     name = "visitor_history"
     replication_method = "INCREMENTAL"
     replication_key = "ts"
+    key_properties = 'visitorId'
 
     def sync(self, state, visitor_id):
         # bookmark = self.get_bookmark(state)
