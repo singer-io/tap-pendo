@@ -1,0 +1,1810 @@
+{
+  "streams": [
+    {
+      "stream": "reports",
+      "tap_stream_id": "reports",
+      "schema": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "createdByUser": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "first": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "last": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "role": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "createdAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "lastUpdatedByUser": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "first": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "last": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "role": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "lastUpdatedAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "kind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rootVersionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stableVersionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "shared": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "definition": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "config": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "segmentId": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
+              },
+              "generator": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "kind": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "timeSeries": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "type": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
+              },
+              "type": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          },
+          "aggregation": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "fields": {
+                "type": [
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "title": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "field": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    }
+                  }
+                }
+              },
+              "pipeline": {
+                "type": [
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "source": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "properties": {
+                        "events": {
+                          "type": [
+                            "null"
+                          ]
+                        },
+                        "timeSeries": {
+                          "type": [
+                            "null",
+                            "object"
+                          ],
+                          "properties": {
+                            "period": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "first": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "last": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "identified": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "group": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "properties": {
+                        "group": {
+                          "type": [
+                            "null",
+                            "array"
+                          ],
+                          "items": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "select": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "properties": {
+                        "visitorId": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "lastRunAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      },
+      "metadata": [
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "selected": true,
+            "table-key-properties": [
+              "id"
+            ]
+          }
+        }
+      ],
+      "key_properties": []
+    },
+    {
+      "stream": "visitors",
+      "tap_stream_id": "visitors",
+      "schema": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "accountIds": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          "metadata": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "agent": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "email": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "ipaddress": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "language": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
+              },
+              "auto": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "accountid": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "accountids": {
+                    "type": [
+                      "null",
+                      "array"
+                    ],
+                    "items": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    }
+                  },
+                  "firstvisit": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "idhash": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "lastbrowsername": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "lastbrowserversion": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "lastoperatingsystem": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "lastservername": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "lastupdated": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "lastuseragent": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "lastvisit": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "nid": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "accountId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "metadata": [
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "selected": true,
+            "table-key-properties": [
+              "id"
+            ]
+          }
+        }
+      ],
+      "key_properties": []
+    },
+    {
+      "stream": "features",
+      "tap_stream_id": "features",
+      "schema": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "createdByUser": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "first": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "last": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "role": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "createdAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "lastUpdatedByUser": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "first": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "last": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "role": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "lastUpdatedAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "kind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rootVersionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stableVersionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "color": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "group": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "name": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "description": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "color": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "length": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "createdByUser": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "username": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "first": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "last": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "role": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  }
+                }
+              },
+              "createdAt": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "lastUpdatedByUser": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "username": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "first": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "last": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "role": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  }
+                }
+              },
+              "lastUpdatedAt": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "dirty": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "pageId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "elementPathRules": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        }
+      },
+      "metadata": [
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "selected": true,
+            "table-key-properties": [
+              "id"
+            ]
+          }
+        }
+      ],
+      "key_properties": []
+    },
+    {
+      "stream": "visitor_history",
+      "tap_stream_id": "visitor_history",
+      "schema": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "visitorId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "ts": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "parsedUserAgent": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "name": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "version": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "os": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          },
+          "duration": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "lastTs": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "untaggedUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "uri": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "featureId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pageId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "guideId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "guideStepId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "metadata": [
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "selected": true,
+            "table-key-properties": [
+              "id"
+            ]
+          }
+        }
+      ],
+      "key_properties": []
+    },
+    {
+      "stream": "guides",
+      "tap_stream_id": "guides",
+      "schema": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "createdByUser": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "first": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "last": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "role": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "createdAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "lastUpdatedByUser": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "first": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "last": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "role": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "lastUpdatedAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "kind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rootVersionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stableVersionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "state": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "launchMethod": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isMultiStep": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "steps": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "id": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "guideId": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "type": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "pageId": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "regexUrlRule": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "elementPathRule": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "contentType": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "contentUrl": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "contentUrlCss": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "contentUrlJs": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "rank": {
+                  "type": [
+                    "null",
+                    "integer"
+                  ]
+                },
+                "advanceMethod": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "attributes": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "height": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
+                    },
+                    "width": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
+                    },
+                    "autoHeight": {
+                      "type": [
+                        "null",
+                        "boolean"
+                      ]
+                    },
+                    "css": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    }
+                  }
+                },
+                "lastUpdatedAt": {
+                  "type": [
+                    "null",
+                    "integer"
+                  ]
+                },
+                "resetAt": {
+                  "type": [
+                    "null",
+                    "integer"
+                  ]
+                }
+              }
+            }
+          },
+          "attributes": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "type": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "device": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "type": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  }
+                }
+              },
+              "badge": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "position": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "color": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "name": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "offsets": {
+                    "type": [
+                      "null",
+                      "object"
+                    ],
+                    "properties": {
+                      "top": {
+                        "type": [
+                          "null",
+                          "integer"
+                        ]
+                      },
+                      "right": {
+                        "type": [
+                          "null",
+                          "integer"
+                        ]
+                      },
+                      "left": {
+                        "type": [
+                          "null",
+                          "integer"
+                        ]
+                      }
+                    }
+                  },
+                  "showOnEvent": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "useHover": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "isOnlyShowOnce": {
+                    "type": [
+                      "null",
+                      "boolean"
+                    ]
+                  },
+                  "canChangeBadgeColor": {
+                    "type": [
+                      "null",
+                      "boolean"
+                    ]
+                  },
+                  "imageUrl": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "width": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "height": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  }
+                }
+              },
+              "priority": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "audience": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "source": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "visitors": {
+                      "type": [
+                        "null"
+                      ]
+                    }
+                  }
+                },
+                "select": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "visitorId": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    }
+                  }
+                },
+                "identified": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              }
+            }
+          },
+          "resetAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "publishedAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        }
+      },
+      "metadata": [
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "selected": true,
+            "table-key-properties": [
+              "id"
+            ]
+          }
+        }
+      ],
+      "key_properties": []
+    },
+    {
+      "stream": "accounts",
+      "tap_stream_id": "accounts",
+      "schema": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "metadata": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "auto": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "firstvisit": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "idhash": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "lastupdated": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  },
+                  "lastvisit": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "metadata": [
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "selected": true,
+            "table-key-properties": [
+              "id"
+            ]
+          }
+        }
+      ],
+      "key_properties": []
+    },
+    {
+      "stream": "pages",
+      "tap_stream_id": "pages",
+      "schema": {
+        "type": [
+          "null",
+          "object"
+        ],
+        "properties": {
+          "createdByUser": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "first": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "last": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "role": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "createdAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "lastUpdatedByUser": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "username": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "first": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "last": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "role": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "lastUpdatedAt": {
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "kind": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "rootVersionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "stableVersionId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "id": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "color": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "group": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "name": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "description": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "color": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "length": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "createdByUser": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "username": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "first": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "last": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "role": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  }
+                }
+              },
+              "createdAt": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "lastUpdatedByUser": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "id": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "username": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "first": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "last": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "role": {
+                    "type": [
+                      "null",
+                      "integer"
+                    ]
+                  }
+                }
+              },
+              "lastUpdatedAt": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            }
+          },
+          "dirty": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "rules": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "rule": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "designerHint": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "parsedRule": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "metadata": [
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "selected": true,
+            "table-key-properties": [
+              "id"
+            ]
+          }
+        }
+      ],
+      "key_properties": []
+    }
+  ]
+}
