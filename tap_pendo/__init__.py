@@ -93,7 +93,6 @@ def get_selected_streams(catalog):
     selected_streams = []
     for stream in catalog.streams:
         stream_metadata = metadata.to_map(stream.metadata)
-        print(stream.metadata)
         # stream metadata will have an empty breadcrumb
         if metadata.get(stream_metadata, (), "selected"):
             selected_streams.append(stream.tap_stream_id)
