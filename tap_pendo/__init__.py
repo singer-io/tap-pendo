@@ -158,7 +158,7 @@ def main():
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
 
     if args.discover:
-        do_discover(client)
+        do_discover(args.config)
     elif args.catalog:
         state = args.state
         do_sync(args.config, state, args.catalog)
