@@ -25,15 +25,6 @@ def stream_is_selected(mdata):
     return mdata.get((), {}).get('selected', False)
 
 
-def get_selected_streams(catalog):
-    selected_stream_ids = []
-    for stream in catalog.streams:
-        mdata = metadata.to_map(stream.metadata)
-        if stream_is_selected(mdata):
-            selected_stream_ids.append(stream.tap_stream_id)
-    return selected_stream_ids
-
-
 def get_sub_stream_ids():
     sub_stream_ids = []
     for parent_stream in SUB_STREAMS:
@@ -82,6 +73,15 @@ def load_schemas():
             schemas[file_raw] = json.load(file)
 
     return schemas
+
+
+def get_selected_streams(catalog):
+    selected_stream_ids = []
+    for stream in catalog.streams:
+        mdata = metadata.to_map(stream.metadata)
+        if stream_is_selected(mdata):
+            selected_stream_ids.append(stream.tap_stream_id)
+    return selected_stream_ids
 
 
 def get_selected_streams(catalog):
@@ -157,17 +157,11 @@ def main():
     # Parse command line arguments
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
 
-    # If discover flag was passed, run discovery mode and dump output to stdout
     if args.discover:
-        catalog = do_discover(args.config)
-    # Otherwise run in sync mode
-    else:
-        if args.catalog:
-            catalog = args.catalog
-        else:
-            catalog = do_discover(args.config)
-
-        sync(args.config, args.state, catalog)
+        do_discover(client)
+    elif args.catalog:
+        state = args.state
+        do_sync(args.config, state, args.catalog)
 
 
 if __name__ == "__main__":
