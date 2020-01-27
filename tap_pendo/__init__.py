@@ -161,7 +161,7 @@ def main():
         do_discover(args.config)
     elif args.catalog:
         state = args.state
-        do_sync(args.config, state, args.catalog)
+        sync(args.config, state, args.catalog)
 
 
 if __name__ == "__main__":
