@@ -348,5 +348,5 @@ STREAMS = {
 }
 
 SUB_STREAMS = {
-    'visitors': ['visit_history']
+    'visitors': ['visitor_history']
 }
