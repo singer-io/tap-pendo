@@ -245,8 +245,23 @@
                 "properties": {
                   "events": {
                     "type": [
-                      "null"
-                    ]
+                      "null",
+                      "object"
+                    ],
+                    "properties": {
+                      "appId": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "blacklist": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      }
+                    }
                   },
                   "timeSeries": {
                     "type": [
