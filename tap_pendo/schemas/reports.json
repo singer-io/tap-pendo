@@ -177,6 +177,24 @@
                 "null",
                 "string"
               ]
+            },
+            "first": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "count": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "period": {
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         },
@@ -282,6 +300,12 @@
                         ]
                       },
                       "last": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "type": {
                         "type": [
                           "null",
                           "string"
