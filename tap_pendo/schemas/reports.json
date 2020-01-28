@@ -902,6 +902,10 @@
           ]
         },
         "timeSeries": {
+          "type": [
+            "null",
+            "object"
+          ],
           "properties": {
             "count": {
               "type": [
@@ -935,137 +939,82 @@
                 "null",
                 "string"
               ]
-            }
-          },
-          "type": [
-            "null",
-            "object"
-          ],
-          "primaryTimeSeries": {
-            "properties": {
-              "count": {
-                "type": [
-                  "null",
-                  "string",
-                  "integer"
-                ]
-              },
-              "first": {
-                "type": [
-                  "null",
-                  "string",
-                  "integer"
-                ]
-              },
-              "last": {
-                "type": [
-                  "null",
-                  "string",
-                  "integer"
-                ]
-              },
-              "period": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              },
-              "type": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              }
             },
-            "type": [
-              "null",
-              "object"
-            ]
-          },
-          "secondaryTimeSeries": {
-            "properties": {
-              "count": {
-                "type": [
-                  "null",
-                  "string",
-                  "integer"
-                ]
-              },
-              "first": {
-                "type": [
-                  "null",
-                  "string",
-                  "integer"
-                ]
-              },
-              "last": {
-                "type": [
-                  "null",
-                  "string",
-                  "integer"
-                ]
-              },
-              "period": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              },
-              "type": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              }
-            },
-            "type": [
-              "null",
-              "object"
-            ]
-          }
-        }
-      },
-      "minimum": {
-        "type": [
-          "null"
-        ]
-      },
-      "config": {
-        "type": [
-          "null",
-          "object"
-        ],
-        "properties": {
-          "predecessors": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          },
-          "appId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "maxDuration": {
-            "type": [
-              "null",
-              "integer"
-            ]
-          },
-          "items": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
+            "primaryTimeSeries": {
               "type": [
                 "null",
                 "object"
               ],
               "properties": {
-                "pageId": {
+                "count": {
+                  "type": [
+                    "null",
+                    "string",
+                    "integer"
+                  ]
+                },
+                "first": {
+                  "type": [
+                    "null",
+                    "string",
+                    "integer"
+                  ]
+                },
+                "last": {
+                  "type": [
+                    "null",
+                    "string",
+                    "integer"
+                  ]
+                },
+                "period": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "type": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              }
+            },
+            "secondaryTimeSeries": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "count": {
+                  "type": [
+                    "null",
+                    "string",
+                    "integer"
+                  ]
+                },
+                "first": {
+                  "type": [
+                    "null",
+                    "string",
+                    "integer"
+                  ]
+                },
+                "last": {
+                  "type": [
+                    "null",
+                    "string",
+                    "integer"
+                  ]
+                },
+                "period": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "type": {
                   "type": [
                     "null",
                     "string"
@@ -1073,187 +1022,1128 @@
                 }
               }
             }
-          },
-          "trackEvents": {
-            "type": [
-              "null"
-            ]
-          },
-          "segments": {
-            "type": [
-              "null"
-            ]
-          },
-          "pageId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "maxInterval": {
-            "type": [
-              "null",
-              "integer"
-            ]
-          },
-          "columns": {
-            "type": [
-              "null",
-              "array"
-            ],
+          }
+        },
+        "minimum": {
+          "type": [
+            "null"
+          ]
+        },
+        "config": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "predecessors": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            },
+            "appId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "maxDuration": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
             "items": {
               "type": [
                 "null",
-                "object"
+                "array"
               ],
-              "properties": {
-                "functionName": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
-                },
-                "schema": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
-                },
-                "columnLabel": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
-                },
-                "columnName": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
-                },
-                "kind": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
-                },
-                "primaryKeys": {
-                  "type": [
-                    "null",
-                    "array"
-                  ],
-                  "items": {
+              "items": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "pageId": {
                     "type": [
                       "null",
                       "string"
                     ]
                   }
-                },
-                "fieldName": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
-                },
-                "showIcon": {
-                  "type": [
-                    "null",
-                    "boolean"
-                  ]
                 }
               }
-            }
-          },
-          "features": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          },
-          "omitPages": {
-            "type": [
-              "null"
-            ]
-          },
-          "segmentId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "filters": {
-            "type": [
-              "null"
-            ]
-          },
-          "maxLength": {
-            "type": [
-              "null",
-              "integer"
-            ]
-          },
-          "collapseDups": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          }
-        }
-      },
-      "chartSelections": {
-        "type": [
-          "null",
-          "object"
-        ],
-        "properties": {
-          "034a9cfb-d16c-46d9-91bd-c385b7e5cd56": {
-            "type": [
-              "null",
-              "object"
-            ],
-            "properties": {
-              "type": {
+            },
+            "trackEvents": {
+              "type": [
+                "null"
+              ]
+            },
+            "segments": {
+              "type": [
+                "null"
+              ]
+            },
+            "pageId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "maxInterval": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "columns": {
+              "type": [
+                "null",
+                "array"
+              ],
+              "items": {
                 "type": [
                   "null",
-                  "string"
-                ]
+                  "object"
+                ],
+                "properties": {
+                  "functionName": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "schema": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "columnLabel": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "columnName": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "kind": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "primaryKeys": {
+                    "type": [
+                      "null",
+                      "array"
+                    ],
+                    "items": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    }
+                  },
+                  "fieldName": {
+                    "type": [
+                      "null",
+                      "string"
+                    ]
+                  },
+                  "showIcon": {
+                    "type": [
+                      "null",
+                      "boolean"
+                    ]
+                  }
+                }
               }
-            }
-          },
-          "d2a0a8ff-76db-4217-bbb8-bcb66f82d036": {
-            "type": [
-              "null",
-              "object"
-            ],
-            "properties": {
-              "type": {
-                "type": [
-                  "null",
-                  "string"
-                ]
-              }
+            },
+            "features": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            },
+            "omitPages": {
+              "type": [
+                "null"
+              ]
+            },
+            "segmentId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "filters": {
+              "type": [
+                "null"
+              ]
+            },
+            "maxLength": {
+              "type": [
+                "null",
+                "integer"
+              ]
+            },
+            "collapseDups": {
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           }
-        }
-      },
-      "queryBuilder": {
-        "type": [
-          "null",
-          "object"
-        ],
-        "properties": {
-          "dataSources": {
-            "type": [
-              "null",
-              "array"
-            ],
-            "items": {
+        },
+        "chartSelections": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "034a9cfb-d16c-46d9-91bd-c385b7e5cd56": {
               "type": [
                 "null",
                 "object"
               ],
               "properties": {
-                "id": {
+                "type": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              }
+            },
+            "d2a0a8ff-76db-4217-bbb8-bcb66f82d036": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "type": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "queryBuilder": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "dataSources": {
+              "type": [
+                "null",
+                "array"
+              ],
+              "items": {
+                "type": [
+                  "null",
+                  "object"
+                ],
+                "properties": {
+                  "id": {
+                    "type": [
+                      "null",
+                      "object"
+                    ],
+                    "properties": {
+                      "value": {
+                        "type": [
+                          "null",
+                          "string"
+                        ]
+                      },
+                      "valid": {
+                        "type": [
+                          "null",
+                          "boolean"
+                        ]
+                      }
+                    }
+                  },
+                  "target": {
+                    "type": [
+                      "null",
+                      "object"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": [
+                          "null",
+                          "object"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "label": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "sourceType": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          }
+                        }
+                      },
+                      "valid": {
+                        "type": [
+                          "null",
+                          "boolean"
+                        ]
+                      },
+                      "targets": {
+                        "type": [
+                          "null",
+                          "array"
+                        ],
+                        "items": {
+                          "type": [
+                            "null",
+                            "object"
+                          ],
+                          "properties": {
+                            "createdByUser": {
+                              "type": [
+                                "null",
+                                "object"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "username": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "first": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "last": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "role": {
+                                  "type": [
+                                    "null",
+                                    "integer"
+                                  ]
+                                },
+                                "userType": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "visitorIds": {
+                                  "type": [
+                                    "null",
+                                    "array"
+                                  ],
+                                  "items": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "createdAt": {
+                              "type": [
+                                "null",
+                                "integer"
+                              ]
+                            },
+                            "lastUpdatedByUser": {
+                              "type": [
+                                "null",
+                                "object"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "username": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "first": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "last": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "role": {
+                                  "type": [
+                                    "null",
+                                    "integer"
+                                  ]
+                                },
+                                "userType": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "visitorIds": {
+                                  "type": [
+                                    "null",
+                                    "array"
+                                  ],
+                                  "items": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "lastUpdatedAt": {
+                              "type": [
+                                "null",
+                                "integer"
+                              ]
+                            },
+                            "kind": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "rootVersionId": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "stableVersionId": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "id": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "appId": {
+                              "type": [
+                                "null",
+                                "integer"
+                              ]
+                            },
+                            "name": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "color": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "group": {
+                              "type": [
+                                "null",
+                                "object"
+                              ],
+                              "properties": {
+                                "id": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "name": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "description": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "color": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "length": {
+                                  "type": [
+                                    "null",
+                                    "integer"
+                                  ]
+                                },
+                                "createdByUser": {
+                                  "type": [
+                                    "null",
+                                    "object"
+                                  ],
+                                  "properties": {
+                                    "id": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "username": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "first": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "last": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "role": {
+                                      "type": [
+                                        "null",
+                                        "integer"
+                                      ]
+                                    },
+                                    "userType": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "createdAt": {
+                                  "type": [
+                                    "null",
+                                    "integer"
+                                  ]
+                                },
+                                "lastUpdatedByUser": {
+                                  "type": [
+                                    "null",
+                                    "object"
+                                  ],
+                                  "properties": {
+                                    "id": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "username": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "first": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "last": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "role": {
+                                      "type": [
+                                        "null",
+                                        "integer"
+                                      ]
+                                    },
+                                    "userType": {
+                                      "type": [
+                                        "null",
+                                        "string"
+                                      ]
+                                    },
+                                    "visitorIds": {
+                                      "type": [
+                                        "null",
+                                        "array"
+                                      ],
+                                      "items": {
+                                        "type": [
+                                          "null",
+                                          "string"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                },
+                                "lastUpdatedAt": {
+                                  "type": [
+                                    "null",
+                                    "integer"
+                                  ]
+                                }
+                              }
+                            },
+                            "validThrough": {
+                              "type": [
+                                "null",
+                                "integer"
+                              ]
+                            },
+                            "dirty": {
+                              "type": [
+                                "null",
+                                "boolean"
+                              ]
+                            },
+                            "rules": {
+                              "type": [
+                                "null",
+                                "array"
+                              ],
+                              "items": {
+                                "type": [
+                                  "null",
+                                  "object"
+                                ],
+                                "properties": {
+                                  "rule": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "designerHint": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "parsedRule": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "rulesjson": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "measure": {
+                    "type": [
+                      "null",
+                      "object"
+                    ],
+                    "properties": {
+                      "value": {
+                        "type": [
+                          "null",
+                          "object"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "label": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          }
+                        }
+                      },
+                      "valid": {
+                        "type": [
+                          "null",
+                          "boolean"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "globals": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "segment": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "valid": {
+                      "type": [
+                        "null",
+                        "boolean"
+                      ]
+                    },
+                    "value": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "isTraining": {
+                          "type": [
+                            "null",
+                            "boolean"
+                          ]
+                        },
+                        "label": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "flagName": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "pipeline": {
+                          "type": [
+                            "null",
+                            "array"
+                          ],
+                          "items": {
+                            "type": [
+                              "null",
+                              "object"
+                            ],
+                            "properties": {
+                              "source": {
+                                "type": [
+                                  "null",
+                                  "object"
+                                ],
+                                "properties": {
+                                  "visitors": {
+                                    "type": [
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              },
+                              "filter": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              },
+                              "select": {
+                                "type": [
+                                  "null",
+                                  "object"
+                                ],
+                                "properties": {
+                                  "visitorId": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "createdAt": {
+                          "type": [
+                            "null",
+                            "integer"
+                          ]
+                        },
+                        "shared": {
+                          "type": [
+                            "null",
+                            "boolean"
+                          ]
+                        },
+                        "createdByUser": {
+                          "type": [
+                            "null",
+                            "object"
+                          ],
+                          "properties": {
+                            "first": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "id": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "role": {
+                              "type": [
+                                "null",
+                                "integer"
+                              ]
+                            },
+                            "username": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "last": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "userType": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            }
+                          }
+                        },
+                        "$isCopyable": {
+                          "type": [
+                            "null",
+                            "boolean"
+                          ]
+                        },
+                        "lastUpdatedByUser": {
+                          "type": [
+                            "null",
+                            "object"
+                          ],
+                          "properties": {
+                            "first": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "visitorIds": {
+                              "type": [
+                                "null",
+                                "array"
+                              ],
+                              "items": {
+                                "type": [
+                                  "null",
+                                  "string"
+                                ]
+                              }
+                            },
+                            "id": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "role": {
+                              "type": [
+                                "null",
+                                "integer"
+                              ]
+                            },
+                            "username": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "last": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "userType": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            }
+                          }
+                        },
+                        "rootVersionId": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "targetAccount": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "$isDisabled": {
+                          "type": [
+                            "null",
+                            "boolean"
+                          ]
+                        },
+                        "stableVersionId": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "id": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "lastUpdatedAt": {
+                          "type": [
+                            "null",
+                            "integer"
+                          ]
+                        },
+                        "kind": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "$isEditable": {
+                          "type": [
+                            "null",
+                            "boolean"
+                          ]
+                        },
+                        "definition": {
+                          "type": [
+                            "null",
+                            "object"
+                          ],
+                          "properties": {
+                            "advanced": {
+                              "type": [
+                                "null",
+                                "boolean"
+                              ]
+                            },
+                            "filters": {
+                              "type": [
+                                "null",
+                                "array"
+                              ],
+                              "items": {
+                                "type": [
+                                  "null",
+                                  "object"
+                                ],
+                                "properties": {
+                                  "group": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "kind": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "field": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "type": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "name": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "schema": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "operator": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": [
+                                      "null",
+                                      "string"
+                                    ]
+                                  }
+                                }
+                              }
+                            },
+                            "advancedOptions": {
+                              "type": [
+                                "null",
+                                "object"
+                              ],
+                              "properties": {
+                                "includeAnonymousVisitors": {
+                                  "type": [
+                                    "null",
+                                    "boolean"
+                                  ]
+                                },
+                                "selectedVisitorType": {
+                                  "type": [
+                                    "null"
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "dateConfig": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "valid": {
+                      "type": [
+                        "null",
+                        "boolean"
+                      ]
+                    },
+                    "value": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "properties": {
+                        "dateRange": {
+                          "type": [
+                            "null",
+                            "object"
+                          ],
+                          "properties": {
+                            "type": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            }
+                          }
+                        },
+                        "period": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "interval": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "groupByMetadataType": {
                   "type": [
                     "null",
                     "object"
@@ -1273,427 +2163,7 @@
                     }
                   }
                 },
-                "target": {
-                  "type": [
-                    "null",
-                    "object"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": [
-                        "null",
-                        "object"
-                      ],
-                      "properties": {
-                        "name": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
-                        },
-                        "label": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
-                        },
-                        "sourceType": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
-                        }
-                      }
-                    },
-                    "valid": {
-                      "type": [
-                        "null",
-                        "boolean"
-                      ]
-                    },
-                    "targets": {
-                      "type": [
-                        "null",
-                        "array"
-                      ],
-                      "items": {
-                        "type": [
-                          "null",
-                          "object"
-                        ],
-                        "properties": {
-                          "createdByUser": {
-                            "type": [
-                              "null",
-                              "object"
-                            ],
-                            "properties": {
-                              "id": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "username": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "first": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "last": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "role": {
-                                "type": [
-                                  "null",
-                                  "integer"
-                                ]
-                              },
-                              "userType": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "visitorIds": {
-                                "type": [
-                                  "null",
-                                  "array"
-                                ],
-                                "items": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                }
-                              }
-                            }
-                          },
-                          "createdAt": {
-                            "type": [
-                              "null",
-                              "integer"
-                            ]
-                          },
-                          "lastUpdatedByUser": {
-                            "type": [
-                              "null",
-                              "object"
-                            ],
-                            "properties": {
-                              "id": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "username": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "first": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "last": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "role": {
-                                "type": [
-                                  "null",
-                                  "integer"
-                                ]
-                              },
-                              "userType": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "visitorIds": {
-                                "type": [
-                                  "null",
-                                  "array"
-                                ],
-                                "items": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                }
-                              }
-                            }
-                          },
-                          "lastUpdatedAt": {
-                            "type": [
-                              "null",
-                              "integer"
-                            ]
-                          },
-                          "kind": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "rootVersionId": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "stableVersionId": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "id": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "appId": {
-                            "type": [
-                              "null",
-                              "integer"
-                            ]
-                          },
-                          "name": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "color": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "group": {
-                            "type": [
-                              "null",
-                              "object"
-                            ],
-                            "properties": {
-                              "id": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "name": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "description": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "color": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
-                              },
-                              "length": {
-                                "type": [
-                                  "null",
-                                  "integer"
-                                ]
-                              },
-                              "createdByUser": {
-                                "type": [
-                                  "null",
-                                  "object"
-                                ],
-                                "properties": {
-                                  "id": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "username": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "first": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "last": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "role": {
-                                    "type": [
-                                      "null",
-                                      "integer"
-                                    ]
-                                  },
-                                  "userType": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  }
-                                }
-                              },
-                              "createdAt": {
-                                "type": [
-                                  "null",
-                                  "integer"
-                                ]
-                              },
-                              "lastUpdatedByUser": {
-                                "type": [
-                                  "null",
-                                  "object"
-                                ],
-                                "properties": {
-                                  "id": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "username": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "first": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "last": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "role": {
-                                    "type": [
-                                      "null",
-                                      "integer"
-                                    ]
-                                  },
-                                  "userType": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
-                                  },
-                                  "visitorIds": {
-                                    "type": [
-                                      "null",
-                                      "array"
-                                    ],
-                                    "items": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
-                                    }
-                                  }
-                                }
-                              },
-                              "lastUpdatedAt": {
-                                "type": [
-                                  "null",
-                                  "integer"
-                                ]
-                              }
-                            }
-                          },
-                          "validThrough": {
-                            "type": [
-                              "null",
-                              "integer"
-                            ]
-                          },
-                          "dirty": {
-                            "type": [
-                              "null",
-                              "boolean"
-                            ]
-                          },
-                          "rules": {
-                            "type": [
-                              "null",
-                              "array"
-                            ],
-                            "items": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
-                              "properties": {
-                                "rule": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "designerHint": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "parsedRule": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                }
-                              }
-                            }
-                          },
-                          "rulesjson": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "measure": {
+                "groupByMetadata": {
                   "type": [
                     "null",
                     "object"
@@ -1702,22 +2172,8 @@
                     "value": {
                       "type": [
                         "null",
-                        "object"
-                      ],
-                      "properties": {
-                        "name": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
-                        },
-                        "label": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
-                        }
-                      }
+                        "string"
+                      ]
                     },
                     "valid": {
                       "type": [
@@ -1729,552 +2185,95 @@
                 }
               }
             }
-          },
-          "globals": {
-            "type": [
-              "null",
-              "object"
-            ],
-            "properties": {
-              "segment": {
-                "type": [
-                  "null",
-                  "object"
-                ],
-                "properties": {
-                  "valid": {
-                    "type": [
-                      "null",
-                      "boolean"
-                    ]
-                  },
-                  "value": {
-                    "type": [
-                      "null",
-                      "object"
-                    ],
-                    "properties": {
-                      "name": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "isTraining": {
-                        "type": [
-                          "null",
-                          "boolean"
-                        ]
-                      },
-                      "label": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "flagName": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "pipeline": {
-                        "type": [
-                          "null",
-                          "array"
-                        ],
-                        "items": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
-                          "properties": {
-                            "source": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
-                              "properties": {
-                                "visitors": {
-                                  "type": [
-                                    "null"
-                                  ]
-                                }
-                              }
-                            },
-                            "filter": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
-                            },
-                            "select": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
-                              "properties": {
-                                "visitorId": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                }
-                              }
-                            }
-                          }
-                        }
-                      },
-                      "createdAt": {
-                        "type": [
-                          "null",
-                          "integer"
-                        ]
-                      },
-                      "shared": {
-                        "type": [
-                          "null",
-                          "boolean"
-                        ]
-                      },
-                      "createdByUser": {
-                        "type": [
-                          "null",
-                          "object"
-                        ],
-                        "properties": {
-                          "first": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "id": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "role": {
-                            "type": [
-                              "null",
-                              "integer"
-                            ]
-                          },
-                          "username": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "last": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "userType": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          }
-                        }
-                      },
-                      "$isCopyable": {
-                        "type": [
-                          "null",
-                          "boolean"
-                        ]
-                      },
-                      "lastUpdatedByUser": {
-                        "type": [
-                          "null",
-                          "object"
-                        ],
-                        "properties": {
-                          "first": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "visitorIds": {
-                            "type": [
-                              "null",
-                              "array"
-                            ],
-                            "items": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
-                            }
-                          },
-                          "id": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "role": {
-                            "type": [
-                              "null",
-                              "integer"
-                            ]
-                          },
-                          "username": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "last": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          },
-                          "userType": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          }
-                        }
-                      },
-                      "rootVersionId": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "targetAccount": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "$isDisabled": {
-                        "type": [
-                          "null",
-                          "boolean"
-                        ]
-                      },
-                      "stableVersionId": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "id": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "lastUpdatedAt": {
-                        "type": [
-                          "null",
-                          "integer"
-                        ]
-                      },
-                      "kind": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "$isEditable": {
-                        "type": [
-                          "null",
-                          "boolean"
-                        ]
-                      },
-                      "definition": {
-                        "type": [
-                          "null",
-                          "object"
-                        ],
-                        "properties": {
-                          "advanced": {
-                            "type": [
-                              "null",
-                              "boolean"
-                            ]
-                          },
-                          "filters": {
-                            "type": [
-                              "null",
-                              "array"
-                            ],
-                            "items": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
-                              "properties": {
-                                "group": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "kind": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "field": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "id": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "type": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "name": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "schema": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "operator": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                },
-                                "value": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
-                                }
-                              }
-                            }
-                          },
-                          "advancedOptions": {
-                            "type": [
-                              "null",
-                              "object"
-                            ],
-                            "properties": {
-                              "includeAnonymousVisitors": {
-                                "type": [
-                                  "null",
-                                  "boolean"
-                                ]
-                              },
-                              "selectedVisitorType": {
-                                "type": [
-                                  "null"
-                                ]
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              "dateConfig": {
-                "type": [
-                  "null",
-                  "object"
-                ],
-                "properties": {
-                  "valid": {
-                    "type": [
-                      "null",
-                      "boolean"
-                    ]
-                  },
-                  "value": {
-                    "type": [
-                      "null",
-                      "object"
-                    ],
-                    "properties": {
-                      "dateRange": {
-                        "type": [
-                          "null",
-                          "object"
-                        ],
-                        "properties": {
-                          "type": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
-                          }
-                        }
-                      },
-                      "period": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      },
-                      "interval": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
-                      }
-                    }
-                  }
-                }
-              },
-              "groupByMetadataType": {
-                "type": [
-                  "null",
-                  "object"
-                ],
-                "properties": {
-                  "value": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
-                  },
-                  "valid": {
-                    "type": [
-                      "null",
-                      "boolean"
-                    ]
-                  }
-                }
-              },
-              "groupByMetadata": {
-                "type": [
-                  "null",
-                  "object"
-                ],
-                "properties": {
-                  "value": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
-                  },
-                  "valid": {
-                    "type": [
-                      "null",
-                      "boolean"
-                    ]
-                  }
-                }
-              }
-            }
           }
-        }
-      },
-      "isComparingSegments": {
-        "type": [
-          "null",
-          "boolean"
-        ]
-      },
-      "history": {
-        "type": [
-          "null",
-          "array"
-        ],
-        "items": {
+        },
+        "isComparingSegments": {
           "type": [
             "null",
-            "integer"
+            "boolean"
           ]
-        }
-      },
-      "attribute": {
-        "type": [
-          "null",
-          "string"
-        ]
-      },
-      "period": {
-        "type": [
-          "null",
-          "string"
-        ]
-      },
-      "graphType": {
-        "type": [
-          "null",
-          "string"
-        ]
-      },
-      "rowSelections": {
-        "type": [
-          "null",
-          "object"
-        ],
-        "properties": {
-          "d2a0a8ff-76db-4217-bbb8-bcb66f82d036-mdAdQEaonoriDebY3QFZcH0tlCU-null": {
+        },
+        "history": {
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
             "type": [
               "null",
-              "boolean"
-            ]
-          },
-          "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-R_fKAmWRugLAf1Czrn3XMS6QDr4-null": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          },
-          "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-Xg0KbKnvzuj9-k20cp1A0tSbOKc-null": {
-            "type": [
-              "null",
-              "boolean"
-            ]
-          },
-          "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-B9B9eW40RXfftK84NsJQDP8PjWk-null": {
-            "type": [
-              "null",
-              "boolean"
+              "integer"
             ]
           }
+        },
+        "attribute": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "period": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "graphType": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "rowSelections": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "d2a0a8ff-76db-4217-bbb8-bcb66f82d036-mdAdQEaonoriDebY3QFZcH0tlCU-null": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            },
+            "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-R_fKAmWRugLAf1Czrn3XMS6QDr4-null": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            },
+            "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-Xg0KbKnvzuj9-k20cp1A0tSbOKc-null": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            },
+            "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-B9B9eW40RXfftK84NsJQDP8PjWk-null": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            }
+          }
+        },
+        "type": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "isComparingSources": {
+          "type": [
+            "null",
+            "boolean"
+          ]
+        },
+        "kind": {
+          "type": [
+            "null",
+            "string"
+          ]
         }
-      },
-      "type": {
-        "type": [
-          "null",
-          "string"
-        ]
-      },
-      "isComparingSources": {
-        "type": [
-          "null",
-          "boolean"
-        ]
-      },
-      "kind": {
-        "type": [
-          "null",
-          "string"
-        ]
       }
     }
   }
-}
 }
