@@ -1,100 +1,57 @@
 {
-  "type": [
-    "null",
-    "object"
-  ],
+  "type": ["null", "object"],
+  "additional_properties": false,
   "properties": {
-    "visitorId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "visitor_id": {
+      "type": ["null", "string"]
     },
     "type": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "ts": {
-      "type": [
-        "null",
-        "integer"
-      ]
+      "type": ["null", "integer"]
     },
-    "parsedUserAgent": {
-      "type": [
-        "null",
-        "object"
-      ],
+    "parsed_user_agent": {
+      "type": ["null", "object"],
+      "additional_properties": false,
       "properties": {
         "name": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "version": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "os": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         }
       }
     },
     "duration": {
-      "type": [
-        "null",
-        "integer"
-      ]
+      "type": ["null", "integer"]
     },
-    "lastTs": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "last_ts": {
+      "type": ["null", "integer"]
     },
-    "untaggedUrl": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "untagged_url": {
+      "type": ["null", "string"]
     },
     "uri": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
-    "featureId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "feature_id": {
+      "type": ["null", "string"]
     },
-    "pageId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "page_id": {
+      "type": ["null", "string"]
     },
-    "guideId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "guide_id": {
+      "type": ["null", "string"]
     },
-    "guideStepId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "guide_step_id": {
+      "type": ["null", "string"]
+    },
+    "app_id": {
+      "type": ["null", "integer"]
     }
   }
 }

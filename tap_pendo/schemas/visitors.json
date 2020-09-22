@@ -1,164 +1,84 @@
 {
-  "type": [
-    "null",
-    "object"
-  ],
+  "type": ["null", "object"],
+  "additional_properties": false,
   "properties": {
-    "id": {
-      "type": [
-        "null",
-        "string"
-      ]
-    },
-    "email": {
-      "type": [
-        "null",
-        "string"
-      ]
-    },
-    "accountIds": {
-      "type": [
-        "null",
-        "array"
-      ],
-      "items": {
-        "type": [
-          "null",
-          "string"
-        ]
-      }
+    "visitor_id": {
+      "type": ["null", "string"]
     },
     "metadata": {
-      "type": [
-        "null",
-        "object"
-      ],
+      "type": ["null", "object"],
+      "additional_properties": false,
       "properties": {
+        "custom": {
+          "type": ["null", "object"],
+          "properties": {
+
+          }
+        },
         "agent": {
-          "type": [
-            "null",
-            "object"
-          ],
+          "type": ["null", "object"],
+          "additional_properties": false,
           "properties": {
             "email": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "ipaddress": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "language": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             }
           }
         },
         "auto": {
-          "type": [
-            "null",
-            "object"
-          ],
+          "type": ["null", "object"],
+          "additional_properties": false,
           "properties": {
             "accountid": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "accountids": {
-              "type": [
-                "null",
-                "array"
-              ],
+              "type": ["null", "array"],
               "items": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               }
             },
             "firstvisit": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             },
             "id": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "idhash": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             },
             "lastbrowsername": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "lastbrowserversion": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "lastoperatingsystem": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "lastservername": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "lastupdated": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             },
             "lastuseragent": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "lastvisit": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             },
             "nid": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             }
           }
         }
       }
-    },
-    "accountId": {
-      "type": [
-        "null",
-        "string"
-      ]
     }
   }
 }

@@ -1,293 +1,155 @@
 {
-  "type": [
-    "null",
-    "object"
-  ],
+  "type": ["null", "object"],
+  "additional_properties": false,
   "properties": {
-    "createdByUser": {
-      "type": [
-        "null",
-        "object"
-      ],
+    "created_by_user": {
+      "type": ["null", "object"],
       "properties": {
         "id": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "username": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "first": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "last": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "role": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         }
       }
     },
-    "createdAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "created_at": {
+      "type": ["null", "integer"]
     },
-    "lastUpdatedByUser": {
-      "type": [
-        "null",
-        "object"
-      ],
+    "last_updated_by_user": {
+      "type": ["null", "object"],
+      "additional_properties": false,
       "properties": {
         "id": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "username": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "first": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "last": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "role": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         }
       }
     },
-    "lastUpdatedAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "last_updated_at": {
+      "type": ["null", "integer"]
     },
     "kind": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
-    "rootVersionId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "root_version_id": {
+      "type": ["null", "string"]
     },
-    "stableVersionId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "stable_version_id": {
+      "type": ["null", "string"]
     },
     "id": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "name": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "color": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "group": {
-      "type": [
-        "null",
-        "object"
-      ],
+      "type": ["null", "object"],
+      "additional_properties": false,
       "properties": {
         "id": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "name": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "description": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "color": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "length": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         },
-        "createdByUser": {
-          "type": [
-            "null",
-            "object"
-          ],
+        "created_by_user": {
+          "type": ["null", "object"],
           "properties": {
             "id": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "username": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "first": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "last": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "role": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             }
           }
         },
-        "createdAt": {
-          "type": [
-            "null",
-            "integer"
-          ]
+        "created_at": {
+          "type": ["null", "integer"]
         },
-        "lastUpdatedByUser": {
-          "type": [
-            "null",
-            "object"
-          ],
+        "last_updated_by_user": {
+          "type": ["null", "object"],
           "properties": {
             "id": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "username": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "first": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "last": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "role": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             }
           }
         },
-        "lastUpdatedAt": {
-          "type": [
-            "null",
-            "integer"
-          ]
+        "last_updated_at": {
+          "type": ["null", "integer"]
         }
       }
     },
     "dirty": {
-      "type": [
-        "null",
-        "boolean"
-      ]
+      "type": ["null", "boolean"]
     },
     "rules": {
-      "type": [
-        "null",
-        "array"
-      ],
+      "type": ["null", "array"],
       "items": {
-        "type": [
-          "null",
-          "object"
-        ],
+        "type": ["null", "object"],
         "properties": {
           "rule": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
-          "designerHint": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "designer_hint": {
+            "type": ["null", "string"]
           },
-          "parsedRule": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "parsed_rule": {
+            "type": ["null", "string"]
           }
         }
       }

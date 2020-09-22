@@ -1,461 +1,243 @@
 {
-  "type": [
-    "null",
-    "object"
-  ],
+  "type": ["null", "object"],
   "properties": {
-    "createdByUser": {
-      "type": [
-        "null",
-        "object"
-      ],
+    "created_by_user": {
+      "type": ["null", "object"],
       "properties": {
         "id": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "username": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "first": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "last": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "role": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         }
       }
     },
-    "createdAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "created_at": {
+      "type": ["null", "integer"]
     },
-    "lastUpdatedByUser": {
-      "type": [
-        "null",
-        "object"
-      ],
+    "last_updated_by_user": {
+      "type": ["null", "object"],
       "properties": {
         "id": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "username": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "first": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "last": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "role": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         }
       }
     },
-    "lastUpdatedAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "last_updated_at": {
+      "type": ["null", "integer"]
     },
     "kind": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
-    "rootVersionId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "root_version_id": {
+      "type": ["null", "string"]
     },
-    "stableVersionId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "stable_version_id": {
+      "type": ["null", "string"]
     },
     "id": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "name": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "state": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
-    "launchMethod": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "launch_method": {
+      "type": ["null", "string"]
     },
-    "isMultiStep": {
-      "type": [
-        "null",
-        "boolean"
-      ]
+    "is_multi_step": {
+      "type": ["null", "boolean"]
     },
     "steps": {
-      "type": [
-        "null",
-        "array"
-      ],
+      "type": ["null", "array"],
       "items": {
-        "type": [
-          "null",
-          "object"
-        ],
+        "type": ["null", "object"],
         "properties": {
           "id": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "guideId": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
           "type": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           },
-          "pageId": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "page_id": {
+            "type": ["null", "string"]
           },
-          "regexUrlRule": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "regex_url_rule": {
+            "type": ["null", "string"]
           },
-          "elementPathRule": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "element_path_rule": {
+            "type": ["null", "string"]
           },
-          "contentType": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "content_type": {
+            "type": ["null", "string"]
           },
-          "contentUrl": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "content_url": {
+            "type": ["null", "string"]
           },
-          "contentUrlCss": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "content_url_css": {
+            "type": ["null", "string"]
           },
-          "contentUrlJs": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "content_url_js": {
+            "type": ["null", "string"]
           },
           "rank": {
-            "type": [
-              "null",
-              "integer"
-            ]
+            "type": ["null", "integer"]
           },
-          "advanceMethod": {
-            "type": [
-              "null",
-              "string"
-            ]
+          "advance_method": {
+            "type": ["null", "string"]
           },
           "attributes": {
-            "type": [
-              "null",
-              "object"
-            ],
+            "type": ["null", "object"],
             "properties": {
               "height": {
-                "type": [
-                  "null",
-                  "integer"
-                ]
+                "type": ["null", "integer"]
               },
               "width": {
-                "type": [
-                  "null",
-                  "integer"
-                ]
+                "type": ["null", "integer"]
               },
-              "autoHeight": {
-                "type": [
-                  "null",
-                  "boolean"
-                ]
+              "auto_height": {
+                "type": ["null", "boolean"]
               },
               "css": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               }
             }
           },
-          "lastUpdatedAt": {
-            "type": [
-              "null",
-              "integer"
-            ]
+          "last_updated_at": {
+            "type": ["null", "integer"]
           },
-          "resetAt": {
-            "type": [
-              "null",
-              "integer"
-            ]
+          "reset_at": {
+            "type": ["null", "integer"]
           }
         }
       }
     },
     "attributes": {
-      "type": [
-        "null",
-        "object"
-      ],
+      "type": ["null", "object"],
       "properties": {
         "type": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "device": {
-          "type": [
-            "null",
-            "object"
-          ],
+          "type": ["null", "object"],
           "properties": {
             "type": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             }
           }
         },
         "badge": {
-          "type": [
-            "null",
-            "object"
-          ],
+          "type": ["null", "object"],
           "properties": {
             "position": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "color": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "name": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "offsets": {
-              "type": [
-                "null",
-                "object"
-              ],
+              "type": ["null", "object"],
               "properties": {
                 "top": {
-                  "type": [
-                    "null",
-                    "integer"
-                  ]
+                  "type": ["null", "integer"]
                 },
                 "right": {
-                  "type": [
-                    "null",
-                    "integer"
-                  ]
+                  "type": ["null", "integer"]
                 },
                 "left": {
-                  "type": [
-                    "null",
-                    "integer"
-                  ]
+                  "type": ["null", "integer"]
                 }
               }
             },
-            "showOnEvent": {
-              "type": [
-                "null",
-                "string"
-              ]
+            "show_on_event": {
+              "type": ["null", "string"]
             },
-            "useHover": {
-              "type": [
-                "null",
-                "string"
-              ]
+            "use_hover": {
+              "type": ["null", "string"]
             },
-            "isOnlyShowOnce": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+            "is_only_show_once": {
+              "type": ["null", "boolean"]
             },
-            "canChangeBadgeColor": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+            "can_change_badge_color": {
+              "type": ["null", "boolean"]
             },
-            "imageUrl": {
-              "type": [
-                "null",
-                "string"
-              ]
+            "image_url": {
+              "type": ["null", "string"]
             },
             "width": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             },
             "height": {
-              "type": [
-                "null",
-                "integer"
-              ]
+              "type": ["null", "integer"]
             }
           }
         },
         "priority": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         }
       }
     },
     "audience": {
-      "type": [
-        "null",
-        "array"
-      ],
+      "type": ["null", "array"],
       "items": {
-        "type": [
-          "null",
-          "object"
-        ],
+        "type": ["null", "object"],
         "properties": {
           "source": {
-            "type": [
-              "null",
-              "object"
-            ],
+            "type": ["null", "object"],
             "properties": {
               "visitors": {
-                "type": [
-                  "null"
-                ]
+                "type": ["null"]
               }
             }
           },
           "select": {
-            "type": [
-              "null",
-              "object"
-            ],
+            "type": ["null", "object"],
             "properties": {
               "visitorId": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               }
             }
           },
           "identified": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           }
         }
       }
     },
-    "resetAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "reset_at": {
+      "type": ["null", "integer"]
     },
-    "publishedAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "published_at": {
+      "type": ["null", "integer"]
     }
   }
 }

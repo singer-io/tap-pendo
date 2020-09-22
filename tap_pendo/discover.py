@@ -1,6 +1,5 @@
 import os
-import json
-import singer
+
 from tap_pendo.streams import STREAMS
 
 
@@ -13,6 +12,10 @@ def discover_streams(config):
 
     for s in STREAMS.values():
         s = s(config)
-        streams.append({'stream': s.name, 'tap_stream_id': s.name,
-                        'schema': s.load_schema(), 'metadata': s.load_metadata()})
+        streams.append({
+            'stream': s.name,
+            'tap_stream_id': s.name,
+            'schema': s.load_schema(),
+            'metadata': s.load_metadata()
+        })
     return streams

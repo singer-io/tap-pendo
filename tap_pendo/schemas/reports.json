@@ -1,503 +1,266 @@
 {
-  "type": [
-    "null",
-    "object"
-  ],
+  "type": ["null", "object"],
   "properties": {
     "ownedByUser": {
-      "type": [
-        "null",
-        "object"
-      ],
+      "type": ["null", "object"],
       "properties": {
         "first": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "id": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "role": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         },
         "username": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "last": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "userType": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         }
       }
     },
     "name": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "aggregation": {
-      "type": [
-        "null",
-        "object"
-      ],
+      "type": ["null", "object"],
       "properties": {
         "fields": {
-          "type": [
-            "null",
-            "array"
-          ],
+          "type": ["null", "array"],
           "items": {
-            "type": [
-              "null",
-              "object"
-            ],
+            "type": ["null", "object"],
             "properties": {
               "type": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               },
               "title": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               },
               "field": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               }
             }
           }
         },
         "pipeline": {
-          "type": [
-            "null",
-            "array"
-          ],
+          "type": ["null", "array"],
           "items": {
-            "type": [
-              "null",
-              "object"
-            ],
+            "type": ["null", "object"],
             "properties": {
               "source": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
                   "events": {
-                    "type": [
-                      "null",
-                      "object"
-                    ],
+                    "type": ["null", "object"],
                     "properties": {
                       "appId": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                        "type": ["null", "string"]
                       },
                       "blacklist": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                        "type": ["null", "string"]
                       }
                     }
                   },
                   "timeSeries": {
                     "properties": {
                       "count": {
-                        "type": [
-                          "null",
-                          "string",
-                          "integer"
-                        ]
+                        "type": ["null", "string", "integer"]
                       },
                       "first": {
-                        "type": [
-                          "null",
-                          "string",
-                          "integer"
-                        ]
+                        "type": ["null", "string", "integer"]
                       },
                       "last": {
-                        "type": [
-                          "null",
-                          "string",
-                          "integer"
-                        ]
+                        "type": ["null", "string", "integer"]
                       },
                       "period": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                        "type": ["null", "string"]
                       },
                       "type": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                        "type": ["null", "string"]
                       }
                     },
-                    "type": [
-                      "null",
-                      "object"
-                    ]
+                    "type": ["null", "object"]
                   }
                 }
               },
               "segment": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
                   "id": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   }
                 }
               },
               "identified": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               },
               "group": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
                   "group": {
-                    "type": [
-                      "null",
-                      "array"
-                    ],
+                    "type": ["null", "array"],
                     "items": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
+                      "type": ["null", "string"]
                     }
                   }
                 }
               },
-              "bulkExpand": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+              "bulk_expand": {
+                "type": ["null", "object"],
                 "properties": {
                   "account": {
-                    "type": [
-                      "null",
-                      "object"
-                    ],
+                    "type": ["null", "object"],
                     "properties": {
                       "account": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                        "type": ["null", "string"]
                       }
                     }
                   }
                 }
               },
               "eval": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
                   "account_agent_environment": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
                   "account_auto_firstvisit": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
                   "account_auto_lastvisit": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
                   "account_agent_name": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   }
                 }
               },
               "merge": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
                   "fields": {
-                    "type": [
-                      "null",
-                      "array"
-                    ],
+                    "type": ["null", "array"],
                     "items": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
+                      "type": ["null", "string"]
                     }
                   },
                   "mappings": {
-                    "type": [
-                      "null",
-                      "object"
-                    ],
+                    "type": ["null", "object"],
                     "properties": {
-                      "daysActive": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                      "days_active": {
+                        "type": ["null", "string"]
                       },
-                      "eventCount": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                      "event_count": {
+                        "type": ["null", "string"]
                       },
-                      "numVisitors": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                      "num_visitors": {
+                        "type": ["null", "string"]
                       },
-                      "eventTime": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                      "event_time": {
+                        "type": ["null", "string"]
                       }
                     }
                   },
                   "pipeline": {
-                    "type": [
-                      "null",
-                      "array"
-                    ],
+                    "type": ["null", "array"],
                     "items": {
-                      "type": [
-                        "null",
-                        "object"
-                      ],
+                      "type": ["null", "object"],
                       "properties": {
                         "source": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
+                          "type": ["null", "object"],
                           "properties": {
                             "events": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
+                              "type": ["null", "object"],
                               "properties": {
                                 "blacklist": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
-                                "appId": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                "app_id": {
+                                  "type": ["null", "string"]
                                 }
                               }
                             },
-                            "timeSeries": {
+                            "time_series": {
                               "properties": {
                                 "count": {
-                                  "type": [
-                                    "null",
-                                    "string",
-                                    "integer"
-                                  ]
+                                  "type": ["null", "string", "integer"]
                                 },
                                 "first": {
-                                  "type": [
-                                    "null",
-                                    "string",
-                                    "integer"
-                                  ]
+                                  "type": ["null", "string", "integer"]
                                 },
                                 "last": {
-                                  "type": [
-                                    "null",
-                                    "string",
-                                    "integer"
-                                  ]
+                                  "type": ["null", "string", "integer"]
                                 },
                                 "period": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "type": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 }
                               },
-                              "type": [
-                                "null",
-                                "object"
-                              ]
+                              "type": ["null", "object"]
                             }
                           }
                         },
                         "segment": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
+                          "type": ["null", "object"],
                           "properties": {
                             "id": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             }
                           }
                         },
                         "identified": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                          "type": ["null", "string"]
                         },
                         "group": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
+                          "type": ["null", "object"],
                           "properties": {
                             "group": {
-                              "type": [
-                                "null",
-                                "array"
-                              ],
+                              "type": ["null", "array"],
                               "items": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
+                                "type": ["null", "string"]
                               }
                             },
                             "fields": {
-                              "type": [
-                                "null",
-                                "array"
-                              ],
+                              "type": ["null", "array"],
                               "items": {
-                                "type": [
-                                  "null",
-                                  "object"
-                                ],
+                                "type": ["null", "object"],
                                 "properties": {
-                                  "daysActive": {
-                                    "type": [
-                                      "null",
-                                      "object"
-                                    ],
+                                  "days_active": {
+                                    "type": ["null", "object"],
                                     "properties": {
                                       "count": {
-                                        "type": [
-                                          "null",
-                                          "string"
-                                        ]
+                                        "type": ["null", "string"]
                                       }
                                     }
                                   },
-                                  "eventCount": {
-                                    "type": [
-                                      "null",
-                                      "object"
-                                    ],
+                                  "event_count": {
+                                    "type": ["null", "object"],
                                     "properties": {
                                       "sum": {
-                                        "type": [
-                                          "null",
-                                          "string"
-                                        ]
+                                        "type": ["null", "string"]
                                       }
                                     }
                                   },
-                                  "numVisitors": {
-                                    "type": [
-                                      "null",
-                                      "object"
-                                    ],
+                                  "num_visitors": {
+                                    "type": ["null", "object"],
                                     "properties": {
                                       "count": {
-                                        "type": [
-                                          "null",
-                                          "string"
-                                        ]
+                                        "type": ["null", "string"]
                                       }
                                     }
                                   },
-                                  "eventTime": {
-                                    "type": [
-                                      "null",
-                                      "object"
-                                    ],
+                                  "event_time": {
+                                    "type": ["null", "object"],
                                     "properties": {
                                       "sum": {
-                                        "type": [
-                                          "null",
-                                          "string"
-                                        ]
+                                        "type": ["null", "string"]
                                       }
                                     }
                                   }
@@ -512,64 +275,34 @@
                 }
               },
               "select": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
                   "accountId": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
                   "account_agent_environment": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
                   "account_auto_firstvisit": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
                   "account_auto_lastvisit": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
                   "account_agent_name": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
-                  "daysActive": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "days_active": {
+                    "type": ["null", "string"]
                   },
-                  "eventCount": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "event_count": {
+                    "type": ["null", "string"]
                   },
-                  "numVisitors": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "num_visitors": {
+                    "type": ["null", "string"]
                   },
-                  "eventTime": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "event_time": {
+                    "type": ["null", "string"]
                   }
                 }
               }
@@ -578,1114 +311,580 @@
         }
       }
     },
-    "lastRunAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "last_run_at": {
+      "type": ["null", "integer"]
     },
     "scope": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "level": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
-    "createdAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "created_at": {
+      "type": ["null", "integer"]
     },
     "shared": {
-      "type": [
-        "null",
-        "boolean"
-      ]
+      "type": ["null", "boolean"]
     },
     "target": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
-    "createdByUser": {
-      "type": [
-        "null",
-        "object"
-      ],
+    "created_by_user": {
+      "type": ["null", "object"],
       "properties": {
         "first": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
-        "visitorIds": {
-          "type": [
-            "null",
-            "array"
-          ],
+        "visitor_ids": {
+          "type": ["null", "array"],
           "items": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           }
         },
         "id": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
-        "deletedAt": {
-          "type": [
-            "null",
-            "integer"
-          ]
+        "deleted_at": {
+          "type": ["null", "integer"]
         },
         "role": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         },
         "username": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "last": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
-        "userType": {
-          "type": [
-            "null",
-            "string"
-          ]
+        "user_type": {
+          "type": ["null", "string"]
         }
       }
     },
     "share": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
-    "lastUpdatedByUser": {
-      "type": [
-        "null",
-        "object"
-      ],
+    "last_updated_by_user": {
+      "type": ["null", "object"],
       "properties": {
         "first": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
-        "visitorIds": {
-          "type": [
-            "null",
-            "array"
-          ],
+        "visitor_ids": {
+          "type": ["null", "array"],
           "items": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           }
         },
         "id": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "role": {
-          "type": [
-            "null",
-            "integer"
-          ]
+          "type": ["null", "integer"]
         },
         "username": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "last": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
-        "userType": {
-          "type": [
-            "null",
-            "string"
-          ]
+        "user_type": {
+          "type": ["null", "string"]
         }
       }
     },
-    "rootVersionId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "root_version_id": {
+      "type": ["null", "string"]
     },
-    "stableVersionId": {
-      "type": [
-        "null",
-        "string"
-      ]
+    "stable_version_id": {
+      "type": ["null", "string"]
     },
     "type": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "id": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
-    "lastUpdatedAt": {
-      "type": [
-        "null",
-        "integer"
-      ]
+    "last_updated_at": {
+      "type": ["null", "integer"]
     },
     "kind": {
-      "type": [
-        "null",
-        "string"
-      ]
+      "type": ["null", "string"]
     },
     "definition": {
-      "type": [
-        "null",
-        "object"
-      ],
+      "type": ["null", "object"],
       "properties": {
         "dateRanges": {
-          "type": [
-            "null",
-            "object"
-          ],
+          "type": ["null", "object"],
           "properties": {
-            "useSecondaryDateRange": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+            "use_secondary_date_range": {
+              "type": ["null", "boolean"]
             },
-            "primaryDateRange": {
-              "type": [
-                "null",
-                "object"
-              ],
+            "primary_date_range": {
+              "type": ["null", "object"],
               "properties": {
                 "type": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
+                  "type": ["null", "string"]
                 }
               }
             },
-            "secondaryDateRange": {
-              "type": [
-                "null"
-              ]
+            "secondary_date_range": {
+              "type": ["null"]
             }
           }
         },
-        "singleSourceType": {
-          "type": [
-            "null",
-            "string"
-          ]
+        "single_source_type": {
+          "type": ["null", "string"]
         },
         "segments": {
-          "type": [
-            "null",
-            "array"
-          ],
+          "type": ["null", "array"],
           "items": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": ["null", "string"]
           }
         },
-        "tableType": {
-          "type": [
-            "null",
-            "string"
-          ]
+        "table_type": {
+          "type": ["null", "string"]
         },
-        "singleSource": {
-          "type": [
-            "null",
-            "object"
-          ],
+        "single_source": {
+          "type": ["null", "object"],
           "properties": {
             "id": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "kind": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             }
           }
         },
         "generator": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "sources": {
-          "type": [
-            "null",
-            "object"
-          ],
+          "type": ["null", "object"],
           "properties": {
             "alls": {
-              "type": [
-                "null",
-                "array"
-              ],
+              "type": ["null", "array"],
               "items": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               }
             },
             "pages": {
-              "type": [
-                "null",
-                "array"
-              ],
+              "type": ["null", "array"],
               "items": {
-                "type": [
-                  "null",
-                  "string"
-                ]
+                "type": ["null", "string"]
               }
             }
           }
         },
-        "multiSourceType": {
-          "type": [
-            "null",
-            "string"
-          ]
+        "multi_source_type": {
+          "type": ["null", "string"]
         },
-        "timeSeries": {
-          "type": [
-            "null",
-            "object"
-          ],
+        "time_series": {
+          "type": ["null", "object"],
           "properties": {
             "count": {
-              "type": [
-                "null",
-                "string",
-                "integer"
-              ]
+              "type": ["null", "string", "integer"]
             },
             "first": {
-              "type": [
-                "null",
-                "string",
-                "integer"
-              ]
+              "type": ["null", "string", "integer"]
             },
             "last": {
-              "type": [
-                "null",
-                "string",
-                "integer"
-              ]
+              "type": ["null", "string", "integer"]
             },
             "period": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
             "type": {
-              "type": [
-                "null",
-                "string"
-              ]
+              "type": ["null", "string"]
             },
-            "primaryTimeSeries": {
-              "type": [
-                "null",
-                "object"
-              ],
+            "primary_time_series": {
+              "type": ["null", "object"],
               "properties": {
                 "count": {
-                  "type": [
-                    "null",
-                    "string",
-                    "integer"
-                  ]
+                  "type": ["null", "string", "integer"]
                 },
                 "first": {
-                  "type": [
-                    "null",
-                    "string",
-                    "integer"
-                  ]
+                  "type": ["null", "string", "integer"]
                 },
                 "last": {
-                  "type": [
-                    "null",
-                    "string",
-                    "integer"
-                  ]
+                  "type": ["null", "string", "integer"]
                 },
                 "period": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
+                  "type": ["null", "string"]
                 },
                 "type": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
+                  "type": ["null", "string"]
                 }
               }
             },
-            "secondaryTimeSeries": {
-              "type": [
-                "null",
-                "object"
-              ],
+            "secondary_time_series": {
+              "type": ["null", "object"],
               "properties": {
                 "count": {
-                  "type": [
-                    "null",
-                    "string",
-                    "integer"
-                  ]
+                  "type": ["null", "string", "integer"]
                 },
                 "first": {
-                  "type": [
-                    "null",
-                    "string",
-                    "integer"
-                  ]
+                  "type": ["null", "string", "integer"]
                 },
                 "last": {
-                  "type": [
-                    "null",
-                    "string",
-                    "integer"
-                  ]
+                  "type": ["null", "string", "integer"]
                 },
                 "period": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
+                  "type": ["null", "string"]
                 },
                 "type": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
+                  "type": ["null", "string"]
                 }
               }
             }
           }
         },
         "minimum": {
-          "type": [
-            "null"
-          ]
+          "type": ["null"]
         },
         "config": {
-          "type": [
-            "null",
-            "object"
-          ],
+          "type": ["null", "object"],
           "properties": {
             "predecessors": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+              "type": ["null", "boolean"]
             },
-            "appId": {
-              "type": [
-                "null",
-                "string"
-              ]
+            "app_id": {
+              "type": ["null", "string"]
             },
-            "maxDuration": {
-              "type": [
-                "null",
-                "integer"
-              ]
+            "max_duration": {
+              "type": ["null", "integer"]
             },
             "items": {
-              "type": [
-                "null",
-                "array"
-              ],
+              "type": ["null", "array"],
               "items": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
-                  "pageId": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "page_id": {
+                    "type": ["null", "string"]
                   }
                 }
               }
             },
-            "trackEvents": {
-              "type": [
-                "null"
-              ]
+            "track_events": {
+              "type": ["null"]
             },
             "segments": {
-              "type": [
-                "null"
-              ]
+              "type": ["null"]
             },
-            "pageId": {
-              "type": [
-                "null",
-                "string"
-              ]
+            "page_id": {
+              "type": ["null", "string"]
             },
-            "maxInterval": {
-              "type": [
-                "null",
-                "integer"
-              ]
+            "max_interval": {
+              "type": ["null", "integer"]
             },
             "columns": {
-              "type": [
-                "null",
-                "array"
-              ],
+              "type": ["null", "array"],
               "items": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
-                  "functionName": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "function_name": {
+                    "type": ["null", "string"]
                   },
                   "schema": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
-                  "columnLabel": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "column_label": {
+                    "type": ["null", "string"]
                   },
-                  "columnName": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "column_name": {
+                    "type": ["null", "string"]
                   },
                   "kind": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                    "type": ["null", "string"]
                   },
-                  "primaryKeys": {
-                    "type": [
-                      "null",
-                      "array"
-                    ],
+                  "primary_keys": {
+                    "type": ["null", "array"],
                     "items": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
+                      "type": ["null", "string"]
                     }
                   },
-                  "fieldName": {
-                    "type": [
-                      "null",
-                      "string"
-                    ]
+                  "field_name": {
+                    "type": ["null", "string"]
                   },
-                  "showIcon": {
-                    "type": [
-                      "null",
-                      "boolean"
-                    ]
+                  "show_icon": {
+                    "type": ["null", "boolean"]
                   }
                 }
               }
             },
             "features": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+              "type": ["null", "boolean"]
             },
-            "omitPages": {
-              "type": [
-                "null"
-              ]
+            "omit_pages": {
+              "type": ["null"]
             },
-            "segmentId": {
-              "type": [
-                "null",
-                "string"
-              ]
+            "segment_id": {
+              "type": ["null", "string"]
             },
             "filters": {
-              "type": [
-                "null"
-              ]
+              "type": ["null"]
             },
-            "maxLength": {
-              "type": [
-                "null",
-                "integer"
-              ]
+            "max_length": {
+              "type": ["null", "integer"]
             },
-            "collapseDups": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+            "collapse_dups": {
+              "type": ["null", "boolean"]
             }
           }
         },
-        "chartSelections": {
-          "type": [
-            "null",
-            "object"
-          ],
+        "chart_selections": {
+          "type": ["null", "object"],
           "properties": {
             "034a9cfb-d16c-46d9-91bd-c385b7e5cd56": {
-              "type": [
-                "null",
-                "object"
-              ],
+              "type": ["null", "object"],
               "properties": {
                 "type": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
+                  "type": ["null", "string"]
                 }
               }
             },
             "d2a0a8ff-76db-4217-bbb8-bcb66f82d036": {
-              "type": [
-                "null",
-                "object"
-              ],
+              "type": ["null", "object"],
               "properties": {
                 "type": {
-                  "type": [
-                    "null",
-                    "string"
-                  ]
+                  "type": ["null", "string"]
                 }
               }
             }
           }
         },
-        "queryBuilder": {
-          "type": [
-            "null",
-            "object"
-          ],
+        "query_builder": {
+          "type": ["null", "object"],
           "properties": {
-            "dataSources": {
-              "type": [
-                "null",
-                "array"
-              ],
+            "data_sources": {
+              "type": ["null", "array"],
               "items": {
-                "type": [
-                  "null",
-                  "object"
-                ],
+                "type": ["null", "object"],
                 "properties": {
                   "id": {
-                    "type": [
-                      "null",
-                      "object"
-                    ],
+                    "type": ["null", "object"],
                     "properties": {
                       "value": {
-                        "type": [
-                          "null",
-                          "string"
-                        ]
+                        "type": ["null", "string"]
                       },
                       "valid": {
-                        "type": [
-                          "null",
-                          "boolean"
-                        ]
+                        "type": ["null", "boolean"]
                       }
                     }
                   },
                   "target": {
-                    "type": [
-                      "null",
-                      "object"
-                    ],
+                    "type": ["null", "object"],
                     "properties": {
                       "type": {
-                        "type": [
-                          "null",
-                          "object"
-                        ],
+                        "type": ["null", "object"],
                         "properties": {
                           "name": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
+                            "type": ["null", "string"]
                           },
                           "label": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
+                            "type": ["null", "string"]
                           },
                           "sourceType": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
+                            "type": ["null", "string"]
                           }
                         }
                       },
                       "valid": {
-                        "type": [
-                          "null",
-                          "boolean"
-                        ]
+                        "type": ["null", "boolean"]
                       },
                       "targets": {
-                        "type": [
-                          "null",
-                          "array"
-                        ],
+                        "type": ["null", "array"],
                         "items": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
+                          "type": ["null", "object"],
                           "properties": {
-                            "createdByUser": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
+                            "created_by_user": {
+                              "type": ["null", "object"],
                               "properties": {
                                 "id": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "username": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "first": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "last": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "role": {
-                                  "type": [
-                                    "null",
-                                    "integer"
-                                  ]
+                                  "type": ["null", "integer"]
                                 },
-                                "userType": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                "user_type": {
+                                  "type": ["null", "string"]
                                 },
-                                "visitorIds": {
-                                  "type": [
-                                    "null",
-                                    "array"
-                                  ],
+                                "visitor_ids": {
+                                  "type": ["null", "array"],
                                   "items": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   }
                                 }
                               }
                             },
-                            "createdAt": {
-                              "type": [
-                                "null",
-                                "integer"
-                              ]
+                            "created_at": {
+                              "type": ["null", "integer"]
                             },
-                            "lastUpdatedByUser": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
+                            "last_updated_by_user": {
+                              "type": ["null", "object"],
                               "properties": {
                                 "id": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "username": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "first": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "last": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "role": {
-                                  "type": [
-                                    "null",
-                                    "integer"
-                                  ]
+                                  "type": ["null", "integer"]
                                 },
                                 "userType": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
-                                "visitorIds": {
-                                  "type": [
-                                    "null",
-                                    "array"
-                                  ],
+                                "visitor_ids": {
+                                  "type": ["null", "array"],
                                   "items": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   }
                                 }
                               }
                             },
-                            "lastUpdatedAt": {
-                              "type": [
-                                "null",
-                                "integer"
-                              ]
+                            "last_updated_at": {
+                              "type": ["null", "integer"]
                             },
                             "kind": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
-                            "rootVersionId": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                            "root_version_id": {
+                              "type": ["null", "string"]
                             },
-                            "stableVersionId": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                            "stable_version_id": {
+                              "type": ["null", "string"]
                             },
                             "id": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
                             "appId": {
-                              "type": [
-                                "null",
-                                "integer"
-                              ]
+                              "type": ["null", "integer"]
                             },
                             "name": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
                             "color": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
                             "group": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
+                              "type": ["null", "object"],
                               "properties": {
                                 "id": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "name": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "description": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "color": {
-                                  "type": [
-                                    "null",
-                                    "string"
-                                  ]
+                                  "type": ["null", "string"]
                                 },
                                 "length": {
-                                  "type": [
-                                    "null",
-                                    "integer"
-                                  ]
+                                  "type": ["null", "integer"]
                                 },
-                                "createdByUser": {
-                                  "type": [
-                                    "null",
-                                    "object"
-                                  ],
+                                "created_by_user": {
+                                  "type": ["null", "object"],
                                   "properties": {
                                     "id": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                      "type": ["null", "string"]
                                     },
                                     "username": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                      "type": ["null", "string"]
                                     },
                                     "first": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                      "type": ["null", "string"]
                                     },
                                     "last": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                      "type": ["null", "string"]
                                     },
                                     "role": {
-                                      "type": [
-                                        "null",
-                                        "integer"
-                                      ]
+                                      "type": ["null", "integer"]
                                     },
-                                    "userType": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                    "user_type": {
+                                      "type": ["null", "string"]
                                     }
                                   }
                                 },
-                                "createdAt": {
-                                  "type": [
-                                    "null",
-                                    "integer"
-                                  ]
+                                "created_at": {
+                                  "type": ["null", "integer"]
                                 },
-                                "lastUpdatedByUser": {
-                                  "type": [
-                                    "null",
-                                    "object"
-                                  ],
+                                "last_updated_by_user": {
+                                  "type": ["null", "object"],
                                   "properties": {
                                     "id": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                      "type": ["null", "string"]
                                     },
                                     "username": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                      "type": ["null", "string"]
                                     },
                                     "first": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                      "type": ["null", "string"]
                                     },
                                     "last": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                      "type": ["null", "string"]
                                     },
                                     "role": {
-                                      "type": [
-                                        "null",
-                                        "integer"
-                                      ]
+                                      "type": ["null", "integer"]
                                     },
-                                    "userType": {
-                                      "type": [
-                                        "null",
-                                        "string"
-                                      ]
+                                    "user_type": {
+                                      "type": ["null", "string"]
                                     },
-                                    "visitorIds": {
-                                      "type": [
-                                        "null",
-                                        "array"
-                                      ],
+                                    "visitor_ids": {
+                                      "type": ["null", "array"],
                                       "items": {
-                                        "type": [
-                                          "null",
-                                          "string"
-                                        ]
+                                        "type": ["null", "string"]
                                       }
                                     }
                                   }
                                 },
-                                "lastUpdatedAt": {
-                                  "type": [
-                                    "null",
-                                    "integer"
-                                  ]
+                                "last_updated_at": {
+                                  "type": ["null", "integer"]
                                 }
                               }
                             },
-                            "validThrough": {
-                              "type": [
-                                "null",
-                                "integer"
-                              ]
+                            "valid_through": {
+                              "type": ["null", "integer"]
                             },
                             "dirty": {
-                              "type": [
-                                "null",
-                                "boolean"
-                              ]
+                              "type": ["null", "boolean"]
                             },
                             "rules": {
-                              "type": [
-                                "null",
-                                "array"
-                              ],
+                              "type": ["null", "array"],
                               "items": {
-                                "type": [
-                                  "null",
-                                  "object"
-                                ],
+                                "type": ["null", "object"],
                                 "properties": {
                                   "rule": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
-                                  "designerHint": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                  "designer_hint": {
+                                    "type": ["null", "string"]
                                   },
-                                  "parsedRule": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                  "parsed_rule": {
+                                    "type": ["null", "string"]
                                   }
                                 }
                               }
                             },
                             "rulesjson": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             }
                           }
                         }
@@ -1693,36 +892,21 @@
                     }
                   },
                   "measure": {
-                    "type": [
-                      "null",
-                      "object"
-                    ],
+                    "type": ["null", "object"],
                     "properties": {
                       "value": {
-                        "type": [
-                          "null",
-                          "object"
-                        ],
+                        "type": ["null", "object"],
                         "properties": {
                           "name": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
+                            "type": ["null", "string"]
                           },
                           "label": {
-                            "type": [
-                              "null",
-                              "string"
-                            ]
+                            "type": ["null", "string"]
                           }
                         }
                       },
                       "valid": {
-                        "type": [
-                          "null",
-                          "boolean"
-                        ]
+                        "type": ["null", "boolean"]
                       }
                     }
                   }
@@ -1730,362 +914,190 @@
               }
             },
             "globals": {
-              "type": [
-                "null",
-                "object"
-              ],
+              "type": ["null", "object"],
               "properties": {
                 "segment": {
-                  "type": [
-                    "null",
-                    "object"
-                  ],
+                  "type": ["null", "object"],
                   "properties": {
                     "valid": {
-                      "type": [
-                        "null",
-                        "boolean"
-                      ]
+                      "type": ["null", "boolean"]
                     },
                     "value": {
-                      "type": [
-                        "null",
-                        "object"
-                      ],
+                      "type": ["null", "object"],
                       "properties": {
                         "name": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                          "type": ["null", "string"]
                         },
-                        "isTraining": {
-                          "type": [
-                            "null",
-                            "boolean"
-                          ]
+                        "is_training": {
+                          "type": ["null", "boolean"]
                         },
                         "label": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                          "type": ["null", "string"]
                         },
                         "flagName": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                          "type": ["null", "string"]
                         },
                         "pipeline": {
-                          "type": [
-                            "null",
-                            "array"
-                          ],
+                          "type": ["null", "array"],
                           "items": {
-                            "type": [
-                              "null",
-                              "object"
-                            ],
+                            "type": ["null", "object"],
                             "properties": {
                               "source": {
-                                "type": [
-                                  "null",
-                                  "object"
-                                ],
+                                "type": ["null", "object"],
                                 "properties": {
                                   "visitors": {
-                                    "type": [
-                                      "null"
-                                    ]
+                                    "type": ["null"]
                                   }
                                 }
                               },
                               "filter": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
+                                "type": ["null", "string"]
                               },
                               "select": {
-                                "type": [
-                                  "null",
-                                  "object"
-                                ],
+                                "type": ["null", "object"],
                                 "properties": {
-                                  "visitorId": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                  "visitor_id": {
+                                    "type": ["null", "string"]
                                   }
                                 }
                               }
                             }
                           }
                         },
-                        "createdAt": {
-                          "type": [
-                            "null",
-                            "integer"
-                          ]
+                        "created_at": {
+                          "type": ["null", "integer"]
                         },
                         "shared": {
-                          "type": [
-                            "null",
-                            "boolean"
-                          ]
+                          "type": ["null", "boolean"]
                         },
-                        "createdByUser": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
+                        "created_by_user": {
+                          "type": ["null", "object"],
                           "properties": {
                             "first": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
                             "id": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
                             "role": {
-                              "type": [
-                                "null",
-                                "integer"
-                              ]
+                              "type": ["null", "integer"]
                             },
                             "username": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
                             "last": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
-                            "userType": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                            "user_type": {
+                              "type": ["null", "string"]
                             }
                           }
                         },
-                        "$isCopyable": {
-                          "type": [
-                            "null",
-                            "boolean"
-                          ]
+                        "$is_copyable": {
+                          "type": ["null", "boolean"]
                         },
-                        "lastUpdatedByUser": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
+                        "last_updated_by_user": {
+                          "type": ["null", "object"],
                           "properties": {
                             "first": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
-                            "visitorIds": {
-                              "type": [
-                                "null",
-                                "array"
-                              ],
+                            "visitor_ids": {
+                              "type": ["null", "array"],
                               "items": {
-                                "type": [
-                                  "null",
-                                  "string"
-                                ]
+                                "type": ["null", "string"]
                               }
                             },
                             "id": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
                             "role": {
-                              "type": [
-                                "null",
-                                "integer"
-                              ]
+                              "type": ["null", "integer"]
                             },
                             "username": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
                             "last": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             },
-                            "userType": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                            "user_type": {
+                              "type": ["null", "string"]
                             }
                           }
                         },
-                        "rootVersionId": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                        "root_version_id": {
+                          "type": ["null", "string"]
                         },
-                        "targetAccount": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                        "target_account": {
+                          "type": ["null", "string"]
                         },
-                        "$isDisabled": {
-                          "type": [
-                            "null",
-                            "boolean"
-                          ]
+                        "$is_disabled": {
+                          "type": ["null", "boolean"]
                         },
-                        "stableVersionId": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                        "stable_version_id": {
+                          "type": ["null", "string"]
                         },
                         "id": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                          "type": ["null", "string"]
                         },
-                        "lastUpdatedAt": {
-                          "type": [
-                            "null",
-                            "integer"
-                          ]
+                        "last_updated_at": {
+                          "type": ["null", "integer"]
                         },
                         "kind": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                          "type": ["null", "string"]
                         },
-                        "$isEditable": {
-                          "type": [
-                            "null",
-                            "boolean"
-                          ]
+                        "$is_editable": {
+                          "type": ["null", "boolean"]
                         },
                         "definition": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
+                          "type": ["null", "object"],
                           "properties": {
                             "advanced": {
-                              "type": [
-                                "null",
-                                "boolean"
-                              ]
+                              "type": ["null", "boolean"]
                             },
                             "filters": {
-                              "type": [
-                                "null",
-                                "array"
-                              ],
+                              "type": ["null", "array"],
                               "items": {
-                                "type": [
-                                  "null",
-                                  "object"
-                                ],
+                                "type": ["null", "object"],
                                 "properties": {
                                   "group": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
                                   "kind": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
                                   "field": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
                                   "id": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
                                   "type": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
                                   "name": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
                                   "schema": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
                                   "operator": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   },
                                   "value": {
-                                    "type": [
-                                      "null",
-                                      "string"
-                                    ]
+                                    "type": ["null", "string"]
                                   }
                                 }
                               }
                             },
-                            "advancedOptions": {
-                              "type": [
-                                "null",
-                                "object"
-                              ],
+                            "advanced_options": {
+                              "type": ["null", "object"],
                               "properties": {
-                                "includeAnonymousVisitors": {
-                                  "type": [
-                                    "null",
-                                    "boolean"
-                                  ]
+                                "include_anonymous_visitors": {
+                                  "type": ["null", "boolean"]
                                 },
-                                "selectedVisitorType": {
-                                  "type": [
-                                    "null"
-                                  ]
+                                "selected_visitor_type": {
+                                  "type": ["null"]
                                 }
                               }
                             }
@@ -2095,91 +1107,52 @@
                     }
                   }
                 },
-                "dateConfig": {
-                  "type": [
-                    "null",
-                    "object"
-                  ],
+                "date_config": {
+                  "type": ["null", "object"],
                   "properties": {
                     "valid": {
-                      "type": [
-                        "null",
-                        "boolean"
-                      ]
+                      "type": ["null", "boolean"]
                     },
                     "value": {
-                      "type": [
-                        "null",
-                        "object"
-                      ],
+                      "type": ["null", "object"],
                       "properties": {
-                        "dateRange": {
-                          "type": [
-                            "null",
-                            "object"
-                          ],
+                        "date_range": {
+                          "type": ["null", "object"],
                           "properties": {
                             "type": {
-                              "type": [
-                                "null",
-                                "string"
-                              ]
+                              "type": ["null", "string"]
                             }
                           }
                         },
                         "period": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                          "type": ["null", "string"]
                         },
                         "interval": {
-                          "type": [
-                            "null",
-                            "string"
-                          ]
+                          "type": ["null", "string"]
                         }
                       }
                     }
                   }
                 },
-                "groupByMetadataType": {
-                  "type": [
-                    "null",
-                    "object"
-                  ],
+                "group_by_metadata_type": {
+                  "type": ["null", "object"],
                   "properties": {
                     "value": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
+                      "type": ["null", "string"]
                     },
                     "valid": {
-                      "type": [
-                        "null",
-                        "boolean"
-                      ]
+                      "type": ["null", "boolean"]
                     }
                   }
                 },
-                "groupByMetadata": {
-                  "type": [
-                    "null",
-                    "object"
-                  ],
+                "group_by_metadata": {
+                  "type": ["null", "object"],
                   "properties": {
                     "value": {
-                      "type": [
-                        "null",
-                        "string"
-                      ]
+                      "type": ["null", "string"]
                     },
                     "valid": {
-                      "type": [
-                        "null",
-                        "boolean"
-                      ]
+                      "type": ["null", "boolean"]
                     }
                   }
                 }
@@ -2187,91 +1160,49 @@
             }
           }
         },
-        "isComparingSegments": {
-          "type": [
-            "null",
-            "boolean"
-          ]
+        "is_comparing_segments": {
+          "type": ["null", "boolean"]
         },
         "history": {
-          "type": [
-            "null",
-            "array"
-          ],
+          "type": ["null", "array"],
           "items": {
-            "type": [
-              "null",
-              "integer"
-            ]
+            "type": ["null", "integer"]
           }
         },
         "attribute": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
         "period": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
-        "graphType": {
-          "type": [
-            "null",
-            "string"
-          ]
+        "graph_type": {
+          "type": ["null", "string"]
         },
-        "rowSelections": {
-          "type": [
-            "null",
-            "object"
-          ],
+        "row_selections": {
+          "type": ["null", "object"],
           "properties": {
             "d2a0a8ff-76db-4217-bbb8-bcb66f82d036-mdAdQEaonoriDebY3QFZcH0tlCU-null": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+              "type": ["null", "boolean"]
             },
             "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-R_fKAmWRugLAf1Czrn3XMS6QDr4-null": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+              "type": ["null", "boolean"]
             },
             "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-Xg0KbKnvzuj9-k20cp1A0tSbOKc-null": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+              "type": ["null", "boolean"]
             },
             "034a9cfb-d16c-46d9-91bd-c385b7e5cd56-B9B9eW40RXfftK84NsJQDP8PjWk-null": {
-              "type": [
-                "null",
-                "boolean"
-              ]
+              "type": ["null", "boolean"]
             }
           }
         },
         "type": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         },
-        "isComparingSources": {
-          "type": [
-            "null",
-            "boolean"
-          ]
+        "is_comparing_sources": {
+          "type": ["null", "boolean"]
         },
         "kind": {
-          "type": [
-            "null",
-            "string"
-          ]
+          "type": ["null", "string"]
         }
       }
     }

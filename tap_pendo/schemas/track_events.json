@@ -1,0 +1,57 @@
+{
+  "additional_properties": false,
+  "type": ["null", "object"],
+  "properties": {
+    "accountId": {
+      "type": ["null", "string"]
+    },
+    "visitor_id": {
+      "type": ["null", "string"]
+    },
+    "num_events": {
+      "type": ["null", "integer"]
+    },
+    "num_minutes": {
+      "type": ["null", "integer"]
+    },
+    "server": {
+      "type": ["null", "string"]
+    },
+    "remote_ip": {
+      "type": ["null", "string"]
+    },
+    "user_agent": {
+      "type": ["null", "string"]
+    },
+    "properties": {
+      "type": ["null", "object"],
+      "additionalProperties": false,
+      "properties": {
+        "android": {
+          "type": ["null", "boolean"]
+        },
+        "any": {
+          "type": ["null", "boolean"]
+        },
+        "apple": {
+          "type": ["null", "boolean"]
+        },
+        "phone": {
+          "type": ["null", "boolean"]
+        },
+        "table": {
+          "type": ["null", "boolean"]
+        }
+      }
+    }
+  },
+  "day": {
+    "type": ["null", "number"]
+  },
+  "appId": {
+    "type": ["null", "number"]
+  },
+  "trackTypeId": {
+    "type": ["null", "string"]
+  }
+}
