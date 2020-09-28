@@ -1,3 +1,8 @@
+# ![slack icon](etc/slack_icon.png) tap-slack
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Python 3.7](https://upload.wikimedia.org/wikipedia/commons/f/fc/Blue_Python_3.7_Shield_Badge.svg)](https://www.python.org/downloads/release/python-370/)
+
+
 # tap-pendo
 
 This is a [Singer](https://singer.io) tap that produces JSON-formatted data
@@ -8,109 +13,159 @@ This tap:
 
 - Pulls raw data from the [Pendo API](https://developers.pendo.io/docs/?bash#overview).
 - Extracts the following resources:
-    Accounts
-    Features
-    Guides
-    Pages
-    VisitorHistory
-    Visitors
-    FeatureEvents
-    Events
-    PageEvents
-    GuideEvents
-    PollEvents
-    TrackTypes
-    TrackEvents
-    MetadataAccounts
-    MetadataVisitor
+    * Accounts
+    * Features
+    * Guides
+    * Pages
+    * Visitor History
+    * Visitors
+    * Track Types
+    * Feature Events
+    * Events
+    * Page Events
+    * Guide Events
+    * Poll Events
+    * Track Events
+    * Metadata Accounts
+    * Metadata Visitors
 - Outputs the schema for each resource
 - Incrementally pulls data based on the input state
-- Uses date-windowing to chunk/loop through `Events`, `Feature Events`, `Page Events`, `Guide Events`, `Poll Events`.
-
 
 ## Streams
 
-**[accounts](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
+**[accounts](https://developers.pendo.io/docs/?bash#entities)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - Primary key fields: `account_id`
 - Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
-- Transformations: Camel to snake case.
+  - Bookmark: `lastupdated`
+- Transformations
+  - Camel to snake case.
+  - `metadata.auto.lastupdated` denested to root as `lastupdated`
+  - `metadata` objects denested(`metadata_agent`, `metadata_audo`, `metadata_custom`, etc)
 
-**[features](https://developers.pendo.io/docs/?bash#return-list-of-all-features)**
+**[features](https://developers.pendo.io/docs/?bash#entities)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/feature)
 - Primary key fields: `id`
 - Replication strategy: INCREMENTAL (query filtered)
+  - Bookmark: `last_updated_at`
+- Transformations: Camel to snake case.
+
+**[guides](https://developers.pendo.io/docs/?bash#entities)**
+- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- Primary key fields: `id`
+- Replication strategy: INCREMENTAL (query filtered)
+  - Bookmark: `last_pdated_at`
+- Transformations: Camel to snake case.
+
+**[track types](https://developers.pendo.io/docs/?bash#entities)**
+- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- Primary key fields: `id`
+- Replication strategy: INCREMENTAL (query filtered)
+  - Bookmark: `last_pdated_at`
+- Transformations: Camel to snake case.
+
+**[visitors](https://developers.pendo.io/docs/?bash#entities)**
+- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- Primary key fields: `visitor_id`
+- Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `lastupdated`
-- Transformations: Camel to snake case.
-
-**[guides](https://developers.pendo.io/docs/?bash#return-list-of-all-guides)**
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
-- Primary key fields: `account_id`
-- Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
-- Transformations: Camel to snake case.
-
-**[reports](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
-- Primary key fields: `account_id`
-- Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
-- Transformations: Camel to snake case.
+- Transformations
+  - Camel to snake case.
+  - `metadata.auto.lastupdated` denested to root as `lastupdated`
+  - `metadata` objects denested(`metadata_agent`, `metadata_audo`, `metadata_custom`, etc)
 
 **[visitor_history](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
-- Primary key fields: `account_id`
+- Primary key fields: `visitor_id`
 - Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
-- Transformations: Camel to snake case.
-
-**[visitors](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
-- Primary key fields: `account_id`
-- Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
+  - Bookmark: `last_ts`
 - Transformations: Camel to snake case.
 
 **[feature_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
+  - Bookmark: `day` or `hour`
 - Transformations: Camel to snake case.
 
 **[events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - Primary key fields:  `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
+  - Bookmark: `day` or `hour`
 - Transformations: Camel to snake case.
 
 **[page_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - Primary key fields:  `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
+  - Bookmark: `day` or `hour`
 - Transformations: Camel to snake case.
 
 **[guide_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - Primary key fields:  `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
+  - Bookmark: `day` or `hour`
 - Transformations: Camel to snake case.
 
 **[poll_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - Primary key fields:  `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `metadata.auto.lastupdated`
+  - Bookmark: `day` or `hour`
 - Transformations: Camel to snake case.
 
+**[track_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
+- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- Primary key fields:  `visitor_id`, `account_id`, `server`, `remote_ip`
+- Replication strategy: INCREMENTAL (query filtered)
+  - Bookmark: `day` or `hour`
+- Transformations: Camel to snake case.
+
+**[guides](https://developers.pendo.io/docs/?bash#entities)**
+- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- Primary key fields: `id`
+- Replication strategy: INCREMENTAL (query filtered)
+  - Bookmark: `last_pdated_at`
+- Transformations: Camel to snake case.
+
+**[metadata accounts](https://developers.pendo.io/docs/?bash#automatically-generated-metadata)**
+- Endpoint: [https://api/v1/metadata/schema/account](https://app.pendo.io/api/v1/metadata/schema/account)
+- Replication strategy: FULL_TABLE
+- Transformations: Camel to snake case.
+
+**[metadata visitors](https://developers.pendo.io/docs/?bash#automatically-generated-metadata)**
+- Endpoint: [https://api/v1/metadata/schema/account](https://app.pendo.io/api/v1/metadata/schema/visitor)
+- Replication strategy: FULL_TABLE
+- Transformations: Camel to snake case.
+
+## Authentication
+
+Authentication is managed by integration keys. An integration key may be created in the Pendo website: Settings -> Integrations -> Integration Keys.
 
 ## State
 
-Interrupted syncs for Event type stream are resumed via a bookmark placed during processing, `last_process`. The value of the parent GUID will be 
+```json
+{
+  "currently_syncing": null,
+  "bookmarks": {
+    "pages": { "lastUpdatedAt": "2020-09-26T00:00:00.000000Z" },
+    "page_events": { "day": "2020-09-27T04:00:00.000000Z" },
+    "accounts": { "lastupdated": "2020-09-28T01:30:29.237000Z" },
+    "feature_events": { "day": "2020-09-27T04:00:00.000000Z" },
+    "guides": { "lastUpdatedAt": "2020-09-26T00:00:00.000000Z" },
+    "poll_events": { "day": "2020-09-26T00:00:00.000000Z" },
+    "events": { "day": "2020-09-27T04:00:00.000000Z" },
+    "visitors": { "lastupdated": "2020-09-28T01:30:29.199000Z" },
+    "features": { "lastUpdatedAt": "2020-09-26T00:00:00.000000Z" },
+    "guide_events": { "day": "2020-09-26T00:00:00.000000Z" },
+    "track_types": { "lastUpdatedAt": "2020-09-26T00:00:00.000000Z" }
+  }
+}
+```
+
+Interrupted syncs for Event type stream are resumed via a bookmark placed during processing, `last_processed`. The value of the parent GUID will be 
 ```json
 {
   "bookmarks": {
@@ -122,11 +177,11 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
     "track_types": { "lastUpdatedAt": "2020-09-20T00:00:00.000000Z" },
     "features": { "lastUpdatedAt": "2020-09-20T00:00:00.000000Z" },
     "accounts": { "lastupdated": "2020-09-27T15:39:50.585000Z" },
-    "guide_events": { 
-      "day": "2020-09-20T00:00:00.000000Z",
-      "last_processed: "PARENT_GUID"
-     },
-    "page_events": { "day": "2020-09-27T04:00:00.000000Z" },
+    "guide_events": { "day": "2020-09-20T00:00:00.000000Z" },
+    "page_events": { 
+      "day": "2020-09-27T04:00:00.000000Z",
+      "last_processed": "_E9IwR8tFCTQryv_hCzGVZvsgcg 
+    },
     "events": { "day": "2020-09-27T04:00:00.000000Z" }
   },
   "currently_syncing": "track_events"
@@ -163,20 +218,18 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
 
 3. Create your tap's `config.json` file.  The tap config file for this tap should include these entries:
    - `start_date` - the default value to use if no bookmark exists for an endpoint (rfc3339 date string)
-   - `user_agent` (string, optional): Process and email for API logging purposes. Example: `tap-pendo <api_user_email@your_company.com>`
    - `x_pendo_integration_key` (string, `ABCdef123`): an integration key from Pendo. 
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
-   
+   - `lookback_window` (integer): 10
    
     ```json
     {
       "x_pendo_integration_key": "YOUR_INTEGRATION_KEY",
       "start_date": "2020-09-18T00:00:00Z",
-      "period": "dayRange"
+      "period": "dayRange" // or "hourRange",
+      "lookback_window": 10 // For events objects
     }
-    ```
-    Note: Changing period after an interrupted sync will cause Tap to fail.
-    
+    ```    
 
 4. Run the Tap in Discovery Mode
     This creates a catalog.json for selecting objects/fields to integrate:

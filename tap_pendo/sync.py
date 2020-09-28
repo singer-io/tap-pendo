@@ -38,7 +38,6 @@ def sync_stream(state, start_date, instance):
                 LOGGER.error('Transform failed for %s', record)
                 raise err
 
-            # if instance.replication_method == "INCREMENTAL":
             record_timestamp = strptime_to_utc(
                 transformed_record.get(
                     humps.decamelize(instance.replication_key)))

@@ -590,18 +590,11 @@ class Events(Stream):
                                           self.config.get('start_date'),
                                           self.replication_key)
         bookmark_dttm = strptime_to_utc(bookmark_date)
-        # new_bookmark = bookmark_dttm
-
-        # singer.write_schema(self.name,
-        #                     self.stream.schema.to_dict(),
-        #                     self.key_properties)
-
 
         lookback = bookmark_dttm - timedelta(
             days=self.config.get('lookback_window'))
         ts = int(lookback.timestamp()) * 1000
 
-        # Period always amounts to a day either aggegated by day or hours in a day
         period = self.config.get('period')
         body = self.get_body(period, ts)
         events = self.request(self.name, json=body).get('results') or []
@@ -672,16 +665,10 @@ class PollEvents(Stream):
                                           self.replication_key)
         bookmark_dttm = strptime_to_utc(bookmark_date)
 
-        # singer.write_schema(self.name,
-        #                     self.stream.schema.to_dict(),
-        #                     self.key_properties)
-
-
         lookback = bookmark_dttm - timedelta(
             days=self.config.get('lookback_window'))
         ts = int(lookback.timestamp()) * 1000
 
-        # Period always amounts to a day either aggegated by day or hours in a day
         period = self.config.get('period')
         body = self.get_body(period, ts)
         events = self.request(self.name, json=body).get('results') or []
@@ -874,7 +861,7 @@ class MetadataVisitor(Stream):
 class VisitorHistory(Stream):
     name = "visitor_history"
     replication_method = "INCREMENTAL"
-    replication_key = "ts"
+    replication_key = "last_ts"
     key_properties = ['visitor_id']
     DATE_WINDOW_SIZE = 1
 
