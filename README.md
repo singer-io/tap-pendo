@@ -8,18 +8,21 @@ This tap:
 
 - Pulls raw data from the [Pendo API](https://developers.pendo.io/docs/?bash#overview).
 - Extracts the following resources:
-    Accounts,
-    Features,
-    Guides,
-    Pages,
-    Reports,
-    VisitorHistory,
-    Visitors,
-    Events,
-    Feature Events,
-    Page Events,
-    Guide Events,
-    Poll Events
+    Accounts
+    Features
+    Guides
+    Pages
+    VisitorHistory
+    Visitors
+    FeatureEvents
+    Events
+    PageEvents
+    GuideEvents
+    PollEvents
+    TrackTypes
+    TrackEvents
+    MetadataAccounts
+    MetadataVisitor
 - Outputs the schema for each resource
 - Incrementally pulls data based on the input state
 - Uses date-windowing to chunk/loop through `Events`, `Feature Events`, `Page Events`, `Guide Events`, `Poll Events`.
@@ -105,6 +108,32 @@ This tap:
 - Transformations: Camel to snake case.
 
 
+## State
+
+Interrupted syncs for Event type stream are resumed via a bookmark placed during processing, `last_process`. The value of the parent GUID will be 
+```json
+{
+  "bookmarks": {
+    "guides": { "lastUpdatedAt": "2020-09-22T20:23:44.514000Z" },
+    "poll_events": { "day": "2020-09-20T00:00:00.000000Z" },
+    "feature_events": { "day": "2020-09-27T04:00:00.000000Z" },
+    "visitors": { "lastupdated": "2020-09-27T15:40:02.729000Z" },
+    "pages": { "lastUpdatedAt": "2020-09-20T00:00:00.000000Z" },
+    "track_types": { "lastUpdatedAt": "2020-09-20T00:00:00.000000Z" },
+    "features": { "lastUpdatedAt": "2020-09-20T00:00:00.000000Z" },
+    "accounts": { "lastupdated": "2020-09-27T15:39:50.585000Z" },
+    "guide_events": { 
+      "day": "2020-09-20T00:00:00.000000Z",
+      "last_processed: "PARENT_GUID"
+     },
+    "page_events": { "day": "2020-09-27T04:00:00.000000Z" },
+    "events": { "day": "2020-09-27T04:00:00.000000Z" }
+  },
+  "currently_syncing": "track_events"
+}
+```
+
+
 ## Quick Start
 
 1. Install
@@ -146,7 +175,7 @@ This tap:
       "period": "dayRange"
     }
     ```
-    
+    Note: Changing period after an interrupted sync will cause Tap to fail.
     
 
 4. Run the Tap in Discovery Mode
@@ -218,8 +247,6 @@ This tap:
     | guide_events   | 0       | 1       |
     | poll_events    | 0       | 1       |
     +----------------+---------+---------+
-
-
     ```
 
     #### Unit Tests

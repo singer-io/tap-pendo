@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
+import json
 import os
 import sys
-import json
+
 import singer
-from singer import utils, metadata, metrics as singer_metrics
+from singer import metadata
+from singer import metrics as singer_metrics
+from singer import utils
 from tap_pendo.discover import discover_streams
-from tap_pendo.streams import STREAMS, SUB_STREAMS
-from tap_pendo.sync import sync_stream
+from tap_pendo.streams import STREAMS, SUB_STREAMS, update_currently_syncing
+from tap_pendo.sync import sync_full_table, sync_stream
 
-
-REQUIRED_CONFIG_KEYS = ["start_date", "x_pendo_integration_key"]
+REQUIRED_CONFIG_KEYS = ["start_date", "x_pendo_integration_key", "period"]
 
 LOGGER = singer.get_logger()
 
@@ -27,8 +29,8 @@ def stream_is_selected(mdata):
 
 def get_sub_stream_ids():
     sub_stream_ids = []
-    for parent_stream in SUB_STREAMS:
-        sub_stream_ids.extend(SUB_STREAMS[parent_stream])
+    for _, value in SUB_STREAMS.items():
+        sub_stream_ids.append(value)
     return sub_stream_ids
 
 
@@ -41,11 +43,11 @@ def validate_dependencies(selected_stream_ids):
     msg_tmpl = ("Unable to extract {0} data. "
                 "To receive {0} data, you also need to select {1}.")
     for parent_stream_id in SUB_STREAMS:
-        sub_stream_ids = SUB_STREAMS[parent_stream_id]
-        for sub_stream_id in sub_stream_ids:
-            if sub_stream_id in selected_stream_ids and parent_stream_id not in selected_stream_ids:
-                errs.append(msg_tmpl.format(
-                    sub_stream_id, parent_stream_id))
+        sub_stream_id = SUB_STREAMS.get(parent_stream_id)
+        # for sub_stream_id in sub_stream_ids:
+        if sub_stream_id in selected_stream_ids and parent_stream_id not in selected_stream_ids:
+            errs.append(msg_tmpl.format(
+                sub_stream_id, parent_stream_id))
 
     if errs:
         raise DependencyException(" ".join(errs))
@@ -85,6 +87,7 @@ def get_selected_streams(catalog):
 
 
 def sync(config, state, catalog):
+    LOGGER.info("Starting with state %s", state)
     start_date = config['start_date']
 
     selected_stream_ids = get_selected_streams(catalog)
@@ -100,7 +103,8 @@ def sync(config, state, catalog):
             LOGGER.info("%s: Skipping - not selected", stream_id)
             continue            # TODO: sync code for stream goes here...
 
-        LOGGER.info('Syncing stream:' + stream_id)
+        LOGGER.info('START Syncing: %s', stream_id)
+        update_currently_syncing(state, stream_id)
 
         key_properties = metadata.get(mdata, (), 'table-key-properties')
         singer.write_schema(
@@ -123,17 +127,19 @@ def sync(config, state, catalog):
         if stream_id in all_sub_stream_ids:
             continue
 
-        LOGGER.info("%s: Starting sync", stream_id)
+        LOGGER.info("Stream %s: Starting sync", stream_id)
         instance = STREAMS[stream_id](config)
-        counter_value = sync_stream(state, start_date, instance)
+
+        counter_value = 0
+        if instance.replication_method == "INCREMENTAL":
+            counter_value = sync_stream(state, start_date, instance)
+        else:
+            counter_value = sync_full_table(state, instance)
         singer.write_state(state)
-        LOGGER.info("%s: Completed sync (%s rows)", stream_id, counter_value)
-
-    singer.write_state(state)
+        LOGGER.info("Stream %s: Completed sync (%s rows)", stream_id, counter_value)
+        update_currently_syncing(state, None)
+        singer.write_state(state)
     LOGGER.info("Finished sync")
-
-    return
-
 
 @utils.handle_top_exception(LOGGER)
 def main():

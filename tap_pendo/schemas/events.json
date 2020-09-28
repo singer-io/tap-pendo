@@ -12,10 +12,12 @@
         "type": ["null", "string"]
       },
       "day": {
-        "type": ["null", "number"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "hour": {
-        "type": ["null", "number"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "feature_id": {
         "type": ["null", "string"]

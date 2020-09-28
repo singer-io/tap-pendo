@@ -1,0 +1,47 @@
+{
+  "type": ["null", "object"],
+  "additional_properties": false,
+  "properties": {
+    "agent": {
+      "language": {
+        "$ref": "metadata.json"
+      }
+    },
+    "auto": {
+      "type": ["null", "object"],
+      "additional_properties": false,
+      "properties": {
+        "accountid": {
+          "$ref": "metadata.json"
+        },
+        "accountids": {
+          "$ref": "metadata.json"
+        },
+        "firstvisit": {
+          "$ref": "metadata.json"
+        },
+        "id": { "$ref": "metadata.json" },
+        "lastbrowsername": { "$ref": "metadata.json" },
+        "lastbrowserversion": {
+          "$ref": "metadata.json"
+        },
+        "lastoperatingsystem": { "$ref": "metadata.json" },
+        "lastservername": {
+          "$ref": "metadata.json"
+        },
+        "lastvisit": {
+          "$ref": "metadata.json"
+        }
+      }
+    },
+    "pendo": {
+        "type": ["null", "object"],
+        "additional_properties": false,
+        "properties": {
+          "designerenabled": {
+            "$ref": "metadata.json"
+          }
+        }
+    }
+  }
+}

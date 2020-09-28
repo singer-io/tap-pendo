@@ -22,9 +22,10 @@
       }
     },
     "created_at": {
-      "type": ["null", "integer"]
+      "type": ["null", "string"],
+      "format": "date-time"
     },
-    "last_updated_by_user": {
+    "lastUpdated_by_user": {
       "type": ["null", "object"],
       "properties": {
         "id": {
@@ -45,7 +46,8 @@
       }
     },
     "last_updated_at": {
-      "type": ["null", "integer"]
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "kind": {
       "type": ["null", "string"]
@@ -79,7 +81,7 @@
           "id": {
             "type": ["null", "string"]
           },
-          "guideId": {
+          "guide_id": {
             "type": ["null", "string"]
           },
           "type": {
@@ -130,11 +132,13 @@
             }
           },
           "last_updated_at": {
-            "type": ["null", "integer"]
-          },
+            "type": ["null", "string"],
+              "format": "date-time"
+            },
           "reset_at": {
-            "type": ["null", "integer"]
-          }
+            "type": ["null", "string"],
+              "format": "date-time"
+            }
         }
       }
     },
@@ -222,7 +226,7 @@
           "select": {
             "type": ["null", "object"],
             "properties": {
-              "visitorId": {
+              "visitor_id": {
                 "type": ["null", "string"]
               }
             }
@@ -234,10 +238,12 @@
       }
     },
     "reset_at": {
-      "type": ["null", "integer"]
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "published_at": {
-      "type": ["null", "integer"]
+      "type": ["null", "string"],
+      "format": "date-time"
     }
   }
 }

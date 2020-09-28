@@ -5,80 +5,79 @@
     "visitor_id": {
       "type": ["null", "string"]
     },
-    "metadata": {
+    "lastupdated": {
+      "type": ["null", "string"],
+      "format": "date-time"
+    },
+    "metadata_agent": {
       "type": ["null", "object"],
       "additional_properties": false,
       "properties": {
-        "custom": {
-          "type": ["null", "object"],
-          "properties": {
-
-          }
+        "email": {
+          "type": ["null", "string"]
         },
-        "agent": {
-          "type": ["null", "object"],
-          "additional_properties": false,
-          "properties": {
-            "email": {
-              "type": ["null", "string"]
-            },
-            "ipaddress": {
-              "type": ["null", "string"]
-            },
-            "language": {
-              "type": ["null", "string"]
-            }
-          }
+        "ipaddress": {
+          "type": ["null", "string"]
         },
-        "auto": {
-          "type": ["null", "object"],
-          "additional_properties": false,
-          "properties": {
-            "accountid": {
-              "type": ["null", "string"]
-            },
-            "accountids": {
-              "type": ["null", "array"],
-              "items": {
-                "type": ["null", "string"]
-              }
-            },
-            "firstvisit": {
-              "type": ["null", "integer"]
-            },
-            "id": {
-              "type": ["null", "string"]
-            },
-            "idhash": {
-              "type": ["null", "integer"]
-            },
-            "lastbrowsername": {
-              "type": ["null", "string"]
-            },
-            "lastbrowserversion": {
-              "type": ["null", "string"]
-            },
-            "lastoperatingsystem": {
-              "type": ["null", "string"]
-            },
-            "lastservername": {
-              "type": ["null", "string"]
-            },
-            "lastupdated": {
-              "type": ["null", "integer"]
-            },
-            "lastuseragent": {
-              "type": ["null", "string"]
-            },
-            "lastvisit": {
-              "type": ["null", "integer"]
-            },
-            "nid": {
-              "type": ["null", "integer"]
-            }
-          }
+        "language": {
+          "type": ["null", "string"]
         }
       }
+    },
+    "metadata_auto": {
+      "type": ["null", "object"],
+      "additional_properties": false,
+      "properties": {
+        "accountid": {
+          "type": ["null", "string"]
+        },
+        "accountids": {
+          "type": ["null", "array"],
+          "items": {
+            "type": ["null", "string"]
+          }
+        },
+        "firstvisit": {
+          "type": ["null", "string"],
+          "format": "date-time"
+        },
+        "id": {
+          "type": ["null", "string"]
+        },
+        "idhash": {
+          "type": ["null", "integer"]
+        },
+        "lastbrowsername": {
+          "type": ["null", "string"]
+        },
+        "lastbrowserversion": {
+          "type": ["null", "string"]
+        },
+        "lastoperatingsystem": {
+          "type": ["null", "string"]
+        },
+        "lastservername": {
+          "type": ["null", "string"]
+        },
+        "lastupdated": {
+          "type": ["null", "string"],
+          "format": "date-time"
+        },
+        "lastuseragent": {
+          "type": ["null", "string"]
+        },
+        "lastvisit": {
+          "type": ["null", "string"],
+          "format": "date-time"
+        },
+        "nid": {
+          "type": ["null", "integer"]
+        }
+      }
+    },
+    "metadata_custom": {
+      "type": ["null", "object"],
+      "additional_properties": false
     }
   }
 }

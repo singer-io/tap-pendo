@@ -2,8 +2,22 @@
   "additional_properties": false,
   "type": ["null", "object"],
   "properties": {
-    "accountId": {
+    "app_id": {
+      "type": ["null", "number"]
+    },
+    "track_type_id": {
       "type": ["null", "string"]
+    },
+    "account_id": {
+      "type": ["null", "string"]
+    },
+    "day": {
+      "type": ["null", "string"],
+      "format": "date-time"
+    },
+    "hour": {
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "visitor_id": {
       "type": ["null", "string"]
@@ -44,14 +58,5 @@
         }
       }
     }
-  },
-  "day": {
-    "type": ["null", "number"]
-  },
-  "appId": {
-    "type": ["null", "number"]
-  },
-  "trackTypeId": {
-    "type": ["null", "string"]
   }
 }

@@ -1,0 +1,21 @@
+{
+    "type": ["null", "object"],
+    "additional_properties": false,
+    "properties": {
+        "auto": {
+            "type": ["null", "object"],
+            "additional_properties": false,
+            "properties": { 
+                "firstvisit": {
+                    "$ref": "metadata.json" 
+                },
+                "id": {
+                    "$ref": "metadata.json" 
+                },
+                "lastvisit": {
+                    "$ref": "metadata.json" 
+                }
+            }
+        }
+    }
+}

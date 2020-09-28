@@ -2,14 +2,19 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+      "app_id": {
+        "type": ["null", "string"]
+      },
       "account_id": {
         "type": ["null", "string"]
       },
       "day": {
-        "type": ["null", "number"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "hour": {
-        "type": ["null", "number"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "visitor_id": {
         "type": ["null", "string"]

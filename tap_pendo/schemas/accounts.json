@@ -5,30 +5,38 @@
     "account_id": {
       "type": ["null", "string"]
     },
-    "metadata": {
+    "lastupdated": {
+      "type": ["null", "string"],
+      "format": "date-time"
+    },
+    "metadata_auto": {
       "type": ["null", "object"],
+      "additional_properties": false,
       "properties": {
-        "auto": {
-          "type": ["null", "object"],
-          "properties": {
-            "firstvisit": {
-              "type": ["null", "integer"]
-            },
-            "id": {
-              "type": ["null", "string"]
-            },
-            "idhash": {
-              "type": ["null", "integer"]
-            },
-            "lastupdated": {
-              "type": ["null", "integer"]
-            },
-            "lastvisit": {
-              "type": ["null", "integer"]
-            }
-          }
+        "firstvisit": {
+          "type": ["null", "string"],
+          "format": "date-time"
+        },
+        "id": {
+          "type": ["null", "string"]
+        },
+        "idhash": {
+          "type": ["null", "integer"]
+        },
+        "lastupdated": {
+          "type": ["null", "string"],
+          "format": "date-time"
+        },
+        "lastvisit": {
+          "type": ["null", "string"],
+          "format": "date-time"
         }
       }
+    },
+    "metadata_custom": {
+      "type": ["null", "object"],
+      "additional_properties": false
     }
   }
 }
+

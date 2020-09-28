@@ -25,13 +25,16 @@
         "type": ["null", "string"]
       },
       "day": {
-        "type": ["null", "number"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "hour": {
-        "type": ["null", "number"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
-      "browserTime": {
-        "type": ["null", "number"]
+      "browser_time": {
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "country": {
         "type": ["null", "string"]
@@ -39,40 +42,31 @@
       "type": {
         "type": ["null", "string"]
       },
-      "guideId": {
-        "type": ["null", "string"]
-      },
       "latitude": {
         "type": ["null", "number"]
       },
-      "loadTime": {
+      "load_time": {
         "type": ["null", "integer"]
       },
       "longitude": {
         "type": ["null", "number"]
       },
-      "pollId": {
-        "type": ["null", "string"]
-      },
       "region": {
         "type": ["null", "string"]
       },
-      "remoteIp": {
+      "remote_ip": {
         "type": ["null", "string"]
       },
-      "serverName": {
+      "server_name": {
         "type": ["null", "string"]
       },
-      "userAgent": {
+      "user_agent": {
         "type": ["null", "string"]
       },
-      "visitorId": {
+      "visitor_id": {
         "type": ["null", "string"]
       },
-      "accountId": {
-        "type": ["null", "string"]
-      },
-      "pollResponse": {
+      "poll_response": {
         "type": ["null", "string"]
       }
     }

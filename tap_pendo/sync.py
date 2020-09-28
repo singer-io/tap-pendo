@@ -4,6 +4,8 @@ import humps
 import singer
 import singer.metrics as metrics
 from singer import Transformer, metadata
+from singer.transform import strptime_to_utc
+from singer.utils import strftime
 
 LOGGER = singer.get_logger()
 
@@ -11,25 +13,21 @@ LOGGER = singer.get_logger()
 def sync_stream(state, start_date, instance):
     stream = instance.stream
 
-    # If we have a bookmark, use it; otherwise use start_date
-    if (instance.replication_method == 'INCREMENTAL'
-            and not state.get('bookmarks', {}).get(
-                stream.tap_stream_id, {}).get(instance.replication_key)):
-        singer.write_bookmark(state, stream.tap_stream_id,
-                              instance.replication_key, start_date)
+    bookmark_date = instance.get_bookmark(state, instance.name, start_date,
+                                          instance.replication_key)
+    bookmark_dttm = strptime_to_utc(bookmark_date)
+    new_bookmark = bookmark_dttm
 
-    parent_stream = stream
-    with metrics.record_counter(
-            stream.tap_stream_id) as counter, Transformer() as transformer:
-        for (stream, record) in instance.sync(state):
-            # NB: Only count parent records in the case of sub-streams
-            if stream.tap_stream_id == parent_stream.tap_stream_id:
-                counter.increment()
-
+    with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
+            integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
+    ) as transformer:
+        (stream, records) = instance.sync(state)
+        for record in records:
             schema_dict = stream.schema.to_dict()
             stream_metadata = metadata.to_map(stream.metadata)
 
-            transformed_record = humps.decamelize(record)
+            transformed_record = instance.transform(record)
+
             try:
                 transformed_record = transformer.transform(
                     transformed_record, schema_dict, stream_metadata)
@@ -37,14 +35,52 @@ def sync_stream(state, start_date, instance):
                 LOGGER.error('Error: %s', err)
                 LOGGER.error(' for schema: %s',
                              json.dumps(schema_dict, sort_keys=True, indent=2))
+                LOGGER.error('Transform failed for %s', record)
+                raise err
+
+            # if instance.replication_method == "INCREMENTAL":
+            record_timestamp = strptime_to_utc(
+                transformed_record.get(
+                    humps.decamelize(instance.replication_key)))
+            new_bookmark = max(new_bookmark, record_timestamp)
+
+            if record_timestamp > bookmark_dttm:
+                singer.write_record(stream.tap_stream_id, transformed_record)
+                counter.increment()
+            else:
+                singer.write_record(stream.tap_stream_id, transformed_record)
+                counter.increment()
+
+        instance.update_bookmark(state, instance.name, strftime(new_bookmark),
+                                 instance.replication_key)
+        singer.write_state(state)
+
+        return counter.value
+
+
+def sync_full_table(state, instance):
+    stream = instance.stream
+
+    with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
+            integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
+    ) as transformer:
+        (stream, records) = instance.sync(state)
+        for record in records:
+            schema_dict = stream.schema.to_dict()
+            stream_metadata = metadata.to_map(stream.metadata)
+
+            transformed_record = instance.transform(record)
+
+            try:
+                transformed_record = transformer.transform(
+                    transformed_record, schema_dict, stream_metadata)
+            except Exception as err:
+                LOGGER.error('Error: %s', err)
+                LOGGER.error(' for schema: %s',
+                             json.dumps(schema_dict, sort_keys=True, indent=2))
+                LOGGER.error('Transform failed for %s', record)
                 raise err
 
             singer.write_record(stream.tap_stream_id, transformed_record)
-            # NB: We will only write state at the end of a stream's sync:
-            #  We may find out that there exists a sync that takes too long and can never emit a bookmark
-            #  but we don't know if we can guarentee the order of emitted records.
-
-        if instance.replication_method == "INCREMENTAL":
-            singer.write_state(state)
-
-        return counter.value
+            counter.increment()
+    return counter.value

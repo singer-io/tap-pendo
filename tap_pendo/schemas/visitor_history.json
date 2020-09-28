@@ -9,7 +9,8 @@
       "type": ["null", "string"]
     },
     "ts": {
-      "type": ["null", "integer"]
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "parsed_user_agent": {
       "type": ["null", "object"],
@@ -30,7 +31,8 @@
       "type": ["null", "integer"]
     },
     "last_ts": {
-      "type": ["null", "integer"]
+      "type": ["null", "string"],
+      "format": "date-time"
     },
     "untagged_url": {
       "type": ["null", "string"]

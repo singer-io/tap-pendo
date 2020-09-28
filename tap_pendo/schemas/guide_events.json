@@ -2,6 +2,9 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+      "app_id": {
+        "type": ["null", "string"]
+      },
       "account_ids": {
         "anyOf": [
           {
@@ -16,13 +19,16 @@
         ]
       },
       "day": {
-        "type": ["null", "number"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "hour": {
-        "type": ["null", "number"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "browser_time": {
-        "type": ["null", "string"]
+        "type": ["null", "string"],
+        "format": "date-time"
       },
       "country": {
         "type": ["null", "string"]
