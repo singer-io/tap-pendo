@@ -1,4 +1,4 @@
-# ![slack icon](etc/slack_icon.png) tap-slack
+#  tap-pendo
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python 3.7](https://upload.wikimedia.org/wikipedia/commons/f/fc/Blue_Python_3.7_Shield_Badge.svg)](https://www.python.org/downloads/release/python-370/)
 
@@ -165,7 +165,7 @@ Authentication is managed by integration keys. An integration key may be created
 }
 ```
 
-Interrupted syncs for Event type stream are resumed via a bookmark placed during processing, `last_processed`. The value of the parent GUID will be 
+Interrupted syncs for Event type stream are resumed via a bookmark placed during processing, `last_processed`. The value of the parent GUID will be
 ```json
 {
   "bookmarks": {
@@ -178,9 +178,9 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
     "features": { "lastUpdatedAt": "2020-09-20T00:00:00.000000Z" },
     "accounts": { "lastupdated": "2020-09-27T15:39:50.585000Z" },
     "guide_events": { "day": "2020-09-20T00:00:00.000000Z" },
-    "page_events": { 
+    "page_events": {
       "day": "2020-09-27T04:00:00.000000Z",
-      "last_processed": "_E9IwR8tFCTQryv_hCzGVZvsgcg 
+      "last_processed": "_E9IwR8tFCTQryv_hCzGVZvsgcg
     },
     "events": { "day": "2020-09-27T04:00:00.000000Z" }
   },
@@ -210,18 +210,18 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
     > pip install singer-tools
     > pip install target-stitch
     > pip install target-json
-    
+
     ```
     - [singer-tools](https://github.com/singer-io/singer-tools)
     - [target-stitch](https://github.com/singer-io/target-stitch)
-    - [jsonlines](https://jsonlines.readthedocs.io/en/latest/) 
+    - [jsonlines](https://jsonlines.readthedocs.io/en/latest/)
 
 3. Create your tap's `config.json` file.  The tap config file for this tap should include these entries:
    - `start_date` - the default value to use if no bookmark exists for an endpoint (rfc3339 date string)
-   - `x_pendo_integration_key` (string, `ABCdef123`): an integration key from Pendo. 
+   - `x_pendo_integration_key` (string, `ABCdef123`): an integration key from Pendo.
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
    - `lookback_window` (integer): 10
-   
+
     ```json
     {
       "x_pendo_integration_key": "YOUR_INTEGRATION_KEY",
@@ -229,7 +229,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
       "period": "dayRange" // or "hourRange",
       "lookback_window": 10 // For events objects
     }
-    ```    
+    ```
 
 4. Run the Tap in Discovery Mode
     This creates a catalog.json for selecting objects/fields to integrate:
@@ -258,7 +258,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
     ```
 
 6. Test the Tap
-    
+
     While developing the pendo tap, the following utilities were run in accordance with Singer.io best practices:
     Pylint to improve [code quality](https://github.com/singer-io/getting-started/blob/master/docs/BEST_PRACTICES.md#code-quality):
     ```bash
