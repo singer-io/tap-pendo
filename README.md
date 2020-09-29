@@ -317,9 +317,4 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
     ```
 ---
 
-Copyright &copy; 2019 Stitch
-
-
----
-
-Copyright &copy; 2018 Stitch
+Copyright &copy; 2020 Stitch
