@@ -21,7 +21,8 @@ setup(
     """,
     packages=["tap_pendo"],
     package_data={
-        "schemas": ["tap_pendo/schemas/*.json"]
+        "schemas": ["tap_pendo/schemas/*.json"],
+        "schemas/shared": ["tap_pendo/schemas/shared/*.json"]
     },
     include_package_data=True,
 )
