@@ -3,10 +3,10 @@ from setuptools import setup
 
 setup(
     name="tap-pendo",
-    version="0.0.1",
+    version="0.0.2",
     description="Singer.io tap for extracting data",
-    author="wclark@agari.com",
-    url="https://github.com/jwalterclark/tap-pendo",
+    author="Stitch",
+    url="https://github.com/singer-io/tap-pendo",
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_pendo"],
     install_requires=[
