@@ -52,8 +52,44 @@ def get_custom_fields(instance):
 def get_schema_propery_type(schema_type):
     if schema_type == 'string':
         return {"type": ["null", "string"]}
-    else:
-        return None
+    elif schema_type == 'time':
+        return {"type": ["null", "string"], "format": "date-time"}
+    return None
+
+
+def build_metadata_metadata(mdata, schema, custom_fields):
+    if 'custom' not in schema['properties']:
+        schema['properties']['custom'] = {}
+        schema['properties']['custom']['type'] = ["null", "object"]
+        schema['properties']['custom']['additional_properties'] = "false"
+    for key, _ in custom_fields.items():
+        schema['properties']['custom']['properties'] = {}
+        schema['properties']['custom']['properties'][key] = {}
+        schema['properties']['custom']['properties'][key]['properties'] = {}
+        schema['properties']['custom']['properties'][key]['type'] = [
+            "null", "object"
+        ]
+        schema['properties']['custom']['properties'][key][
+            'additional_properties'] = "false"
+        schema['properties']['custom']['properties'][key][
+            'properties'] = metadata_fields
+        mdata = metadata.write(mdata, ("properties", 'custom'), 'inclusion',
+                               'available')
+
+
+def build_account_visitor_metadata(mdata, schema, custom_fields):
+    if 'metadata_custom' not in schema['properties']:
+        schema['properties']['metadata_custom'] = {}
+        schema['properties']['metadata_custom']['type'] = ["null", "object"]
+        schema['properties']['metadata_custom'][
+            'additional_properties'] = "false"
+    for key, value in custom_fields.items():
+        schema['properties']['metadata_custom']['type'] = ["null", "object"]
+        schema['properties']['metadata_custom']['properties'] = {
+            key: get_schema_propery_type(value.get('type'))
+        }
+        mdata = metadata.write(mdata, ("properties", 'metadata_custom'),
+                               'inclusion', 'available')
 
 
 def discover_streams(config):
@@ -69,63 +105,24 @@ def discover_streams(config):
 
     for s in STREAMS.values():
 
-        LOGGER.info("Disco vering stream %s", s.name)
         s = s(config)
 
         schema = s.load_schema()
         mdata = metadata.to_map(s.load_metadata())
 
         if s.name == 'accounts':
-            LOGGER.info("Discovering custom fields for Accounts")
-            custom_account_fields = {}
-            instance = STREAMS['metadata_accounts'](config)
-
-            custom_account_fields = get_custom_fields(instance)
-            for key, value in custom_account_fields.items():
-                if 'metadata_custom' not in schema['properties']:
-                    schema['properties']['metadata_custom'] = {}
-                schema['properties']['metadata_custom']['properties'] = {
-                    key: get_schema_propery_type(value.get('type'))
-                }
-                mdata = metadata.write(mdata,
-                                       ("properties", 'metadata_custom'),
-                                       'inclusion', 'available')
+            build_account_visitor_metadata(mdata, schema,
+                                           custom_account_fields)
 
         if s.name == 'visitors':
-            for key, value in custom_visitor_fields.items():
-                if 'metadata_custom' not in schema['properties']:
-                    schema['properties']['metadata_custom'] = {}
-                schema['properties']['metadata_custom'] = {
-                    key: get_schema_propery_type(value.get('type'))
-                }
-                mdata = metadata.write(mdata,
-                                       ("properties", 'metadata_custom'),
-                                       'inclusion', 'available')
+            build_account_visitor_metadata(mdata, schema,
+                                           custom_visitor_fields)
 
         if s.name == 'metadata_accounts':
-            for key, value in custom_account_fields.items():
-                if 'custom' not in schema['properties']:
-                    schema['properties']['custom'] = {}
-                schema['properties']['custom']['properties'] = {}
-                schema['properties']['custom']['properties'][key] = {}
-                schema['properties']['custom']['properties'][key]['properties'] = {}
-                schema['properties']['custom']['properties'][key]['type'] = ["null", "object"]
-                schema['properties']['custom']['properties'][key]['additional_properties'] = "false"
-                schema['properties']['custom']['properties'][key]['properties'] = metadata_fields
-                mdata = metadata.write(mdata, ("properties", "custom"),
-                                       'inclusion', 'available')
+            build_metadata_metadata(mdata, schema, custom_account_fields)
+
         if s.name == 'metadata_visitors':
-            for key, value in custom_visitor_fields.items():
-                if 'custom' not in schema['properties']:
-                    schema['properties']['custom'] = {}
-                schema['properties']['custom']['properties'] = {}
-                schema['properties']['custom']['properties'][key] = {}
-                schema['properties']['custom']['properties'][key]['properties'] = {}
-                schema['properties']['custom']['properties'][key]['type'] = ["null", "object"]
-                schema['properties']['custom']['properties'][key]['additional_properties'] = "false"
-                schema['properties']['custom']['properties'][key]['properties'] = metadata_fields
-                mdata = metadata.write(mdata, ("properties", 'custom'),
-                                       'inclusion', 'available')
+            build_metadata_metadata(mdata, schema, custom_visitor_fields)
 
         stream = {
             'stream': s.name,
