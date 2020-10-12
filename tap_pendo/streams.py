@@ -628,13 +628,13 @@ class Events(Stream):
 class PollEvents(Stream):
     replication_method = "INCREMENTAL"
     name = "poll_events"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
 
     def __init__(self, config):
         super().__init__(config=config)
         self.config = config
         self.period = config.get('period')
-        self.replication_key = "day" if self.period == 'dayRange' else "hour"
+        self.replication_key = "browser_time" if self.period == 'dayRange' else "hour"
 
     def get_body(self, period, first):
         return {
@@ -983,27 +983,27 @@ class MetadataVisitors(Stream):
 
 
 STREAMS = {
-    "accounts": Accounts,
-    "features": Features,
-    "guides": Guides,
-    "pages": Pages,
-    "visitor_history": VisitorHistory,
-    "visitors": Visitors,
-    "feature_events": FeatureEvents,
-    "events": Events,
-    "page_events": PageEvents,
-    "guide_events": GuideEvents,
+    # "accounts": Accounts,
+    # "features": Features,
+    # "guides": Guides,
+    # "pages": Pages,
+    # "visitor_history": VisitorHistory,
+    # "visitors": Visitors,
+    # "feature_events": FeatureEvents,
+    # "events": Events,
+    # "page_events": PageEvents,
+    # "guide_events": GuideEvents,
     "poll_events": PollEvents,
-    "track_types": TrackTypes,
-    "track_events": TrackEvents,
-    "metadata_accounts": MetadataAccounts,
-    "metadata_visitors": MetadataVisitors
+    # "track_types": TrackTypes,
+    # "track_events": TrackEvents,
+    # "metadata_accounts": MetadataAccounts,
+    # "metadata_visitors": MetadataVisitors
 }
 
 SUB_STREAMS = {
-    'visitors': 'visitor_history',
-    'features': 'feature_events',
-    'pages': 'page_events',
-    'guides': 'guide_events',
-    'track_types': 'track_events'
+    # 'visitors': 'visitor_history',
+    # 'features': 'feature_events',
+    # 'pages': 'page_events',
+    # 'guides': 'guide_events',
+    # 'track_types': 'track_events'
 }
