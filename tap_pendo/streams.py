@@ -453,6 +453,11 @@ class Stream():
         update_currently_syncing(state, None)
         return (self.stream, stream_response)
 
+    def lookback_window(self):
+        lookback_window = self.config.get('lookback_window', 0)
+        if not lookback_window.isdigit():
+            raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
+        return int(lookback_window)
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
@@ -469,7 +474,7 @@ class EventsBase(Stream):
         update_currently_syncing(state, self.name)
 
         lookback = start_date - timedelta(
-            days=self.config.get('lookback_window', 0))
+            days=self.lookback_window())
         ts = int(lookback.timestamp()) * 1000
 
         # Period always amounts to a day either aggegated by day or hours in a day
@@ -592,7 +597,7 @@ class Events(Stream):
         bookmark_dttm = strptime_to_utc(bookmark_date)
 
         lookback = bookmark_dttm - timedelta(
-            days=self.config.get('lookback_window'))
+            days=self.lookback_window())
         ts = int(lookback.timestamp()) * 1000
 
         period = self.config.get('period')
@@ -666,7 +671,7 @@ class PollEvents(Stream):
         bookmark_dttm = strptime_to_utc(bookmark_date)
 
         lookback = bookmark_dttm - timedelta(
-            days=self.config.get('lookback_window'))
+            days=self.lookback_window())
         ts = int(lookback.timestamp()) * 1000
 
         period = self.config.get('period')
@@ -872,7 +877,7 @@ class VisitorHistory(Stream):
         update_currently_syncing(state, self.name)
 
         abs_start, abs_end = get_absolute_start_end_time(start_date)
-        lookback = abs_start - timedelta(days=self.config.get('lookback_window', 0))
+        lookback = abs_start - timedelta(days=self.lookback_window())
         window_next = lookback
 
         while window_next <= abs_end:

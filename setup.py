@@ -15,6 +15,12 @@ setup(
         'pyhumps==1.3.1',
         'backoff==1.3.2'
     ],
+    extras_require={
+        'dev': [
+            'ipdb==0.11',
+            'pylint==2.5.3',
+        ]
+    },
     entry_points="""
     [console_scripts]
     tap-pendo=tap_pendo:main
