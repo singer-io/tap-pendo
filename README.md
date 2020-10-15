@@ -220,7 +220,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `start_date` - the default value to use if no bookmark exists for an endpoint (rfc3339 date string)
    - `x_pendo_integration_key` (string, `ABCdef123`): an integration key from Pendo.
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
-   - `lookback_window` (integer): 10 (For event objects, default: 0)
+   - `lookback_window` (integer): 10 (For event objects. Default: 0)
 
     ```json
     {
