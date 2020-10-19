@@ -6,7 +6,7 @@
       "type": ["null", "string"]
     },
     "app_id": {
-      "type": ["null", "string"]
+      "type": ["null", "number"]
     },
     "day": {
       "type": ["null", "string"],

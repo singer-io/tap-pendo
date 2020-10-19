@@ -8,7 +8,7 @@
           "type": ["null", "string"]
         },
         "app_id": {
-          "type": ["null", "string"]
+          "type": ["null", "number"]
         },
         "username": {
           "type": ["null", "string"]
@@ -175,7 +175,7 @@
     "dirty": {
       "type": ["null", "boolean"]
     },
-    "pageId": {
+    "page_id": {
       "type": ["null", "string"]
     },
     "element_path_rules": {

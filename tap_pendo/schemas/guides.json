@@ -25,7 +25,7 @@
       "type": ["null", "string"],
       "format": "date-time"
     },
-    "lastUpdated_by_user": {
+    "last_updated_by_user": {
       "type": ["null", "object"],
       "properties": {
         "id": {
@@ -219,7 +219,7 @@
             "type": ["null", "object"],
             "properties": {
               "visitors": {
-                "type": ["null"]
+                "type": ["null", "string"]
               }
             }
           },

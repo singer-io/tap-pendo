@@ -101,7 +101,7 @@
         {
           "type": "array",
           "items": {
-            "type": "integer"
+            "type": ["null", "string"]
           }
         },
         {
