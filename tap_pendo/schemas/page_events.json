@@ -3,7 +3,7 @@
     "type": "object",
     "properties": {
       "app_id": {
-        "type": ["null", "string"]
+        "type": ["null", "number"]
       },
       "account_id": {
         "type": ["null", "string"]

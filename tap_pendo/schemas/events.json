@@ -6,7 +6,7 @@
         "type": ["null", "string"]
       },
       "app_id": {
-        "type": ["null", "string"]
+        "type": ["null", "number"]
       },
       "page_id": {
         "type": ["null", "string"]
