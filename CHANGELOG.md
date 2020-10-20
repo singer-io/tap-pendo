@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.5
+  * Update schema items
+
 ## 0.0.4
   * Enforce numerical lookback_window in streams
 
