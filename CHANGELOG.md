@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.6
+  * Temporarily comment out visitor history stream until bug SRCE-4103 is addressed
+
 ## 0.0.5
   * Update schema items
 
