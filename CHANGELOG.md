@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.7
+  * Add modified timestamp as max of ts and lastTs
+
 ## 0.0.6
   * Temporarily comment out visitor history stream until bug SRCE-4103 is addressed
 
