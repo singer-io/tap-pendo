@@ -247,10 +247,8 @@ class Stream():
             request_kwargs['json'] = kwargs.get('json')
 
         req = requests.Request(**request_kwargs).prepare()
-        LOGGER.info("%s %s %s %s %s %s", request_kwargs['method'],
-                    request_kwargs['url'], request_kwargs['headers'],
-                    request_kwargs['params'], request_kwargs.get('data', None),
-                    request_kwargs.get('json', None))
+        LOGGER.info("%s %s %s", request_kwargs['method'],
+                    request_kwargs['url'], request_kwargs['params'])
         resp = session.send(req)
 
         if 'Too Many Requests' in resp.reason:
