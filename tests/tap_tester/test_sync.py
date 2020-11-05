@@ -62,7 +62,7 @@ class TestSyncNonReportStreams(unittest.TestCase):
 
     def get_start_date(self):
         if not hasattr(self, 'start_date'):
-            self.start_date = dt.strftime(dt.utcnow() - timedelta(days=7), self.START_DATE_FORMAT)
+            self.start_date = dt.strftime(dt.utcnow() - timedelta(days=2), self.START_DATE_FORMAT)
 
         return self.start_date
 
