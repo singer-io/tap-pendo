@@ -124,5 +124,5 @@ class TestSyncNonReportStreams(unittest.TestCase):
         start_date = os.getenv(self.get_properties()['start_date'])
         current_state = menagerie.get_state(conn_id)
         test_bookmark = current_state['bookmarks']['accounts']
-        self.assertTrue(test_bookmark['updated'] > start_date,
+        self.assertTrue(test_bookmark['lastupdated'] > start_date,
                         msg="The bookmark value does not match the expected result")
