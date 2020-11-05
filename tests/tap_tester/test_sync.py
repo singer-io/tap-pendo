@@ -1,73 +1,84 @@
-"""
-Test tap combined
-"""
-
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime as dt
+
+from datetime import timedelta
 import os
-from test_configuration import config
 from tap_tester import menagerie
 import tap_tester.runner as runner
 import tap_tester.connections as connections
 
-configuration = config()
-
 
 class TestSyncNonReportStreams(unittest.TestCase):
+    START_DATE_FORMAT = "%Y-%m-%dT00:00:00Z"
+
     """ Test the non-report streams """
 
-    def name(self):
-        return configuration['test_name']
+    @staticmethod
+    def name():
+        return "test_sync"
 
-    def tap_name(self):
+    @staticmethod
+    def tap_name():
         """The name of the tap"""
-        return configuration['tap_name']
+        return "tap-pendo"
 
-    def get_type(self):
+    @staticmethod
+    def get_type():
         """the expected url route ending"""
-        return configuration['type']
+        return "platform.pendo"
 
     def expected_check_streams(self):
-        return set(configuration['streams'].keys())
+        return set(self.expected_pks().keys())
 
     def expected_sync_streams(self):
-        return set(configuration['streams'].keys())
+        return set(self.expected_pks().keys())
 
-    def expected_pks(self):
-        return configuration['streams']
+    @staticmethod
+    def expected_pks():
+        return {
+            "accounts": {"account_id"},
+            "features": {"id"},
+            "guides": {"id"},
+            "pages": {"id"},
+            # Add back when visitor_history is added back as a stream
+            # https://stitchdata.atlassian.net/browse/SRCE-4103
+            # "visitor_history": {"visitor_id"},
+            "visitors": {"key_properties"},
+            "track_types": {"id"},
+            "feature_events": {"visitor_id", "account_id", "server", "remote_ip"},
+            "events": {"visitor_id", "account_id", "server", "remote_ip"},
+            "page_events": {"visitor_id", "account_id", "server", "remote_ip"},
+            "guide_events": {"visitor_id", "account_id", "server", "remote_ip"},
+            "poll_events": {"visitor_id", "account_id", "server", "remote_ip"},
+            "track_events": {"visitor_id", "account_id", "server", "remote_ip"},
+        }
 
     def get_properties(self):
-        """Configuration properties required for the tap."""
-        properties_dict = {}
-        props = configuration['properties']
-        for prop in props:
-            properties_dict[prop] = os.getenv(props[prop])
+        return {
+            "start_date": self.get_start_date(),
+            "lookback_window": "1",
+            "period": "dayRange",
+        }
 
-        return properties_dict
+    def get_start_date(self):
+        if not hasattr(self, 'start_date'):
+            self.start_date = dt.strftime(dt.utcnow() - timedelta(days=7), self.START_DATE_FORMAT)
 
-    def get_credentials(self):
-        """Authentication information for the test account. Username is expected as a property."""
-        credentials_dict = {}
-        creds = configuration['credentials']
-        for cred in creds:
-            credentials_dict[cred] = os.getenv(creds[cred])
+        return self.start_date
 
-        return credentials_dict
+    @staticmethod
+    def get_credentials():
+        return {
+            "x_pendo_integration_key": os.getenv("TAP_PENDO_INTEGRATION_KEY")
+        }
 
     def setUp(self):
-        missing_envs = []
-        props = configuration['properties']
-        creds = configuration['credentials']
+        missing_envs = [x for x in [
+            "TAP_PENDO_INTEGRATION_KEY",
+        ] if os.getenv(x) is None]
 
-        for prop in props:
-            if os.getenv(props[prop]) is None:
-                missing_envs.append(prop)
-        for cred in creds:
-            if os.getenv(creds[cred]) is None:
-                missing_envs.append(cred)
-
-        if len(missing_envs) != 0:
-            raise Exception("set " + ", ".join(missing_envs))
+        if missing_envs:
+            raise Exception("Missing environment variables: {}".format(missing_envs))
 
     def test_run(self):
 
@@ -86,7 +97,7 @@ class TestSyncNonReportStreams(unittest.TestCase):
 
         found_catalog_names = set(map(lambda c: c['tap_stream_id'], found_catalogs))
         subset = self.expected_check_streams().issubset(found_catalog_names)
-        self.assertTrue(subset, msg="Expected check streams are not subset of discovered catalog")
+        self.assertTrue(subset, msg="Expected check streams are not subset of discovered catalog, extra streams={}".format(self.expected_check_streams().difference(found_catalog_names)))
         #
         # # Select some catalogs
         our_catalogs = [c for c in found_catalogs if c.get('tap_stream_id') in self.expected_sync_streams()]
@@ -110,10 +121,8 @@ class TestSyncNonReportStreams(unittest.TestCase):
                          msg="The following streams did not sync any rows {}".format(zero_count_streams))
 
         # Verify that bookmark values are correct after incremental sync
-        start_date = os.getenv(configuration['properties']['start_date'])
-        bookmark_props = configuration['bookmark']
+        start_date = os.getenv(self.get_properties()['start_date'])
         current_state = menagerie.get_state(conn_id)
-        test_bookmark = current_state['bookmarks'][bookmark_props['bookmark_key']]
-        print(test_bookmark)
+        test_bookmark = current_state['bookmarks']['accounts']
         self.assertTrue(test_bookmark['updated'] > start_date,
                         msg="The bookmark value does not match the expected result")
