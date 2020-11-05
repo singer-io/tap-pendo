@@ -121,7 +121,7 @@ class TestSyncNonReportStreams(unittest.TestCase):
                          msg="The following streams did not sync any rows {}".format(zero_count_streams))
 
         # Verify that bookmark values are correct after incremental sync
-        start_date = os.getenv(self.get_properties()['start_date'])
+        start_date = self.get_properties()['start_date']
         current_state = menagerie.get_state(conn_id)
         test_bookmark = current_state['bookmarks']['accounts']
         self.assertTrue(test_bookmark['lastupdated'] > start_date,
