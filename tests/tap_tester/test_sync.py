@@ -43,7 +43,7 @@ class TestSyncNonReportStreams(unittest.TestCase):
             # Add back when visitor_history is added back as a stream
             # https://stitchdata.atlassian.net/browse/SRCE-4103
             # "visitor_history": {"visitor_id"},
-            "visitors": {"key_properties"},
+            "visitors": {"visitor_id"},
             "track_types": {"id"},
             "feature_events": {"visitor_id", "account_id", "server", "remote_ip"},
             "events": {"visitor_id", "account_id", "server", "remote_ip"},
