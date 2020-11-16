@@ -18,6 +18,7 @@ This tap:
     * Guides
     * Pages
     * Visitor History
+      * Syncs for this endpoint may be very long running.
     * Visitors
     * Track Types
     * Feature Events
