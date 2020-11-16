@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.7
+  * Fixed an issue parsing optional parameter from config
+
 ## 0.0.6
   * Temporarily comment out visitor history stream until bug SRCE-4103 is addressed
 
