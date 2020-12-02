@@ -114,16 +114,16 @@ endpoints = {
         "endpoint": "/api/v1/aggregation"
 
     },
-    # "visitor_history": {
-    #     "method": "GET",
-    #     "endpoint": "/api/v1/visitor/{visitorId}/history",
-    #     "headers": {
-    #         'content-type': 'application/x-www-form-urlencoded'
-    #     },
-    #     "params": {
-    #         "starttime": "1564056526000"
-    #     }
-    # },
+    "visitor_history": {
+        "method": "GET",
+        "endpoint": "/api/v1/visitor/{visitorId}/history",
+        "headers": {
+            'content-type': 'application/x-www-form-urlencoded'
+        },
+        "params": {
+            "starttime": "start_time"
+        }
+    },
     "track_types": {
         "method": "POST",
         "endpoint": "/api/v1/aggregation"
@@ -247,10 +247,10 @@ class Stream():
             request_kwargs['json'] = kwargs.get('json')
 
         req = requests.Request(**request_kwargs).prepare()
-        LOGGER.info("%s %s %s %s %s", request_kwargs['method'],
-                    request_kwargs['url'],
-                    request_kwargs['params'], request_kwargs.get('data', None),
-                    request_kwargs.get('json', None))
+
+        LOGGER.info("%s %s %s", request_kwargs['method'],
+                    request_kwargs['url'], request_kwargs['params'])
+
         resp = session.send(req)
 
         if 'Too Many Requests' in resp.reason:
@@ -404,7 +404,7 @@ class Stream():
                         stream_metadata = metadata.to_map(
                             sub_stream.stream.metadata)
 
-                        transformed_event = humps.decamelize(event)
+                        transformed_event = sub_stream.transform(event)
 
                         try:
                             transformed_record = transformer.transform(
@@ -863,33 +863,43 @@ class MetadataVisitor(Stream):
             yield (self.stream, report)
 
 
-# class VisitorHistory(Stream):
-#     name = "visitor_history"
-#     replication_method = "INCREMENTAL"
-#     replication_key = "last_ts"
-#     key_properties = ['visitor_id']
-#     DATE_WINDOW_SIZE = 1
+class VisitorHistory(Stream):
+    name = "visitor_history"
+    replication_method = "INCREMENTAL"
+    replication_key = "modified_ts"
+    key_properties = ['visitor_id']
+    DATE_WINDOW_SIZE = 1
 
-#     def get_params(self, start_time):
-#         return {"starttime": start_time}
+    def get_params(self, start_time):
+        return {"starttime": start_time}
 
-#     def sync(self, state, start_date=None, key_id=None):
-#         update_currently_syncing(state, self.name)
+    def sync(self, state, start_date=None, key_id=None):
+        update_currently_syncing(state, self.name)
 
-#         abs_start, abs_end = get_absolute_start_end_time(start_date)
-#         lookback = abs_start - timedelta(days=self.lookback_window())
-#         window_next = lookback
+        bookmark_date = self.get_bookmark(state, self.name,
+                                          self.config.get('start_date'),
+                                          self.replication_key)
+        bookmark_dttm = strptime_to_utc(bookmark_date)
 
-#         while window_next <= abs_end:
-#             ts = int(window_next.timestamp()) * 1000
-#             params = self.get_params(start_time=ts)
-#             visitor_history = self.request(endpoint=self.name,
-#                                            params=params,
-#                                            visitorId=key_id)
-#             for visitor in visitor_history:
-#                 visitor['visitorId'] = key_id
-#                 yield visitor
-#             window_next = window_next + timedelta(days=self.DATE_WINDOW_SIZE)
+        abs_start, abs_end = get_absolute_start_end_time(bookmark_dttm)
+        lookback = abs_start - timedelta(days=self.lookback_window())
+        window_next = lookback
+
+        while window_next <= abs_end:
+            ts = int(window_next.timestamp()) * 1000
+            params = self.get_params(start_time=ts)
+            visitor_history = self.request(endpoint=self.name,
+                                           params=params,
+                                           visitorId=key_id)
+            for visitor in visitor_history:
+                visitor['visitorId'] = key_id
+                yield visitor
+            window_next = window_next + timedelta(days=self.DATE_WINDOW_SIZE)
+
+    def transform(self, record):
+        max_value = max(record.get('ts', 0), record.get('last_ts', 0))
+        record['modified_ts'] = max_value
+        return super().transform(record)
 
 
 class Visitors(Stream):
@@ -992,7 +1002,7 @@ STREAMS = {
     "features": Features,
     "guides": Guides,
     "pages": Pages,
-    # "visitor_history": VisitorHistory,
+    "visitor_history": VisitorHistory,
     "visitors": Visitors,
     "feature_events": FeatureEvents,
     "events": Events,
@@ -1006,7 +1016,7 @@ STREAMS = {
 }
 
 SUB_STREAMS = {
-    # 'visitors': 'visitor_history',
+    'visitors': 'visitor_history',
     'features': 'feature_events',
     'pages': 'page_events',
     'guides': 'guide_events',
