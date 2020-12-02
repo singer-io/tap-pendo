@@ -34,6 +34,10 @@
       "type": ["null", "string"],
       "format": "date-time"
     },
+    "modified_ts": {
+      "type": ["null", "string"],
+      "format": "date-time"
+    },
     "untagged_url": {
       "type": ["null", "string"]
     },

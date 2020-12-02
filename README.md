@@ -18,6 +18,7 @@ This tap:
     * Guides
     * Pages
     * Visitor History
+      * Syncs for this endpoint may be very long running.
     * Visitors
     * Track Types
     * Feature Events
@@ -78,8 +79,8 @@ This tap:
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`
 - Replication strategy: INCREMENTAL (query filtered)
-  - Bookmark: `last_ts`
-- Transformations: Camel to snake case.
+  - Bookmark: `modified_ts` (Max from `ts` or `lastTs`)
+- Transformations: Camel to snake case. 
 
 **[feature_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)

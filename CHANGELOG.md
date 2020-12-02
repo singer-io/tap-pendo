@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.8
+  * Add modified timestamp as max of ts and lastTs
+
 ## 0.0.7
   * Fixed an issue parsing optional parameter from config
 
