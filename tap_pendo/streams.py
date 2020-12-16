@@ -643,6 +643,7 @@ class PollEvents(Stream):
         self.replication_key = 'browser_time'
 
     def get_body(self, period, first):
+        sort = humps.camelize(self.replication_key)
         return {
             "response": {
                 "mimeType": "application/json"
@@ -657,10 +658,11 @@ class PollEvents(Stream):
                             "last": "now()"
                         }
                     }
-                }, {
-                    "sort": [self.replication_key]
-                }]
-            }
+                }, 
+                {
+                    "sort": [sort]
+                }
+            ]}
         }
 
     def sync(self, state, start_date=None, key_id=None):
@@ -721,6 +723,7 @@ class GuideEvents(EventsBase):
         self.replication_key = 'browser_time'
 
     def get_body(self, key_id, period, first):
+        sort = humps.camelize(self.replication_key)
         return {
             "response": {
                 "mimeType": "application/json"
@@ -737,8 +740,9 @@ class GuideEvents(EventsBase):
                             "last": "now()"
                         }
                     }
-                }, {
-                    "sort": [self.replication_key]
+                }, 
+                {
+                    "sort": [sort]
                 }]
             }
         }
