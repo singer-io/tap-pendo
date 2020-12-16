@@ -351,10 +351,11 @@ class Stream():
                                        'inclusion', 'available')
 
         # For period stream adjust schema for time period
-        if hasattr(self, 'period') and self.period == 'hourRange':
-            mdata.pop(('properties', 'day'))
-        elif hasattr(self, 'period') and self.period == 'dayRange':
-            mdata.pop(('properties', 'hour'))
+        if self.replication_key == 'day' or self.replication_key == 'hour':
+            if hasattr(self, 'period') and self.period == 'hourRange':
+                mdata.pop(('properties', 'day'))
+            elif hasattr(self, 'period') and self.period == 'dayRange':
+                mdata.pop(('properties', 'hour'))
 
         return metadata.to_list(mdata)
 
@@ -639,7 +640,7 @@ class PollEvents(Stream):
         super().__init__(config=config)
         self.config = config
         self.period = config.get('period')
-        self.replication_key = "day" if self.period == 'dayRange' else "hour"
+        self.replication_key = 'browser_time'
 
     def get_body(self, period, first):
         return {
@@ -712,6 +713,12 @@ class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "guide_events"
     key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
+
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.config = config
+        self.period = config.get('period')
+        self.replication_key = 'browser_time'
 
     def get_body(self, key_id, period, first):
         return {

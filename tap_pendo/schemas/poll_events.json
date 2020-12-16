@@ -24,14 +24,6 @@
       "guide_id": {
         "type": ["null", "string"]
       },
-      "day": {
-        "type": ["null", "string"],
-        "format": "date-time"
-      },
-      "hour": {
-        "type": ["null", "string"],
-        "format": "date-time"
-      },
       "browser_time": {
         "type": ["null", "string"],
         "format": "date-time"
