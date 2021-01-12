@@ -658,11 +658,10 @@ class PollEvents(Stream):
                             "last": "now()"
                         }
                     }
-                }, 
-                {
+                }, {
                     "sort": [sort]
-                }
-            ]}
+                }]
+            }
         }
 
     def sync(self, state, start_date=None, key_id=None):
@@ -729,21 +728,23 @@ class GuideEvents(EventsBase):
                 "mimeType": "application/json"
             },
             "request": {
-                "pipeline": [{
-                    "source": {
-                        "guideEvents": {
-                            "guideId": key_id
-                        },
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
+                "pipeline": [
+                    {
+                        "source": {
+                            "guideEvents": {
+                                "guideId": key_id
+                            },
+                            "timeSeries": {
+                                "period": period,
+                                "first": first,
+                                "last": "now()"
+                                }
                         }
+                    },
+                    {
+                        "sort": [sort]
                     }
-                }, 
-                {
-                    "sort": [sort]
-                }]
+                ]
             }
         }
 
