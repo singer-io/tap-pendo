@@ -40,17 +40,17 @@ class TestSyncNonReportStreams(unittest.TestCase):
             "features": {"id"},
             "guides": {"id"},
             "pages": {"id"},
-            # Add back when visitor_history is added back as a stream
-            # https://stitchdata.atlassian.net/browse/SRCE-4103
-            # "visitor_history": {"visitor_id"},
+            "visitor_history": {"visitor_id"},
             "visitors": {"visitor_id"},
             "track_types": {"id"},
             "feature_events": {"visitor_id", "account_id", "server", "remote_ip"},
             "events": {"visitor_id", "account_id", "server", "remote_ip"},
             "page_events": {"visitor_id", "account_id", "server", "remote_ip"},
-            "guide_events": {"visitor_id", "account_id", "server", "remote_ip"},
-            "poll_events": {"visitor_id", "account_id", "server", "remote_ip"},
+            "guide_events": {"visitor_id", "account_id", "server_name", "remote_ip"},
+            "poll_events": {"visitor_id", "account_id", "server_name", "remote_ip"},
             "track_events": {"visitor_id", "account_id", "server", "remote_ip"},
+            "metadata_accounts": {"id"},
+            "metadata_visitors": {"id"},
         }
 
     def get_properties(self):
