@@ -40,7 +40,11 @@ class TestSyncNonReportStreams(unittest.TestCase):
             "features": {"id"},
             "guides": {"id"},
             "pages": {"id"},
-            "visitor_history": {"visitor_id"},
+            # Add back when visitor_history stream causing this test to take
+            # 4+ hours is solved, tracked in this JIRA:
+            # https://stitchdata.atlassian.net/browse/SRCE-4755
+            # "visitor_history": {"visitor_id"},
+
             "visitors": {"visitor_id"},
             "track_types": {"id"},
             "feature_events": {"visitor_id", "account_id", "server", "remote_ip"},
