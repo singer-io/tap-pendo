@@ -53,8 +53,8 @@ class TestSyncNonReportStreams(unittest.TestCase):
             "guide_events": {"visitor_id", "account_id", "server_name", "remote_ip"},
             "poll_events": {"visitor_id", "account_id", "server_name", "remote_ip"},
             "track_events": {"visitor_id", "account_id", "server", "remote_ip"},
-            "metadata_accounts": {"id"},
-            "metadata_visitors": {"id"},
+            "metadata_accounts": {},
+            "metadata_visitors": {},
         }
 
     def get_properties(self):
