@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.9
+  * Change Guide and Poll Events replication key
+
 ## 0.0.8
   * Add modified timestamp as max of ts and lastTs
 
