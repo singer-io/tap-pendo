@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.10
+  * Allow for Discovery to succeed when no custom metadata is found [#22](https://github.com/singer-io/tap-pendo/pull/22)
+
 ## 0.0.9
   * Change Guide and Poll Events replication key
 
