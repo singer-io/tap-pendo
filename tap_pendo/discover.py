@@ -110,18 +110,18 @@ def discover_streams(config):
         schema = s.load_schema()
         mdata = metadata.to_map(s.load_metadata())
 
-        if s.name == 'accounts':
+        if s.name == 'accounts' and custom_account_fields:
             build_account_visitor_metadata(mdata, schema,
                                            custom_account_fields)
 
-        if s.name == 'visitors':
+        if s.name == 'visitors' and custom_visitor_fields:
             build_account_visitor_metadata(mdata, schema,
                                            custom_visitor_fields)
 
-        if s.name == 'metadata_accounts':
+        if s.name == 'metadata_accounts' and custom_account_fields:
             build_metadata_metadata(mdata, schema, custom_account_fields)
 
-        if s.name == 'metadata_visitors':
+        if s.name == 'metadata_visitors' and custom_visitor_fields:
             build_metadata_metadata(mdata, schema, custom_visitor_fields)
 
         stream = {
