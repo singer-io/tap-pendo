@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.11
+  * Add optional sync for anonymous Visitors
+
 ## 0.0.10
   * Allow for Discovery to succeed when no custom metadata is found [#22](https://github.com/singer-io/tap-pendo/pull/22)
 
