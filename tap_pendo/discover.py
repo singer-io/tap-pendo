@@ -97,11 +97,11 @@ def discover_streams(config):
 
     LOGGER.info("Discovering custom fields for Accounts")
     custom_account_fields = STREAMS['metadata_accounts'](
-        config).get_fields().get('custom')
+        config).get_fields().get('custom') or {}
 
     LOGGER.info("Discovering custom fields for Visitors")
     custom_visitor_fields = STREAMS['metadata_visitors'](
-        config).get_fields().get('custom')
+        config).get_fields().get('custom') or {}
 
     for s in STREAMS.values():
 
