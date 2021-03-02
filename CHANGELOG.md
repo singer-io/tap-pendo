@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.9
+  * Add optional sync for anonymous Visitors
+
 ## 0.0.8
   * Add modified timestamp as max of ts and lastTs
 

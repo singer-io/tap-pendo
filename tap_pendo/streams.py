@@ -913,19 +913,22 @@ class Visitors(Stream):
         return "/api/v1/aggregation"
 
     def get_body(self):
+        visitors_identified = True if self.config.get(
+            'visitors_identified', 'true').lower() == 'true' else False
         return {
             "response": {
                 "mimeType": "application/json"
             },
             "request": {
-                "name": "all-visitors",
-                "pipeline": [
-                    {
-                        "source": {
-                            "visitors": None
+                "name":
+                "all-visitors",
+                "pipeline": [{
+                    "source": {
+                        "visitors": {
+                            "identified": visitors_identified
                         }
                     }
-                ],
+                }],
                 "requestId": "all-visitors",
                 "sort": [
                     "visitorId"
