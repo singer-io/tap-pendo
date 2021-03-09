@@ -68,7 +68,6 @@ def build_metadata_metadata(mdata, schema, custom_fields):
     for key, _ in custom_fields.items():
         schema['properties']['custom']['properties'] = {}
         schema['properties']['custom']['properties'][key] = {}
-        schema['properties']['custom']['properties'][key]['properties'] = {}
         schema['properties']['custom']['properties'][key]['type'] = [
             "null", "object"
         ]
@@ -89,7 +88,8 @@ def build_account_visitor_metadata(mdata, schema, custom_fields):
     for key, value in custom_fields.items():
         schema['properties']['metadata_custom']['type'] = ["null", "object"]
         schema['properties']['metadata_custom']['properties'] = {
-            key: get_schema_propery_type(value.get('type'))
+            **schema['properties']['metadata_custom'].get('properties', {}),
+            key: get_schema_property_type(value.get('type'))
         }
         mdata = metadata.write(mdata, ("properties", 'metadata_custom'),
                                'inclusion', 'available')
