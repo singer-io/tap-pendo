@@ -49,12 +49,15 @@ def get_custom_fields(instance):
     return instance.get_fields().get('custom')
 
 
-def get_schema_propery_type(schema_type):
+def get_schema_property_type(schema_type):
     if schema_type == 'string':
         return {"type": ["null", "string"]}
     elif schema_type == 'time':
         return {"type": ["null", "string"], "format": "date-time"}
-    return None
+    elif schema_type == 'boolean':
+        return {"type": ["null", "boolean"]}
+
+    raise Exception("No case matching JSON schema for property type: {}".format(schema_type))
 
 
 def build_metadata_metadata(mdata, schema, custom_fields):
