@@ -13,7 +13,8 @@ setup(
         'singer-python==5.2.1',
         "requests",
         'pyhumps==1.3.1',
-        'backoff==1.3.2'
+        'backoff==1.3.2',
+        'ijson==3.1.4',
     ],
     extras_require={
         'dev': [
