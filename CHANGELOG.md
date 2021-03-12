@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.12
+  * Stream `visitors` and `events` aggregation responses via ijson [#28](https://github.com/singer-io/tap-pendo/pull/28)
+
 ## 0.0.11
   * Fix for discovering all custom fields in `visitors` and `accounts` [#27](https://github.com/singer-io/tap-pendo/pull/27)
   * Add boolean type handling to custom field discovery [#27](https://github.com/singer-io/tap-pendo/pull/27)
