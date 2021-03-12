@@ -392,7 +392,7 @@ class Stream():
             for i, e in enumerate(parent_response):
                 if e.get(parent.key_properties[0]) == last_processed:
                     LOGGER.info("Resuming %s sync with %s", sub_stream.name, e.get(parent.key_properties[0]))
-                    parent_response = parent_response[i:len(parent_response)]
+                    parent_response = parent_response[i:]
                     continue
 
 

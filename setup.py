@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="tap-pendo",
-    version="0.0.12",
+    version="0.0.13",
     description="Singer.io tap for extracting data",
     author="Stitch",
     url="https://github.com/singer-io/tap-pendo",

@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.13
+  * Fix issue with substreams of visitors due to new pattern using a generator rather than a list [#29](https://github.com/singer-io/tap-pendo/pull/28)
+
 ## 0.0.12
   * Stream `visitors` and `events` aggregation responses via ijson [#28](https://github.com/singer-io/tap-pendo/pull/28)
 
