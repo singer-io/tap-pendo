@@ -388,7 +388,6 @@ class Stream():
 
         # Slice response for >= last processed
         if last_processed:
-            ## TODO: What happens when there's a list that comes in here????
             i = 0
             for response in parent_response:
                 if response.get(parent.key_properties[0]) == last_processed:
