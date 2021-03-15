@@ -393,7 +393,12 @@ class Stream():
                 if e.get(parent.key_properties[0]) == last_processed:
                     LOGGER.info("Resuming %s sync with %s", sub_stream.name, e.get(parent.key_properties[0]))
                     if isinstance(parent_response, list):
-                        parent_response = parent_response[i:]
+                        try:
+                            starting_index = parent_response.index(e)
+                        except ValueError as err:
+                            LOGGER.warn("Could not find %s, starting over")
+                            starting_index = 0
+                        parent_response = parent_response[starting_index:]
                     else:
                         parent_response = itertools.chain([e], parent_response)
                     break
