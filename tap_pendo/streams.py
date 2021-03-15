@@ -389,19 +389,16 @@ class Stream():
         # Slice response for >= last processed
         if last_processed:
             ## TODO: What happens when there's a list that comes in here????
-            for e in parent_response:
-                if e.get(parent.key_properties[0]) == last_processed:
-                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, e.get(parent.key_properties[0]))
+            i = 0
+            for response in parent_response:
+                if response.get(parent.key_properties[0]) == last_processed:
+                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, response.get(parent.key_properties[0]))
                     if isinstance(parent_response, list):
-                        try:
-                            starting_index = parent_response.index(e)
-                        except ValueError as err:
-                            LOGGER.warn("Could not find %s, starting over")
-                            starting_index = 0
-                        parent_response = parent_response[starting_index:]
+                        parent_response = parent_response[i:]
                     else:
-                        parent_response = itertools.chain([e], parent_response)
+                        parent_response = itertools.chain([response], parent_response)
                     break
+                i += 1
 
         for record in parent_response:
             try:
