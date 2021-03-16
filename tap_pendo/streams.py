@@ -1,6 +1,7 @@
 # pylint: disable=E1101,R0201,W0613
 
 #!/usr/bin/env python3
+import itertools
 import json
 import os
 import time
@@ -369,8 +370,6 @@ class Stream():
     def transform(self, record):
         return humps.decamelize(record)
 
-    LOG_PROGRESS_PERCENTAGE_INTERVAL = 5
-
     def sync_substream(self, state, parent, sub_stream, parent_response):
         bookmark_date = self.get_bookmark(state, sub_stream.name,
                                           self.config.get('start_date'),
@@ -389,15 +388,18 @@ class Stream():
 
         # Slice response for >= last processed
         if last_processed:
-            for i, e in enumerate(parent_response):
-                if e.get(parent.key_properties[0]) == last_processed:
-                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, e.get(parent.key_properties[0]))
-                    parent_response = parent_response[i:len(parent_response)]
-                    continue
+            i = 0
+            for response in parent_response:
+                if response.get(parent.key_properties[0]) == last_processed:
+                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, response.get(parent.key_properties[0]))
+                    if isinstance(parent_response, list):
+                        parent_response = parent_response[i:]
+                    else:
+                        parent_response = itertools.chain([response], parent_response)
+                    break
+                i += 1
 
-
-        next_log_progress_percentage = 0
-        for index, record in enumerate(parent_response):
+        for record in parent_response:
             try:
                 with metrics.record_counter(
                         sub_stream.name) as counter, Transformer(
@@ -443,11 +445,6 @@ class Stream():
             # All events for all parents processed; can removed last processed
             self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=record.get(parent.key_properties[0]), bookmark_key="last_processed")
             self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
-
-            progress_percentage = float(index) / len(parent_response) * 100
-            if progress_percentage > next_log_progress_percentage:
-                LOGGER.info("Finished syncing %s percentage of sub_stream for parent %s's sub_stream %s data", progress_percentage, parent.name, sub_stream.name)
-                next_log_progress_percentage += self.LOG_PROGRESS_PERCENTAGE_INTERVAL
 
         # After processing for all parent ids we can remove our resumption state
         state.get('bookmarks').get(sub_stream.name).pop('last_processed')
