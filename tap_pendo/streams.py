@@ -736,7 +736,7 @@ class TrackEvents(EventsBase):
                 "pipeline": [{
                     "source": {
                         "trackEvents": {
-                            "trackId": key_id
+                            "trackTypeId": key_id
                         },
                         "timeSeries": {
                             "period": period,
