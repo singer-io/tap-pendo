@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.14
+  * Fixed query params for `track_events` [#30](https://github.com/singer-io/tap-pendo/pull/30)
+
 ## 0.0.13
   * Fix issue with substreams of visitors due to new pattern using a generator rather than a list [#29](https://github.com/singer-io/tap-pendo/pull/28)
 
