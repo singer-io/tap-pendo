@@ -8,14 +8,15 @@ jobs:
       - run:
           name: 'Setup virtual env'
           command: |
-            pyenv global 3.6.9
-            pyenv rehash
-            pip install awscli
-
             python3 -mvenv /usr/local/share/virtualenvs/tap-pendo
             source /usr/local/share/virtualenvs/tap-pendo/bin/activate
-            pip install -U 'pip<19.2' setuptools
+            pip install -U pip setuptools
             pip install .[dev]
+      - run:
+          name: 'JSON Validator'
+          command: |
+            source /usr/local/share/virtualenvs/tap-tester/bin/activate
+            stitch-validate-json tap_pendo/schemas/*.json
       - run:
           name: 'pylint'
           command: |

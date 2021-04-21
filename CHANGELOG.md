@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.15
+  * Add optional sync for anonymous Visitors
+
 ## 0.0.14
   * Fixed query params for `track_events` [#30](https://github.com/singer-io/tap-pendo/pull/30)
 
