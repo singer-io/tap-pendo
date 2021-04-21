@@ -1,7 +1,21 @@
 # Changelog
 
-## 0.0.11
+## 0.0.15
   * Add optional sync for anonymous Visitors
+
+## 0.0.14
+  * Fixed query params for `track_events` [#30](https://github.com/singer-io/tap-pendo/pull/30)
+
+## 0.0.13
+  * Fix issue with substreams of visitors due to new pattern using a generator rather than a list [#29](https://github.com/singer-io/tap-pendo/pull/28)
+
+## 0.0.12
+  * Stream `visitors` and `events` aggregation responses via ijson [#28](https://github.com/singer-io/tap-pendo/pull/28)
+
+## 0.0.11
+  * Fix for discovering all custom fields in `visitors` and `accounts` [#27](https://github.com/singer-io/tap-pendo/pull/27)
+  * Add boolean type handling to custom field discovery [#27](https://github.com/singer-io/tap-pendo/pull/27)
+  * When matching custom field types, any unknown type will raise an exception where the error occurred, rather than generating an invalid schema [#27](https://github.com/singer-io/tap-pendo/pull/27)
 
 ## 0.0.10
   * Allow for Discovery to succeed when no custom metadata is found [#22](https://github.com/singer-io/tap-pendo/pull/22)

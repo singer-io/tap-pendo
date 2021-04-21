@@ -49,12 +49,15 @@ def get_custom_fields(instance):
     return instance.get_fields().get('custom')
 
 
-def get_schema_propery_type(schema_type):
+def get_schema_property_type(schema_type):
     if schema_type == 'string':
         return {"type": ["null", "string"]}
     elif schema_type == 'time':
         return {"type": ["null", "string"], "format": "date-time"}
-    return None
+    elif schema_type == 'boolean':
+        return {"type": ["null", "boolean"]}
+
+    raise Exception("No case matching JSON schema for property type: {}".format(schema_type))
 
 
 def build_metadata_metadata(mdata, schema, custom_fields):
@@ -65,7 +68,6 @@ def build_metadata_metadata(mdata, schema, custom_fields):
     for key, _ in custom_fields.items():
         schema['properties']['custom']['properties'] = {}
         schema['properties']['custom']['properties'][key] = {}
-        schema['properties']['custom']['properties'][key]['properties'] = {}
         schema['properties']['custom']['properties'][key]['type'] = [
             "null", "object"
         ]
@@ -86,7 +88,8 @@ def build_account_visitor_metadata(mdata, schema, custom_fields):
     for key, value in custom_fields.items():
         schema['properties']['metadata_custom']['type'] = ["null", "object"]
         schema['properties']['metadata_custom']['properties'] = {
-            key: get_schema_propery_type(value.get('type'))
+            **schema['properties']['metadata_custom'].get('properties', {}),
+            key: get_schema_property_type(value.get('type'))
         }
         mdata = metadata.write(mdata, ("properties", 'metadata_custom'),
                                'inclusion', 'available')
