@@ -965,8 +965,7 @@ class Visitors(LazyAggregationStream):
         return "/api/v1/aggregation"
 
     def get_body(self):
-        visitors_identified = True if self.config.get(
-            'visitors_identified', 'true').lower() == 'true' else False
+        visitors_identified = bool(self.config.get('visitors_identified', 'true').lower() == 'true')
         return {
             "response": {
                 "mimeType": "application/json"
