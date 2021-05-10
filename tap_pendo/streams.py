@@ -976,7 +976,7 @@ class Visitors(LazyAggregationStream):
                 "pipeline": [{
                     "source": {
                         "visitors": {
-                            "identified": !include_anonymous_visitors
+                            "identified": not include_anonymous_visitors
                         }
                     }
                 }],
