@@ -965,7 +965,7 @@ class Visitors(LazyAggregationStream):
         return "/api/v1/aggregation"
 
     def get_body(self):
-        visitors_identified = bool(self.config.get('visitors_identified', 'true').lower() == 'true')
+        include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
         return {
             "response": {
                 "mimeType": "application/json"
@@ -976,7 +976,7 @@ class Visitors(LazyAggregationStream):
                 "pipeline": [{
                     "source": {
                         "visitors": {
-                            "identified": visitors_identified
+                            "identified": !include_anonymous_visitors
                         }
                     }
                 }],

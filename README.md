@@ -20,7 +20,7 @@ This tap:
   - Pages
   - Visitors
   - Visitor History
-    - Syncs for this endpoint may be very long running if extracting anonymous visitors, see Visitors config `visitors_identified`.
+    - Syncs for this endpoint may be very long running if extracting anonymous visitors, see Visitors config `include_anonymous_visitors`.
   - Track Types
   - Feature Events
   - Events
@@ -76,8 +76,8 @@ This tap:
 - Primary key fields: `visitor_id`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `lastupdated`
-- Config option: `visitors_identified`: `true`/`false`
-  - Default: `true` to eliminate anonymous visitors
+- Config option: `include_anonymous_visitors`: `true`/`false`
+  - Default: `false` to eliminate anonymous visitors
   - https://developers.pendo.io/docs/?bash#source-specification
 - Transformations
   - Camel to snake case.
@@ -252,7 +252,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
      "start_date": "2020-09-18T00:00:00Z",
      "period": "dayRange",
      "lookback_window": 10,
-     "visitors_identified: "false"
+     "include_anonymous_visitors: "true"
    }
    ```
 
