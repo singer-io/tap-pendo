@@ -145,6 +145,6 @@ class TestSyncNonReportStreams(unittest.TestCase):
         self.assertIn('bookmarks', current_state.keys())
         self.assertIn('accounts', current_state['bookmarks'].keys())
 
-        # # BUG | TODO writeup investigation of bookmarking
+        # # BUG | https://jira.talendforge.org/browse/TDL-13470
         # # Verify the bookmarked value is correct after incremental sync for accounts
         # self.assertGreater(test_bookmark['lastupdated'], start_date)
