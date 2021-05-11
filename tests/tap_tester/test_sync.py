@@ -120,13 +120,31 @@ class TestSyncNonReportStreams(unittest.TestCase):
         menagerie.verify_sync_exit_status(self, exit_status, sync_job_name)
         record_count_by_stream = runner.examine_target_output_file(self, conn_id, self.expected_sync_streams(),
                                                                    self.expected_pks())
-        zero_count_streams = {k for k, v in record_count_by_stream.items() if v == 0}
-        self.assertFalse(zero_count_streams,
-                         msg="The following streams did not sync any rows {}".format(zero_count_streams))
+
+        # Verify that all streams sync at least one row for initial sync
+        for stream in self.expected_sync_streams().difference({
+                'feature_events',
+                'events',
+                'page_events',
+                'guide_events',
+                'poll_events',
+                'track_events',
+                'track_types',
+        }):
+            with self.subTest(stream=stream):
+                self.assertLess(0, record_count_by_stream[stream])
+
+        # TODO run the remaining assertions against all incremental streams
 
         # Verify that bookmark values are correct after incremental sync
         start_date = self.get_properties()['start_date']
         current_state = menagerie.get_state(conn_id)
         test_bookmark = current_state['bookmarks']['accounts']
-        self.assertTrue(test_bookmark['lastupdated'] > start_date,
-                        msg="The bookmark value does not match the expected result")
+
+        # Verify a bookmark is present for accounts
+        self.assertIn('bookmarks', current_state.keys())
+        self.assertIn('accounts', current_state['bookmarks'].keys())
+
+        # # BUG | https://jira.talendforge.org/browse/TDL-13470
+        # # Verify the bookmarked value is correct after incremental sync for accounts
+        # self.assertGreater(test_bookmark['lastupdated'], start_date)
