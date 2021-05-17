@@ -965,19 +965,21 @@ class Visitors(LazyAggregationStream):
         return "/api/v1/aggregation"
 
     def get_body(self):
+        include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
         return {
             "response": {
                 "mimeType": "application/json"
             },
             "request": {
-                "name": "all-visitors",
-                "pipeline": [
-                    {
-                        "source": {
-                            "visitors": None
+                "name":
+                "all-visitors",
+                "pipeline": [{
+                    "source": {
+                        "visitors": {
+                            "identified": not include_anonymous_visitors
                         }
                     }
-                ],
+                }],
                 "requestId": "all-visitors",
                 "sort": [
                     "visitorId"
