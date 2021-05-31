@@ -602,8 +602,7 @@ class FeatureEvents(EventsBase):
         'server',
         'remote_ip',
         'feature_id',
-        'user_agent',
-        'app_id'
+        'user_agent'
     ]
 
     def get_body(self, key_id, period, first):
@@ -638,10 +637,7 @@ class Events(LazyAggregationStream):
         'account_id',
         'server',
         'remote_ip',
-        'feature_id',
-        'page_id',
-        'user_agent',
-        'app_id'
+        'user_agent'
     ]
     replication_method = "INCREMENTAL"
 
@@ -696,17 +692,7 @@ class Events(LazyAggregationStream):
 class PollEvents(Stream):
     replication_method = "INCREMENTAL"
     name = "poll_events"
-    key_properties = [
-        'visitor_id',
-        'account_id',
-        'server',
-        'remote_ip',
-        'poll_id',
-        'type',
-        'guide_id',
-        'user_agent',
-        'app_id'
-    ]
+    key_properties = []
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -762,8 +748,7 @@ class TrackEvents(EventsBase):
         'server',
         'remote_ip',
         'track_type_id',
-        'user_agent',
-        'app_id'
+        'user_agent'
     ]
 
 
@@ -793,17 +778,7 @@ class TrackEvents(EventsBase):
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "guide_events"
-    key_properties = [
-        'visitor_id',
-        'account_id',
-        'server',
-        'remote_ip',
-        'feature_id',
-        'poll_id',
-        'type',
-        'user_agent',
-        'app_id'
-    ]
+    key_properties = []
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -923,10 +898,8 @@ class PageEvents(EventsBase):
         'account_id',
         'server',
         'remote_ip',
-        'feature_id',
         'page_id',
-        'user_agent',
-        'app_id'
+        'user_agent'
     ]
 
     def get_body(self, key_id, period, first):
