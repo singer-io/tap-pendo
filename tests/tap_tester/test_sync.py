@@ -47,12 +47,12 @@ class TestSyncNonReportStreams(unittest.TestCase):
 
             "visitors": {"visitor_id"},
             "track_types": {"id"},
-            "feature_events": {"visitor_id", "account_id", "server", "remote_ip"},
-            "events": {"visitor_id", "account_id", "server", "remote_ip"},
-            "page_events": {"visitor_id", "account_id", "server", "remote_ip"},
-            "guide_events": {"visitor_id", "account_id", "server_name", "remote_ip"},
-            "poll_events": {"visitor_id", "account_id", "server_name", "remote_ip"},
-            "track_events": {"visitor_id", "account_id", "server", "remote_ip"},
+            "feature_events": {"visitor_id", "account_id", "server", "remote_ip", "feature_id", "user_agent"},
+            "events": {"visitor_id", "account_id", "server", "remote_ip", "user_agent"},
+            "page_events": {"visitor_id", "account_id", "server", "remote_ip", "page_id", "user_agent"},
+            "guide_events": {},
+            "poll_events": {},
+            "track_events": {"visitor_id", "account_id", "server", "remote_ip", "track_type_id", "user_agent"},
             "metadata_accounts": {},
             "metadata_visitors": {},
         }
