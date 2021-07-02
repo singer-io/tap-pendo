@@ -56,6 +56,10 @@ def get_schema_property_type(schema_type):
         return {"type": ["null", "string"], "format": "date-time"}
     elif schema_type == 'boolean':
         return {"type": ["null", "boolean"]}
+    elif schema_type == 'integer':
+        return {"type": ["null", "integer"]}
+    elif schema_type == '':
+        return {"type":["null"]}
 
     raise Exception("No case matching JSON schema for property type: {}".format(schema_type))
 
