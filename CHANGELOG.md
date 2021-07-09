@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.0
+  * Added support for custom field of type "int" and of type empty string [#37](https://github.com/singer-io/tap-pendo/pull/37)
+
 ## 0.0.15
   * Add optional sync for anonymous Visitors
 
