@@ -58,6 +58,8 @@ def get_schema_property_type(schema_type):
         return {"type": ["null", "boolean"]}
     elif schema_type == 'integer':
         return {"type": ["null", "integer"]}
+    elif schema_type == 'float':
+        return {"type": ["null", "number"]}
     elif schema_type == '':
         return {}
 
