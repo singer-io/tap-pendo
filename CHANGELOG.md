@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.0
+  * Added support for custom field of type "float" [#39](https://github.com/singer-io/tap-pendo/pull/39)
+
 ## 0.1.0
   * Added support for custom field of type "int" and of type empty string [#37](https://github.com/singer-io/tap-pendo/pull/37)
 
