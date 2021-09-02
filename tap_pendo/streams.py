@@ -463,6 +463,10 @@ class Stream():
             self.sync_substream(state, self, sub_stream, stream_response)
 
         update_currently_syncing(state, None)
+        with open("all_dupes_counts.json", "w") as f:
+            json.dump(DUPES_TRACKER, f, indent=2)
+        import ipdb; ipdb.set_trace()
+        1+1
         return (self.stream, stream_response)
 
     def lookback_window(self):
@@ -500,6 +504,72 @@ class LazyAggregationStream(Stream):
         update_currently_syncing(state, None)
         return (self.stream, stream_response)
 
+def handle_guide_events_dupes(events, key_id):
+    """
+    our_pk = the current PK
+    their_pk = a user's suggested PK
+    new_pk = their_pk, but with "type" included to attempt to help (not completely correct)
+    """
+    filtered = [{k:v for k,v in e.items() if k in ['account_id','visitor_id','guide_id','browser_time','server_name','remote_ip']}
+                for e in events]
+    tuples_our_pk = [tuple([e[k] for k in ['account_id','visitor_id','server_name','remote_ip']]) for e in events]
+    #tuples_our_pk = [tuple([v for k,v in e.items() if k in ['account_id','visitor_id','server_name','remote_ip']]) for e in events]
+    our_tuples_set = set(tuples_our_pk)
+    tuples_their_pk = [tuple([e[k] for k in ['visitor_id','guide_id','browser_time']]) for e in events]
+    #tuples_their_pk = [tuple([v for k,v in e.items() if k in ['visitor_id','guide_id','browser_time']]) for e in events]
+    their_tuples_set = set(tuples_their_pk)
+    our_dupes = len(tuples_our_pk) - len(our_tuples_set)
+    their_dupes = len(tuples_their_pk) - len(their_tuples_set)
+    from collections import Counter
+    their_dupes_with_counts = {k:v for k,v in dict(Counter(tuples_their_pk)).items() if v > 1}
+    their_dupe_records = [e for e in events if (e['visitor_id'],e['guide_id'],e['browser_time']) in their_dupes_with_counts.keys()]
+    # TODO: Consider adding guide_seen_reason and guide_step_id to the PK as well, it's a big one, but just makes sense... Honestly, just hashing the sorted field values might even be better.... Thisis an unfiltered list, so an event is an event, an identical event is identical. As long as the fields are all replicated
+    # - This would have to be the raw, pre-filtered response object, so that it doesn't change with field selection.
+    # WARNING Removed paths list: ['element_path', 'event_id', 'guide_seen_reason', 'guide_step_id', 'old_visitor_id', 'title', 'url']
+    tuples_new_pk = [tuple([e[k] for k in ['visitor_id','guide_id','browser_time','type']]) for e in events]
+    #tuples_new_pk = [tuple([v for k,v in e.items() if k in ['visitor_id','guide_id','browser_time','type']]) for e in events]
+    new_tuples_set = set(tuples_new_pk)
+    new_dupes_with_counts = {k:v for k,v in dict(Counter(tuples_new_pk)).items() if v > 1}
+    new_dupe_records = [e for e in events if (e['visitor_id'],e['guide_id'],e['browser_time'],e['type']) in new_dupes_with_counts.keys()]
+    new_dupes = len(tuples_new_pk) - len(new_tuples_set)
+
+    if new_dupes > 0:
+        #import ipdb; ipdb.set_trace()
+        #1+1
+        with open(f"guide_dupes_new_recs_{key_id}.json", "w") as f:
+            json.dump(new_dupe_records, f, indent=2)
+
+
+    DUPES_TRACKER.append({"guide_id": key_id, "ours": our_dupes, "theirs": their_dupes, "new": new_dupes})
+
+def handle_page_events_dupes(events, key_id):
+    """
+    our_pk = the current PK
+    new_pk = the fields suggested by Pendo docs under "pageEvents" source https://developers.pendo.io/docs/?bash#events-grouped
+    """
+    tuples_our_pk = [tuple([e[k] for k in ['visitor_id', 'account_id', 'server', 'remote_ip']]) for e in events]
+    our_tuples_set = set(tuples_our_pk)
+    our_dupes = len(tuples_our_pk) - len(our_tuples_set)
+    from collections import Counter
+    our_dupes_with_counts = {k:v for k,v in dict(Counter(tuples_our_pk)).items() if v > 1}
+    our_dupe_records = [e for e in events if (e['visitor_id'],e['account_id'],e['server'],e['remote_ip']) in our_dupes_with_counts.keys()]
+
+    tuples_new_pk = [tuple([e[k] for k in ['page_id', 'hour', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']]) for e in events]
+    new_tuples_set = set(tuples_new_pk)
+    new_dupes = len(tuples_new_pk) - len(new_tuples_set)
+    from collections import Counter
+    new_dupes_with_counts = {k:v for k,v in dict(Counter(tuples_new_pk)).items() if v > 1}
+    new_dupe_records = [e for e in events if tuple(e[k] for k in ['page_id', 'hour', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']) in new_dupes_with_counts.keys()]
+
+    if new_dupes > 0:
+        #import ipdb; ipdb.set_trace()
+        #1+1
+        with open(f"page_dupes_new_recs_{key_id}.json", "w") as f:
+            json.dump(new_dupe_records, f, indent=2)
+
+
+    DUPES_TRACKER.append({"page_id": key_id, "ours": our_dupes, "new": new_dupes})
+
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
@@ -522,9 +592,14 @@ class EventsBase(Stream):
         period = self.config.get('period')
         body = self.get_body(key_id, period, ts)
         events = self.request(self.name, json=body).get('results') or []
+        # Uncomment these if you are syncing its stream for a report and breakpoint after the sync.
+        #handle_guide_events_dupes(events, key_id)
+        #handle_page_events_dupes(events, key_id)
+
         update_currently_syncing(state, None)
         return events
 
+DUPES_TRACKER = []
 
 class Accounts(Stream):
     name = "accounts"
@@ -776,7 +851,7 @@ class GuideEvents(EventsBase):
                             },
                             "timeSeries": {
                                 "period": period,
-                                "first": first,
+                                "first": int((now() - timedelta(days=30)).timestamp() * 1000), #first,
                                 "last": "now()"
                                 }
                         }
@@ -883,7 +958,7 @@ class PageEvents(EventsBase):
                         },
                         "timeSeries": {
                             "period": period,
-                            "first": first,
+                            "first": int((now() - timedelta(days=7)).timestamp() * 1000), #first,
                             "last": "now()"
                         }
                     }
