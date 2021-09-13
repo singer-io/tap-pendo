@@ -86,6 +86,8 @@ class PendoAllFieldsTest(TestPendoBase):
                     expected_all_keys = expected_all_keys - {'hour'}
                 elif stream == "events":
                     expected_all_keys = expected_all_keys - {'hour', "feature_id"}
+                elif stream == "track_events":
+                    expected_all_keys = expected_all_keys - {'hour', "properties"}
                 elif stream == "guide_events":
                     expected_all_keys = expected_all_keys - {'poll_response', "poll_id"}
                 elif stream == "features":
