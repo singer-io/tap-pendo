@@ -483,8 +483,10 @@ class LazyAggregationStream(Stream):
 
             resp.raise_for_status()
 
+            to_return = []
             for item in ijson.items(resp.raw, 'results.item'):
-                yield humps.decamelize(item)
+                to_return.append(humps.decamelize(item))
+            return to_return
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
