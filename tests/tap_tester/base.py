@@ -20,7 +20,7 @@ class TestPendoBase(unittest.TestCase):
     INCREMENTAL = "INCREMENTAL"
     FULL_TABLE = "FULL_TABLE"
     START_DATE_FORMAT = "%Y-%m-%dT00:00:00Z"
-    BOOKMARK_COMPARISON_FORMAT = "%Y-%m-%dT00:00:00+00:00"
+    BOOKMARK_COMPARISON_FORMAT = "%Y-%m-%dT%H:%M%S%z"
     start_date = ""
     
     @staticmethod
@@ -135,7 +135,7 @@ class TestPendoBase(unittest.TestCase):
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         return_value = {
-            "start_date": "2020-09-10T13:22:34Z",
+            "start_date": "2020-09-10T00:00:00Z",
             "lookback_window": "1",
             "period": "dayRange",
         }
@@ -384,3 +384,5 @@ class TestPendoBase(unittest.TestCase):
     def is_incremental(self, stream):
         return self.expected_metadata().get(stream).get(self.REPLICATION_METHOD) == self.INCREMENTAL
     
+    def is_event(self, stream):
+        return stream.endswith('events')

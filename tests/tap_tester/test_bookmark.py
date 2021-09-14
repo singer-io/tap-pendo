@@ -31,6 +31,7 @@ class PendoBookMarkTest(TestPendoBase):
         expected_streams = self.expected_streams()
         expected_replication_keys = self.expected_replication_keys()
         expected_replication_methods = self.expected_replication_method()
+        expected_lookback_window = -1 * int(self.get_properties()['lookback_window'])  # lookback window
 
         ##########################################################################
         # First Sync
@@ -110,7 +111,10 @@ class PendoBookMarkTest(TestPendoBase):
                         second_bookmark_value)
 
                     
-                    simulated_bookmark = new_states['bookmarks'][stream][replication_key]
+                    simulated_bookmark_value = self.convert_state_to_utc(new_states['bookmarks'][stream][replication_key])
+                    simulated_bookmark_minus_lookback = self.timedelta_formatted(
+                        simulated_bookmark_value, days=expected_lookback_window
+                    ) if self.is_event(stream) else simulated_bookmark_value
 
                     # Verify the first sync sets a bookmark of the expected form
                     self.assertIsNotNone(first_bookmark_key_value)
@@ -137,7 +141,7 @@ class PendoBookMarkTest(TestPendoBase):
                     for record in second_sync_messages:
                         # Verify the second sync replication key value is Greater or Equal to the first sync bookmark
                         replication_key_value = record.get(replication_key)
-                        self.assertGreaterEqual(replication_key_value, simulated_bookmark,
+                        self.assertGreaterEqual(replication_key_value, simulated_bookmark_minus_lookback,
                                                 msg="Second sync records do not repect the previous bookmark.")
 
                         # Verify the second sync bookmark value is the max replication key value for a given stream
