@@ -21,121 +21,6 @@ from tap_pendo import utils as tap_pendo_utils
 KEY_PROPERTIES = ['id']
 BASE_URL = "https://app.pendo.io"
 
-endpoints = {
-    "account": {
-        "method": "GET",
-        "endpoint": "/api/v1/account/{accountId}"
-    },
-    "accounts": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-        "data": {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "name": "all-accounts",
-                "pipeline": [{
-                    "source": {
-                        "accounts": "null"
-                    }
-                }],
-                "requestId": "all-accounts"
-            }
-        }
-    },
-    "features": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "guide_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "feature_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-        "data": {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "featureEvents": {
-                            "featureId": "{featureId}"
-                        },
-                        "timeSeries": {
-                            "period": "dayRange",
-                            "first": 1598920967000,
-                            "last": "now()"
-                        }
-                    }
-                }]
-            }
-        }
-    },
-    "guides": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "metadata_accounts": {
-        "method": "GET",
-        "endpoint": "/api/v1/metadata/schema/account"
-    },
-    "metadata_visitors": {
-        "method": "GET",
-        "endpoint": "/api/v1/metadata/schema/visitor"
-    },
-    "events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "pages": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "page_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "poll_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "reports": {
-        "method": "GET",
-        "endpoint": "/api/v1/report"
-    },
-    "visitor": {
-        "method": "GET",
-        "endpoint": "/api/v1/visitor/{visitorId}"
-    },
-    "visitors": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation"
-
-    },
-    "visitor_history": {
-        "method": "GET",
-        "endpoint": "/api/v1/visitor/{visitorId}/history",
-        "headers": {
-            'content-type': 'application/x-www-form-urlencoded'
-        },
-        "params": {
-            "starttime": "start_time"
-        }
-    },
-    "track_types": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation"
-    },
-    "track_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation"
-    }
-}
-
 LOGGER = singer.get_logger()
 session = requests.Session()
 
@@ -143,25 +28,11 @@ session = requests.Session()
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
 
-
-def get_url(endpoint, **kwargs):
-    return BASE_URL + endpoints[endpoint]['endpoint'].format(**kwargs)
-
-
-def get_method(endpoint):
-    return endpoints[endpoint]['method']
-
-
-def get_headers(endpoint):
-    return endpoints[endpoint].get('headers', {})
-
-
-def get_params(endpoint):
-    return endpoints[endpoint].get('params', {})
-
 # Determine absolute start and end times w/ attribution_window constraint
 # abs_start/end and window_start/end must be rounded to nearest hour or day (granularity)
 # Graph API enforces max history of 28 days
+
+
 def get_absolute_start_end_time(last_dttm):
     now_dttm = now()
     delta_days = (now_dttm - last_dttm).days
@@ -202,9 +73,25 @@ def update_currently_syncing(state, stream_name):
     singer.write_state(state)
 
 
-
 class Server42xRateLimitError(Exception):
     pass
+
+
+class Endpoints:
+    endpoint = ""
+    method = ""
+    headers = {}
+    params = {}
+
+    def __init__(self, endpoint, method, headers={}, params={}):
+        self.endpoint = endpoint
+        self.method = method
+        self.headers = headers
+        self.params = params
+
+    def get_url(self, **kwargs):
+        return BASE_URL + self.endpoint.format(**kwargs)
+
 
 class Stream():
     name = None
@@ -214,6 +101,7 @@ class Stream():
     stream = None
     method = "GET"
     period = None
+    endpoint = Endpoints("/api/v1/aggregation", "POST")
 
     def __init__(self, config=None):
         self.config = config
@@ -247,13 +135,13 @@ class Stream():
         }
 
         request_kwargs = {
-            'url': get_url(endpoint, **kwargs),
-            'method': get_method(endpoint),
+            'url': self.endpoint.get_url(**kwargs),
+            'method': self.endpoint.method,
             'headers': headers,
             'params': params
         }
 
-        headers = get_headers(endpoint)
+        headers = self.endpoint.headers
         if headers:
             request_kwargs['headers'].update(headers)
 
@@ -296,7 +184,6 @@ class Stream():
             bookmark_value)
         singer.write_state(state)
 
-
     def load_shared_schema_refs(self):
         shared_schemas_path = get_abs_path('schemas/shared')
 
@@ -320,7 +207,6 @@ class Stream():
                         schema[k] = refs.get(v.get('$ref'))
                     else:
                         self.resolve_schema_references(v, key, refs)
-
 
     def load_schema(self):
         refs = self.load_shared_schema_refs()
@@ -391,11 +277,13 @@ class Stream():
             i = 0
             for response in parent_response:
                 if response.get(parent.key_properties[0]) == last_processed:
-                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, response.get(parent.key_properties[0]))
+                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, response.get(
+                        parent.key_properties[0]))
                     if isinstance(parent_response, list):
                         parent_response = parent_response[i:]
                     else:
-                        parent_response = itertools.chain([response], parent_response)
+                        parent_response = itertools.chain(
+                            [response], parent_response)
                     break
                 i += 1
 
@@ -403,9 +291,8 @@ class Stream():
             try:
                 with metrics.record_counter(
                         sub_stream.name) as counter, Transformer(
-                            integer_datetime_fmt=
-                            "unix-milliseconds-integer-datetime-parsing"
-                        ) as transformer:
+                            integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
+                ) as transformer:
                     stream_events = sub_stream.sync(state, new_bookmark,
                                                     record.get(parent.key_properties[0]))
                     for event in stream_events:
@@ -443,16 +330,18 @@ class Stream():
                     sub_stream.name, record[parent.key_properties[0]])
 
             # All events for all parents processed; can removed last processed
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=record.get(parent.key_properties[0]), bookmark_key="last_processed")
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=record.get(
+                parent.key_properties[0]), bookmark_key="last_processed")
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(
+                new_bookmark), bookmark_key=sub_stream.replication_key)
 
         # After processing for all parent ids we can remove our resumption state
         state.get('bookmarks').get(sub_stream.name).pop('last_processed')
         update_currently_syncing(state, None)
 
-
     def sync(self, state, start_date=None, key_id=None):
-        stream_response = self.request(self.name, json=self.get_body())['results'] or []
+        stream_response = self.request(self.name, json=self.get_body())[
+            'results'] or []
 
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
@@ -468,8 +357,10 @@ class Stream():
     def lookback_window(self):
         lookback_window = self.config.get('lookback_window') or '0'
         if not lookback_window.isdigit():
-            raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
+            raise TypeError(
+                "lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
         return int(lookback_window)
+
 
 class LazyAggregationStream(Stream):
     def send_request_get_results(self, req):
@@ -499,6 +390,7 @@ class LazyAggregationStream(Stream):
 
         update_currently_syncing(state, None)
         return (self.stream, stream_response)
+
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
@@ -532,6 +424,7 @@ class Accounts(Stream):
     replication_key = "lastupdated"
     key_properties = ["account_id"]
     method = "POST"
+    # endpoint = Endpoints("/api/v1/account/{accountId}", "GET")
 
     def get_body(self):
         return {
@@ -671,6 +564,7 @@ class Events(LazyAggregationStream):
             }
         }
 
+
 class PollEvents(Stream):
     replication_method = "INCREMENTAL"
     name = "poll_events"
@@ -721,11 +615,11 @@ class PollEvents(Stream):
         events = self.request(self.name, json=body).get('results') or []
         return self.stream, events
 
+
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "track_events"
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
-
 
     def get_body(self, key_id, period, first):
         return {
@@ -749,6 +643,7 @@ class TrackEvents(EventsBase):
                 }]
             }
         }
+
 
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
@@ -778,7 +673,7 @@ class GuideEvents(EventsBase):
                                 "period": period,
                                 "first": first,
                                 "last": "now()"
-                                }
+                            }
                         }
                     },
                     {
@@ -898,6 +793,7 @@ class Reports(Stream):
     name = "reports"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
+    endpoint = Endpoints("/api/v1/report", "GET")
 
     def sync(self, state, start_date=None, key_id=None):
         reports = self.request(self.name)
@@ -908,6 +804,7 @@ class Reports(Stream):
 class MetadataVisitor(Stream):
     name = "metadata_visitor"
     replication_method = "FULL_TABLE"
+    endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
     def sync(self, state, start_date=None, key_id=None):
         reports = self.request(self.name)
@@ -921,6 +818,14 @@ class VisitorHistory(Stream):
     replication_key = "modified_ts"
     key_properties = ['visitor_id']
     DATE_WINDOW_SIZE = 1
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded'
+    }
+    params = {
+        "starttime": "start_time"
+    }
+    endpoint = Endpoints(
+        "/api/v1/visitor/{visitorId}/history", "GET", headers, params)
 
     def get_params(self, start_time):
         return {"starttime": start_time}
@@ -965,7 +870,8 @@ class Visitors(LazyAggregationStream):
         return "/api/v1/aggregation"
 
     def get_body(self):
-        include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
+        include_anonymous_visitors = bool(self.config.get(
+            'include_anonymous_visitors', 'false').lower() == 'true')
         return {
             "response": {
                 "mimeType": "application/json"
@@ -1003,6 +909,7 @@ class MetadataAccounts(Stream):
     name = "metadata_accounts"
     replication_method = "FULL_TABLE"
     key_properties = []
+    endpoint = Endpoints("/api/v1/metadata/schema/account", "GET")
 
     def get_body(self):
         return None
@@ -1023,11 +930,13 @@ class MetadataAccounts(Stream):
 
     def get_fields(self):
         return self.request(self.name, json=self.get_body())
+
 
 class MetadataVisitors(Stream):
     name = "metadata_visitors"
     replication_method = "FULL_TABLE"
     key_properties = []
+    endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
     def get_body(self):
         return None
@@ -1048,7 +957,6 @@ class MetadataVisitors(Stream):
 
     def get_fields(self):
         return self.request(self.name, json=self.get_body())
-
 
 
 STREAMS = {
