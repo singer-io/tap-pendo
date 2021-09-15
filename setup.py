@@ -17,9 +17,11 @@ setup(
         'ijson==3.1.4',
     ],
     extras_require={
+        'test': [
+            'pylint==2.5.3'
+        ],
         'dev': [
-            'ipdb==0.11',
-            'pylint==2.5.3',
+            'ipdb==0.11'
         ]
     },
     entry_points="""

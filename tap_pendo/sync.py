@@ -38,14 +38,18 @@ def sync_stream(state, start_date, instance):
                 LOGGER.error('Transform failed for %s', record)
                 raise err
 
-            record_timestamp = strptime_to_utc(
-                transformed_record.get(
-                    humps.decamelize(instance.replication_key)))
-            new_bookmark = max(new_bookmark, record_timestamp)
+            replication_value = transformed_record.get(
+                    humps.decamelize(instance.replication_key))
+            if replication_value:
+                record_timestamp = strptime_to_utc(replication_value)
+                new_bookmark = max(new_bookmark, record_timestamp)
 
-            if record_timestamp > bookmark_dttm:
-                singer.write_record(stream.tap_stream_id, transformed_record)
-                counter.increment()
+                if record_timestamp > bookmark_dttm:
+                    singer.write_record(stream.tap_stream_id, transformed_record)
+                    counter.increment()
+                else:
+                    singer.write_record(stream.tap_stream_id, transformed_record)
+                    counter.increment()
             else:
                 singer.write_record(stream.tap_stream_id, transformed_record)
                 counter.increment()
