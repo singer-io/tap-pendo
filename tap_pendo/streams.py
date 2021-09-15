@@ -345,10 +345,10 @@ class Stream():
 
         if self.replication_key:
             mdata = metadata.write(mdata, (), 'valid-replication-keys',
-                                   [self.replication_key])
+                                   [humps.decamelize(self.replication_key)])
 
         for field_name in schema['properties'].keys():
-            if field_name in self.key_properties or field_name == self.replication_key:
+            if field_name in self.key_properties or field_name == humps.decamelize(self.replication_key):
                 mdata = metadata.write(mdata, ('properties', field_name),
                                        'inclusion', 'automatic')
             else:
