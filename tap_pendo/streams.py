@@ -424,7 +424,6 @@ class Accounts(Stream):
     replication_key = "lastupdated"
     key_properties = ["account_id"]
     method = "POST"
-    # endpoint = Endpoints("/api/v1/account/{accountId}", "GET")
 
     def get_body(self):
         return {
