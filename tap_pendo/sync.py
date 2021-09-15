@@ -39,7 +39,7 @@ def sync_stream(state, start_date, instance):
                 raise err
 
             replication_value = transformed_record.get(
-                    humps.decamelize(instance.replication_key))
+                humps.decamelize(instance.replication_key))
             if replication_value:
                 record_timestamp = strptime_to_utc(replication_value)
                 new_bookmark = max(new_bookmark, record_timestamp)
