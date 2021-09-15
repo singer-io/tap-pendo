@@ -48,7 +48,7 @@ class PendoAutomaticFieldsTest(TestPendoBase):
                 # Verify that you get some records for each stream
                 self.assertGreater(
                     record_count_by_stream.get(stream, -1), 0,
-                    msg="The number of records is not over the stream max limit")
+                    msg="The number of records is not over the stream min limit")
 
                 # Verify that only the automatic fields are sent to the target
                 for actual_keys in record_messages_keys:
