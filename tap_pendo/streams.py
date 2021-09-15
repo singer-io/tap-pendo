@@ -14,6 +14,7 @@ import requests
 import singer
 import singer.metrics as metrics
 from requests.exceptions import HTTPError
+from requests.models import ProtocolError
 from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
@@ -219,7 +220,7 @@ class Stream():
         self.config = config
 
     def send_request_get_results(self, req):
-        resp = session.send(req)
+        resp = session.send(req, timeout=300)
 
         if 'Too Many Requests' in resp.reason:
             retry_after = 30
@@ -237,6 +238,9 @@ class Stream():
                           max_tries=5,
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
+                          factor=2)
+    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError),
+                          max_tries=5,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
     def request(self, endpoint, params=None, **kwargs):
@@ -473,7 +477,7 @@ class Stream():
 
 class LazyAggregationStream(Stream):
     def send_request_get_results(self, req):
-        with session.send(req, stream=True) as resp:
+        with session.send(req, stream=True, timeout=300) as resp:
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
                 LOGGER.info("Rate limit reached. Sleeping for %s seconds",
@@ -483,8 +487,15 @@ class LazyAggregationStream(Stream):
 
             resp.raise_for_status()
 
+            # used list to collect items to return and
+            # return list instead of creating a generator, as in
+            # case of any error, it will be raise here itself
+            to_return = []
+
             for item in ijson.items(resp.raw, 'results.item'):
-                yield humps.decamelize(item)
+                to_return.append(humps.decamelize(item))
+
+            return to_return
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
