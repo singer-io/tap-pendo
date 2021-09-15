@@ -18,7 +18,8 @@ setup(
     ],
     extras_require={
         'test': [
-            'pylint==2.5.3'
+            'pylint==2.5.3',
+            'nose'
         ],
         'dev': [
             'ipdb==0.11'
