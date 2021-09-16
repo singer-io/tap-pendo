@@ -868,7 +868,11 @@ class Pages(Stream):
 class PageEvents(EventsBase):
     name = "page_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['page_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
+
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         return {
