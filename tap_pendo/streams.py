@@ -277,13 +277,11 @@ class Stream():
             i = 0
             for response in parent_response:
                 if response.get(parent.key_properties[0]) == last_processed:
-                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, response.get(
-                        parent.key_properties[0]))
+                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, response.get(parent.key_properties[0]))
                     if isinstance(parent_response, list):
                         parent_response = parent_response[i:]
                     else:
-                        parent_response = itertools.chain(
-                            [response], parent_response)
+                        parent_response = itertools.chain([response], parent_response)
                     break
                 i += 1
 
@@ -291,8 +289,9 @@ class Stream():
             try:
                 with metrics.record_counter(
                         sub_stream.name) as counter, Transformer(
-                            integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
-                ) as transformer:
+                            integer_datetime_fmt=
+                            "unix-milliseconds-integer-datetime-parsing"
+                        ) as transformer:
                     stream_events = sub_stream.sync(state, new_bookmark,
                                                     record.get(parent.key_properties[0]))
                     for event in stream_events:
@@ -330,18 +329,15 @@ class Stream():
                     sub_stream.name, record[parent.key_properties[0]])
 
             # All events for all parents processed; can removed last processed
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=record.get(
-                parent.key_properties[0]), bookmark_key="last_processed")
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(
-                new_bookmark), bookmark_key=sub_stream.replication_key)
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=record.get(parent.key_properties[0]), bookmark_key="last_processed")
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
 
         # After processing for all parent ids we can remove our resumption state
         state.get('bookmarks').get(sub_stream.name).pop('last_processed')
         update_currently_syncing(state, None)
 
     def sync(self, state, start_date=None, key_id=None):
-        stream_response = self.request(self.name, json=self.get_body())[
-            'results'] or []
+        stream_response = self.request(self.name, json=self.get_body())['results'] or []
 
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
@@ -357,8 +353,7 @@ class Stream():
     def lookback_window(self):
         lookback_window = self.config.get('lookback_window') or '0'
         if not lookback_window.isdigit():
-            raise TypeError(
-                "lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
+            raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
         return int(lookback_window)
 
 
@@ -869,8 +864,7 @@ class Visitors(LazyAggregationStream):
         return "/api/v1/aggregation"
 
     def get_body(self):
-        include_anonymous_visitors = bool(self.config.get(
-            'include_anonymous_visitors', 'false').lower() == 'true')
+        include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
         return {
             "response": {
                 "mimeType": "application/json"
