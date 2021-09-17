@@ -31,8 +31,6 @@ def get_abs_path(path):
 # Determine absolute start and end times w/ attribution_window constraint
 # abs_start/end and window_start/end must be rounded to nearest hour or day (granularity)
 # Graph API enforces max history of 28 days
-
-
 def get_absolute_start_end_time(last_dttm):
     now_dttm = now()
     delta_days = (now_dttm - last_dttm).days
@@ -71,6 +69,7 @@ def update_currently_syncing(state, stream_name):
     else:
         singer.set_currently_syncing(state, stream_name)
     singer.write_state(state)
+
 
 
 class Server42xRateLimitError(Exception):
@@ -184,6 +183,7 @@ class Stream():
             bookmark_value)
         singer.write_state(state)
 
+
     def load_shared_schema_refs(self):
         shared_schemas_path = get_abs_path('schemas/shared')
 
@@ -207,6 +207,7 @@ class Stream():
                         schema[k] = refs.get(v.get('$ref'))
                     else:
                         self.resolve_schema_references(v, key, refs)
+
 
     def load_schema(self):
         refs = self.load_shared_schema_refs()
@@ -336,6 +337,7 @@ class Stream():
         state.get('bookmarks').get(sub_stream.name).pop('last_processed')
         update_currently_syncing(state, None)
 
+
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body())['results'] or []
 
@@ -355,7 +357,6 @@ class Stream():
         if not lookback_window.isdigit():
             raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
         return int(lookback_window)
-
 
 class LazyAggregationStream(Stream):
     def send_request_get_results(self, req):
@@ -385,7 +386,6 @@ class LazyAggregationStream(Stream):
 
         update_currently_syncing(state, None)
         return (self.stream, stream_response)
-
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
@@ -558,7 +558,6 @@ class Events(LazyAggregationStream):
             }
         }
 
-
 class PollEvents(Stream):
     replication_method = "INCREMENTAL"
     name = "poll_events"
@@ -609,11 +608,11 @@ class PollEvents(Stream):
         events = self.request(self.name, json=body).get('results') or []
         return self.stream, events
 
-
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "track_events"
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+
 
     def get_body(self, key_id, period, first):
         return {
@@ -637,7 +636,6 @@ class TrackEvents(EventsBase):
                 }]
             }
         }
-
 
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
@@ -950,6 +948,7 @@ class MetadataVisitors(Stream):
 
     def get_fields(self):
         return self.request(self.name, json=self.get_body())
+
 
 
 STREAMS = {
