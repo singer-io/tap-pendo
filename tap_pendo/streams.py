@@ -120,6 +120,9 @@ class Stream():
         dec = humps.decamelize(resp.json())
         return dec
 
+    @backoff.on_exception(backoff.expo, (ConnectionResetError),
+                          max_tries=5,
+                          factor=2)
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
                           max_tries=5,
                           giveup=lambda e: e.response is not None and 400 <= e.
@@ -370,8 +373,10 @@ class LazyAggregationStream(Stream):
 
             resp.raise_for_status()
 
+            to_return = []
             for item in ijson.items(resp.raw, 'results.item'):
-                yield humps.decamelize(item)
+                to_return.append(humps.decamelize(item))
+            return to_return
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
