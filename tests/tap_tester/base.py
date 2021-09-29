@@ -81,21 +81,19 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_KEYS: {'last_updated_at'}
             },
             "feature_events":{
-                self.PRIMARY_KEYS: {"feature_id", "visitor_id", "account_id", "server", "remote_ip", "user_agent", "day"}
-                                    if self.is_day_range else 
-                                    {"feature_id", "visitor_id", "account_id", "server", "remote_ip", "user_agent", "hour"},
+                self.PRIMARY_KEYS: {"feature_id", "visitor_id", "account_id", "server", "remote_ip", "user_agent", "day" if self.is_day_range else "hour"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day'} if self.is_day_range else {'hour'}
+                self.REPLICATION_KEYS: {'day' if self.is_day_range else 'hour'}
             },
             "events": {
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day'} if self.is_day_range else {'hour'}
+                self.REPLICATION_KEYS: {'day' if self.is_day_range else 'hour'}
             },
             "page_events": {
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day'} if self.is_day_range else {'hour'}
+                self.REPLICATION_KEYS: {'day' if self.is_day_range else 'hour'}
             },
             "guide_events": {
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "server_name", "remote_ip"},
@@ -110,7 +108,7 @@ class TestPendoBase(unittest.TestCase):
             "track_events": {
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day'} if self.is_day_range else {'hour'}
+                self.REPLICATION_KEYS: {'day' if self.is_day_range else 'hour'}
             },
             "metadata_accounts": {
                 self.REPLICATION_METHOD: self.FULL_TABLE,
