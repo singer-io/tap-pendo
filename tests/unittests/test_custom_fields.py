@@ -2,13 +2,12 @@ import unittest
 from unittest import mock
 from singer import utils, metadata
 from singer.utils import strptime_to_utc, strftime
-from tap_pendo.discover import build_metadata_metadata, discover_streams
+from tap_pendo.discover import LOGGER, build_metadata_metadata, discover_streams
 from tap_pendo.streams import Stream
 
 
 class TestCustomFields(unittest.TestCase):
-    @mock.patch("tap_pendo.discover.metadata.write")
-    def test_build_account_visitor_metadata(self, mock_metadata_write):
+    def test_build_account_visitor_metadata_for_accounts(self):
         custom_account_fields = {
             "testaccountcfield1": {
                 "type": "boolean",
@@ -35,6 +34,164 @@ class TestCustomFields(unittest.TestCase):
                 "never_index": False
             }
         }
+        expected_schema = {
+            "properties":{
+            "custom":{
+                "type":[
+                    "null",
+                    "object"
+                ],
+                "additional_properties":"false",
+                "properties":{
+                    "testaccountcfield1":{
+                        "type":[
+                        "null",
+                        "object"
+                        ],
+                        "additional_properties":"false",
+                        "properties":{
+                        "type":{
+                            "type":[
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "display_name":{
+                            "type":[
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "element_type":{
+                            "type":[
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "element_format":{
+                            "type":[
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "dirty":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "is_hidden":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "is_deleted":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "is_calculated":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "is_per_app":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "never_index":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        }
+                        }
+                    },
+                    "testaccountcustomfield":{
+                        "type":[
+                        "null",
+                        "object"
+                        ],
+                        "additional_properties":"false",
+                        "properties":{
+                        "type":{
+                            "type":[
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "display_name":{
+                            "type":[
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "element_type":{
+                            "type":[
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "element_format":{
+                            "type":[
+                                "null",
+                                "string"
+                            ]
+                        },
+                        "dirty":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "is_hidden":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "is_deleted":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "is_calculated":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "is_per_app":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        },
+                        "never_index":{
+                            "type":[
+                                "null",
+                                "boolean"
+                            ]
+                        }
+                        }
+                    }
+                }
+            }
+            }
+        }
+        mdata = {}
+        schema = {'properties': {}}
+        build_metadata_metadata(mdata, schema, custom_account_fields)
+        # LOGGER.info(f'>>>>>>>>>>>>>>>> {schema}')
+        self.assertEqual(schema, expected_schema)
+
+    def test_build_account_visitor_metadata_for_visitors(self):
         custom_visitor_fields = {
             "testcustomfield": {
                 "type": "string",
@@ -49,9 +206,90 @@ class TestCustomFields(unittest.TestCase):
                 "never_index": False
             }
         }
+
+        exoected_schema = {
+            "properties":{
+                "custom":{
+                    "type":[
+                        "null",
+                        "object"
+                    ],
+                    "additional_properties":"false",
+                    "properties":{
+                        "testcustomfield":{
+                        "type":[
+                            "null",
+                            "object"
+                        ],
+                        "additional_properties":"false",
+                        "properties":{
+                            "type":{
+                                "type":[
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "display_name":{
+                                "type":[
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "element_type":{
+                                "type":[
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "element_format":{
+                                "type":[
+                                    "null",
+                                    "string"
+                                ]
+                            },
+                            "dirty":{
+                                "type":[
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "is_hidden":{
+                                "type":[
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "is_deleted":{
+                                "type":[
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "is_calculated":{
+                                "type":[
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "is_per_app":{
+                                "type":[
+                                    "null",
+                                    "boolean"
+                                ]
+                            },
+                            "never_index":{
+                                "type":[
+                                    "null",
+                                    "boolean"
+                                ]
+                            }
+                        }
+                        }
+                    }
+                }
+            }
+        }
         mdata = {}
         schema = {'properties': {}}
-        build_metadata_metadata(mdata, schema, custom_account_fields)
-        self.assertEqual(mock_metadata_write.call_count, 2)
         build_metadata_metadata(mdata, schema, custom_visitor_fields)
-        self.assertEqual(mock_metadata_write.call_count, 3)
+        self.assertEqual(schema, exoected_schema)
