@@ -406,9 +406,7 @@ class Stream():
                             integer_datetime_fmt=
                             "unix-milliseconds-integer-datetime-parsing"
                         ) as transformer:
-                    # bug fix for syncing child streams from start date or
-                    # state file date and not newly updated bookmark
-                    stream_events = sub_stream.sync(state, bookmark_dttm,
+                    stream_events = sub_stream.sync(state, new_bookmark,
                                                     record.get(parent.key_properties[0]))
                     for event in stream_events:
                         counter.increment()
