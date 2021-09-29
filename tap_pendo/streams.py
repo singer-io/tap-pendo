@@ -348,6 +348,11 @@ class Stream():
                                    [humps.decamelize(self.replication_key)])
 
         for field_name in schema['properties'].keys():
+            # for a certain stream like "features, track_types, pages, guides"
+            # the replication key in schema is "last_updated_at" and in class variable
+            # of stream it is "lastUpdatedAt" so rather than updating the replication key
+            # value in the class variable used "humps.decamelize" for backward compatibility
+            # as for previous syncs the value in the bookmark will contain "lastUpdatedAt"
             if field_name in self.key_properties or field_name == humps.decamelize(self.replication_key):
                 mdata = metadata.write(mdata, ('properties', field_name),
                                        'inclusion', 'automatic')
