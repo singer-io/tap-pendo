@@ -2,10 +2,10 @@ from tap_tester import connections, runner
 from base import TestPendoBase
 from datetime import datetime
 
-class PendoStartDateChildStreamsTest(TestPendoBase):
+class PendoChildStreamStartDateTest(TestPendoBase):
 
     def name(self):
-        return "pendo_start_date_for_child_streams_test"
+        return "pendo_child_stream_start_date_test"
 
     def test_run(self):
 
