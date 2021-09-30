@@ -13,8 +13,9 @@ class PendoAutomaticFieldsTest(TestPendoBase):
 
     def test_run(self):
         """
-        Verify that for each stream you can get enough data
-        when no fields are selected and only the automatic fields are replicated.
+        Verify we can deselect all fields except when inclusion=automatic, which is handled by base.py methods
+        Verify that only the automatic fields are sent to the target.
+        Verify that all replicated records have unique primary key values.
         """
         
         streams_to_test = self.expected_streams()
@@ -39,12 +40,17 @@ class PendoAutomaticFieldsTest(TestPendoBase):
 
                 # expected values
                 expected_keys = self.expected_automatic_fields().get(stream)
-
+                expected_primary_keys = self.expected_pks()[stream]
+                
                 # collect actual values
                 data = synced_records.get(stream, {})
                 record_messages_keys = [set(row['data'].keys())
                                         for row in data.get('messages', [])]
-
+                primary_keys_list = [tuple(message.get('data').get(expected_pk) for expected_pk in expected_primary_keys)
+                                       for message in data.get('messages')
+                                       if message.get('action') == 'upsert']
+                unique_primary_keys_list = set(primary_keys_list)
+                
                 # Verify that you get some records for each stream
                 self.assertGreater(
                     record_count_by_stream.get(stream, -1), 0,
@@ -53,3 +59,8 @@ class PendoAutomaticFieldsTest(TestPendoBase):
                 # Verify that only the automatic fields are sent to the target
                 for actual_keys in record_messages_keys:
                     self.assertSetEqual(expected_keys, actual_keys)
+                    
+                #Verify that all replicated records have unique primary key values.
+                self.assertEqual(len(primary_keys_list), 
+                                    len(unique_primary_keys_list), 
+                                    msg="Replicated record does not have unique primary key values.")
