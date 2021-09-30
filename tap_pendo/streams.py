@@ -565,7 +565,7 @@ class Accounts(Stream):
 class Features(Stream):
     name = "features"
     replication_method = "INCREMENTAL"
-    replication_key = "last_updated_at"
+    replication_key = "lastUpdatedAt"
 
     def get_body(self):
         return {
@@ -792,7 +792,7 @@ class GuideEvents(EventsBase):
 class TrackTypes(Stream):
     name = "track_types"
     replication_method = "INCREMENTAL"
-    replication_key = "last_updated_at"
+    replication_key = "lastUpdatedAt"
 
     def get_body(self):
         return {
@@ -816,7 +816,7 @@ class TrackTypes(Stream):
 class Guides(Stream):
     name = "guides"
     replication_method = "INCREMENTAL"
-    replication_key = "last_updated_at"
+    replication_key = "lastUpdatedAt"
 
     def get_body(self):
         return {
@@ -842,7 +842,7 @@ class Guides(Stream):
 class Pages(Stream):
     name = "pages"
     replication_method = "INCREMENTAL"
-    replication_key = "last_updated_at"
+    replication_key = "lastUpdatedAt"
 
     def get_body(self):
         return {
@@ -897,7 +897,7 @@ class PageEvents(EventsBase):
 class Reports(Stream):
     name = "reports"
     replication_method = "INCREMENTAL"
-    replication_key = "last_updated_at"
+    replication_key = "lastUpdatedAt"
 
     def sync(self, state, start_date=None, key_id=None):
         reports = self.request(self.name)
