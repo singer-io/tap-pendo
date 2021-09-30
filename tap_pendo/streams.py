@@ -930,12 +930,10 @@ class VisitorHistory(Stream):
     def sync(self, state, start_date=None, key_id=None):
         update_currently_syncing(state, self.name)
 
-        bookmark_date = self.get_bookmark(state, self.name,
-                                          self.config.get('start_date'),
-                                          self.replication_key)
-        bookmark_dttm = strptime_to_utc(bookmark_date)
-
-        abs_start, abs_end = get_absolute_start_end_time(bookmark_dttm)
+        # using "start_date" that is passed and not using the bookmark
+        # value stored in the state file, as it will be updated after
+        # every sync of child stream for parent stream
+        abs_start, abs_end = get_absolute_start_end_time(start_date)
         lookback = abs_start - timedelta(days=self.lookback_window())
         window_next = lookback
 
