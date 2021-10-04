@@ -21,4 +21,6 @@ def test_request_backoff_on_remote_timeout_conn_reset(mock_send, mock_sleep):
     with raises(ConnectionResetError) as ex:
         stream.request(endpoint=None)
     # Assert backoff retry count as expected
-    assert mock_sleep.call_count == 2*(5 - 1) # because there is a time.sleep in pndo_utils.rate_limit also
+    # because there is a time.sleep in pendo_utils.rate_limit and in the backoff implementation also
+    # so the total count sums up to 4 + 4 = 8
+    assert mock_sleep.call_count == 8 
