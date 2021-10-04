@@ -188,7 +188,6 @@ class TestCustomFields(unittest.TestCase):
         mdata = {}
         schema = {'properties': {}}
         build_metadata_metadata(mdata, schema, custom_account_fields)
-        # LOGGER.info(f'>>>>>>>>>>>>>>>> {schema}')
         self.assertEqual(schema, expected_schema)
 
     def test_build_account_visitor_metadata_for_visitors(self):
@@ -207,7 +206,7 @@ class TestCustomFields(unittest.TestCase):
             }
         }
 
-        exoected_schema = {
+        expected_schema = {
             "properties":{
                 "custom":{
                     "type":[
@@ -292,4 +291,4 @@ class TestCustomFields(unittest.TestCase):
         mdata = {}
         schema = {'properties': {}}
         build_metadata_metadata(mdata, schema, custom_visitor_fields)
-        self.assertEqual(schema, exoected_schema)
+        self.assertEqual(schema, expected_schema)
