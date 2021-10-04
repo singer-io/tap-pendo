@@ -98,7 +98,6 @@ class Stream():
     replication_key = None
     key_properties = KEY_PROPERTIES
     stream = None
-    method = "GET"
     period = None
     endpoint = Endpoints("/api/v1/aggregation", "POST")
 
@@ -418,7 +417,6 @@ class Accounts(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
     key_properties = ["account_id"]
-    method = "POST"
 
     def get_body(self):
         return {
@@ -856,7 +854,6 @@ class Visitors(LazyAggregationStream):
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
     key_properties = ["visitor_id"]
-    method = "POST"
 
     def get_endpoint(self):
         return "/api/v1/aggregation"
