@@ -17,6 +17,7 @@ LOGGER = singer.get_logger()
 
 
 def do_discover(config):
+    # Discover schemas for all streams and dump catalog
     LOGGER.info("Starting discover")
     catalog = {"streams": discover_streams(config)}
     json.dump(catalog, sys.stdout, indent=2)
@@ -24,10 +25,12 @@ def do_discover(config):
 
 
 def stream_is_selected(mdata):
+    # Check stream selected or not from metadata
     return mdata.get((), {}).get('selected', False)
 
 
 def get_sub_stream_ids():
+    # Return list of all the sub streams of the streams
     sub_stream_ids = []
     for _, value in SUB_STREAMS.items():
         sub_stream_ids.append(value)
@@ -39,6 +42,7 @@ class DependencyException(Exception):
 
 
 def validate_dependencies(selected_stream_ids):
+    # Validate and raise exceptions if sub-streams are selected but related parents not selected
     errs = []
     msg_tmpl = ("Unable to extract {0} data. "
                 "To receive {0} data, you also need to select {1}.")
@@ -54,6 +58,7 @@ def validate_dependencies(selected_stream_ids):
 
 
 def populate_class_schemas(catalog, selected_stream_ids):
+    # Populate class schemas for all the streams selected in the catalog
     for stream in catalog.streams:
         if stream.tap_stream_id in selected_stream_ids:
             STREAMS[stream.tap_stream_id].stream = stream
@@ -66,6 +71,7 @@ def get_abs_path(path):
 
 
 def load_schemas():
+    # Open and read JSON schemas of streams and return a dictionary of schemas
     schemas = {}
 
     for filename in os.listdir(get_abs_path('schemas')):
@@ -78,6 +84,7 @@ def load_schemas():
 
 
 def get_selected_streams(catalog):
+    # Return list of all the selected streams in catalog
     selected_stream_ids = []
     for stream in catalog.streams:
         mdata = metadata.to_map(stream.metadata)
@@ -90,9 +97,9 @@ def sync(config, state, catalog):
     LOGGER.info("Starting with state %s", state)
     start_date = config['start_date']
 
-    selected_stream_ids = get_selected_streams(catalog)
-    validate_dependencies(selected_stream_ids)
-    populate_class_schemas(catalog, selected_stream_ids)
+    selected_stream_ids = get_selected_streams(catalog) # Get list of selected streams from catalog
+    validate_dependencies(selected_stream_ids) # Validate parent-child streams dependencies 
+    populate_class_schemas(catalog, selected_stream_ids) # Populate schemas for selected streams
     all_sub_stream_ids = get_sub_stream_ids()
 
     # Loop over streams in catalog
@@ -106,13 +113,16 @@ def sync(config, state, catalog):
         LOGGER.info('START Syncing: %s', stream_id)
         update_currently_syncing(state, stream_id)
 
+        # Write schema of streams to STDOUT
         key_properties = metadata.get(mdata, (), 'table-key-properties')
         singer.write_schema(
             stream_id, stream.schema.to_dict(), key_properties)
 
         sub_stream_ids = SUB_STREAMS.get(stream_id)
 
+        # Populate class schemas and write a schema for the selected substreams of the stream
         if sub_stream_ids:
+            # Loop over sub-streams of current stream
             for sub_stream_id in sub_stream_ids:
                 if sub_stream_id not in selected_stream_ids:
                     continue
@@ -128,7 +138,7 @@ def sync(config, state, catalog):
             continue
 
         LOGGER.info("Stream %s: Starting sync", stream_id)
-        instance = STREAMS[stream_id](config)
+        instance = STREAMS[stream_id](config) # Intialize class for selected stream
 
         counter_value = 0
         if instance.replication_method == "INCREMENTAL":
