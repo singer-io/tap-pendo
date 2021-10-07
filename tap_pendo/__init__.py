@@ -98,7 +98,7 @@ def sync(config, state, catalog):
     start_date = config['start_date']
 
     selected_stream_ids = get_selected_streams(catalog) # Get list of selected streams from catalog
-    validate_dependencies(selected_stream_ids) # Validate parent-child streams dependencies 
+    validate_dependencies(selected_stream_ids) # Validate parent-child streams dependencies
     populate_class_schemas(catalog, selected_stream_ids) # Populate schemas for selected streams
     all_sub_stream_ids = get_sub_stream_ids()
 

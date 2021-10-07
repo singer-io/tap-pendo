@@ -106,7 +106,7 @@ def build_account_visitor_metadata(mdata, schema, custom_fields):
 
 
 def discover_streams(config):
-    # Discover schemas, build metadata for all the steams and return catalog 
+    # Discover schemas, build metadata for all the steams and return catalog
     streams = []
 
     LOGGER.info("Discovering custom fields for Accounts")
