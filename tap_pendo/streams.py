@@ -20,7 +20,6 @@ from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
 KEY_PROPERTIES = ['id']
-BASE_URL = "https://app.pendo.io"
 
 LOGGER = singer.get_logger()
 session = requests.Session()
@@ -154,6 +153,8 @@ class Stream():
             'x-pendo-integration-key': self.config['x_pendo_integration_key'],
             'content-type': 'application/json'
         }
+
+        base_url = self.config.get('base_url', 'https://app.pendo.io')
 
         request_kwargs = {
             'url': self.endpoint.get_url(**kwargs),
