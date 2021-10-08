@@ -40,6 +40,7 @@ class TestPendoBase(unittest.TestCase):
     
     def expected_metadata(self):
         """The expected streams and metadata about the streams"""
+        event_replication_key = 'day' if self.is_day_range else 'hour'
         return {
             "accounts": {
                 self.PRIMARY_KEYS: {'account_id'},
@@ -83,17 +84,17 @@ class TestPendoBase(unittest.TestCase):
             "feature_events":{
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day' if self.is_day_range else 'hour'}
+                self.REPLICATION_KEYS: {event_replication_key}
             },
             "events": {
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day' if self.is_day_range else 'hour'}
+                self.REPLICATION_KEYS: {event_replication_key}
             },
             "page_events": {
-                self.PRIMARY_KEYS: {"page_id", "visitor_id", "account_id", "server", "remote_ip", "user_agent", "day" if self.is_day_range else "hour"},
+                self.PRIMARY_KEYS: {"page_id", "visitor_id", "account_id", "server", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day' if self.is_day_range else 'hour'}
+                self.REPLICATION_KEYS: {event_replication_key}
             },
             "guide_events": {
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "server_name", "remote_ip"},
@@ -108,7 +109,7 @@ class TestPendoBase(unittest.TestCase):
             "track_events": {
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day' if self.is_day_range else 'hour'}
+                self.REPLICATION_KEYS: {event_replication_key}
             },
             "metadata_accounts": {
                 self.REPLICATION_METHOD: self.FULL_TABLE,
