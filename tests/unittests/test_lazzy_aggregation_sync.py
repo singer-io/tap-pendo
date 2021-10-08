@@ -23,7 +23,7 @@ class Mockresponse:
     def __exit__(self, exc_type, exc_value, tb):
         return True
 
-# Substream sync is loop over all the parent data
+# Mocking sync of substream
 def mocked_substream(state, parent, sub_stream, parent_response):
     for record in parent_response:
         pass
