@@ -628,7 +628,7 @@ class Events(LazyAggregationStream):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
-        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
+        self.key_properties.append(self.replication_key)
 
     def sync(self, state, start_date=None, key_id=None):
         update_currently_syncing(state, self.name)
