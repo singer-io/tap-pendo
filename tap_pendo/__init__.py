@@ -42,7 +42,7 @@ class DependencyException(Exception):
 
 
 def validate_dependencies(selected_stream_ids):
-    # Validate and raise exceptions if sub-streams are selected but related parents not selected
+    # Validate and raise exceptions if sub-streams are selected but related parents are not selected
     errs = []
     msg_tmpl = ("Unable to extract {0} data. "
                 "To receive {0} data, you also need to select {1}.")

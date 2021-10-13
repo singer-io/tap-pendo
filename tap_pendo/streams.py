@@ -477,7 +477,7 @@ class Stream():
         else:
             sub_stream = None
 
-        # Sync substream if current stream have sub-stream and selected in catalog
+        # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
@@ -516,7 +516,7 @@ class LazyAggregationStream(Stream):
         else:
             sub_stream = None
 
-        # Sync substream if current stream have sub-stream and selected in catalog
+        # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
@@ -1050,7 +1050,7 @@ class MetadataAccounts(Stream):
         else:
             sub_stream = None
 
-        # Sync substream if current stream have sub-stream and selected in catalog
+        # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
@@ -1077,7 +1077,7 @@ class MetadataVisitors(Stream):
         else:
             sub_stream = None
 
-        # Sync substream if current stream have sub-stream and selected in catalog
+        # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
