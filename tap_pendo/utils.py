@@ -53,7 +53,7 @@ def load_json(path):
 
 
 def load_schema(entity):
-    return load_json(get_abs_path("schemas/{}.json".format(entity)))
+    return load_json(get_abs_path(f"schemas/{entity}.json"))
 
 
 def update_state(state, entity, dt):
@@ -91,4 +91,4 @@ def check_config(config, required_keys):
     missing_keys = [key for key in required_keys if key not in config]
     if missing_keys:
         raise Exception(
-            "Config is missing required keys: {}".format(missing_keys))
+            f"Config is missing required keys: {missing_keys}")
