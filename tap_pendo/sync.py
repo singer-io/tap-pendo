@@ -82,4 +82,4 @@ def sync_full_table(state, instance):
 
             singer.write_record(stream.tap_stream_id, transformed_record)
             counter.increment()
-    return counter.value
+        return counter.value
