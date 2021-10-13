@@ -12,7 +12,7 @@ import humps
 import ijson
 import requests
 import singer
-import singer.metrics as metrics
+import singer.metrics as metrics # pylint: disable = consider-using-from-import
 from requests.exceptions import HTTPError
 from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
@@ -76,13 +76,13 @@ class Server42xRateLimitError(Exception):
     pass
 
 
-class Endpoints:
+class Endpoints():
     endpoint = ""
     method = ""
     headers = {}
     params = {}
 
-    def __init__(self, endpoint, method, headers={}, params={}):
+    def __init__(self, endpoint, method, headers=None, params=None):
         self.endpoint = endpoint
         self.method = method
         self.headers = headers
@@ -211,7 +211,7 @@ class Stream():
     def load_schema(self):
         refs = self.load_shared_schema_refs()
 
-        schema_file = "schemas/{}.json".format(self.name)
+        schema_file = f"schemas/{self.name}.json"
         with open(get_abs_path(schema_file)) as f:
             schema = json.load(f)
         self.resolve_schema_references(schema, "$ref", refs)
@@ -242,7 +242,7 @@ class Stream():
                                        'inclusion', 'available')
 
         # For period stream adjust schema for time period
-        if self.replication_key == 'day' or self.replication_key == 'hour':
+        if self.replication_key in ('day', 'hour'):
             if hasattr(self, 'period') and self.period == 'hourRange':
                 mdata.pop(('properties', 'day'))
             elif hasattr(self, 'period') and self.period == 'dayRange':
@@ -288,10 +288,10 @@ class Stream():
         for record in parent_response:
             try:
                 with metrics.record_counter(
-                        sub_stream.name) as counter, Transformer(
-                            integer_datetime_fmt=
-                            "unix-milliseconds-integer-datetime-parsing"
-                        ) as transformer:
+                    sub_stream.name) as counter, Transformer(
+                        integer_datetime_fmt=
+                        "unix-milliseconds-integer-datetime-parsing"
+                    ) as transformer:
                     stream_events = sub_stream.sync(state, new_bookmark,
                                                     record.get(parent.key_properties[0]))
                     for event in stream_events:
@@ -354,7 +354,7 @@ class Stream():
     def lookback_window(self):
         lookback_window = self.config.get('lookback_window') or '0'
         if not lookback_window.isdigit():
-            raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
+            raise TypeError(f"lookback_window '{lookback_window}' is not numeric. Check your configuration")
         return int(lookback_window)
 
 class LazyAggregationStream(Stream):
