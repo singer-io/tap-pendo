@@ -2,7 +2,7 @@ import json
 
 import humps
 import singer
-import singer.metrics as metrics # pylint: disable = consider-using-from-import
+import singer.metrics as metrics
 from singer import Transformer, metadata
 from singer.transform import strptime_to_utc
 from singer.utils import strftime
@@ -19,7 +19,7 @@ def sync_stream(state, start_date, instance):
     new_bookmark = bookmark_dttm
 
     with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
-        integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
+            integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
     ) as transformer:
         (stream, records) = instance.sync(state)
         for record in records:
@@ -61,7 +61,7 @@ def sync_full_table(state, instance):
     stream = instance.stream
 
     with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
-        integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
+            integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
     ) as transformer:
         (stream, records) = instance.sync(state)
         for record in records:

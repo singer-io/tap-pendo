@@ -12,7 +12,7 @@ import humps
 import ijson
 import requests
 import singer
-import singer.metrics as metrics # pylint: disable = consider-using-from-import
+import singer.metrics as metrics
 from requests.exceptions import HTTPError
 from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
@@ -288,7 +288,7 @@ class Stream():
         for record in parent_response:
             try:
                 with metrics.record_counter(
-                    sub_stream.name) as counter, Transformer(
+                        sub_stream.name) as counter, Transformer(
                         integer_datetime_fmt=
                         "unix-milliseconds-integer-datetime-parsing"
                     ) as transformer:
