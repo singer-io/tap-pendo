@@ -287,11 +287,9 @@ class Stream():
 
         for record in parent_response:
             try:
-                with metrics.record_counter(
-                        sub_stream.name) as counter, Transformer(
-                        integer_datetime_fmt=
-                        "unix-milliseconds-integer-datetime-parsing"
-                    ) as transformer:
+                with metrics.record_counter(sub_stream.name) as counter, Transformer(
+                        integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
+                ) as transformer:
                     stream_events = sub_stream.sync(state, new_bookmark,
                                                     record.get(parent.key_properties[0]))
                     for event in stream_events:
