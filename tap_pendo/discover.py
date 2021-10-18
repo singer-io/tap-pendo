@@ -63,7 +63,7 @@ def get_schema_property_type(schema_type):
     elif schema_type == '':
         return {}
 
-    raise Exception(f'No case matching JSON schema for property type: {schema_type}')
+    raise Exception("No case matching JSON schema for property type: {}".format(schema_type))
 
 
 def build_metadata_metadata(mdata, schema, custom_fields):
