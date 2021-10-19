@@ -22,6 +22,9 @@ from tap_pendo import utils as tap_pendo_utils
 KEY_PROPERTIES = ['id']
 BASE_URL = "https://app.pendo.io"
 
+# timeout request after 300 seconds
+REQUEST_TIMEOUT = 300
+
 endpoints = {
     "account": {
         "method": "GET",
@@ -220,7 +223,7 @@ class Stream():
         self.config = config
 
     def send_request_get_results(self, req):
-        resp = session.send(req, timeout=300)
+        resp = session.send(req, timeout=REQUEST_TIMEOUT)
 
         if 'Too Many Requests' in resp.reason:
             retry_after = 30
