@@ -223,7 +223,8 @@ class Stream():
         self.config = config
 
     def send_request_get_results(self, req):
-        resp = session.send(req, timeout=REQUEST_TIMEOUT)
+        # add timeout if 'request_timeout' param found in else use default value
+        resp = session.send(req, timeout=self.config.get('request_timeout', REQUEST_TIMEOUT))
 
         if 'Too Many Requests' in resp.reason:
             retry_after = 30
@@ -242,7 +243,7 @@ class Stream():
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
                           factor=2)
-    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError),
+    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError), # backoff error
                           max_tries=5,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
