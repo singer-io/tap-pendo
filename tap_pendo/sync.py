@@ -38,6 +38,7 @@ def sync_stream(state, start_date, instance):
                 LOGGER.error('Transform failed for %s', record)
                 raise err
 
+            # Check for replication_value from record and if value found then use it for updating bookmark
             replication_value = transformed_record.get(
                 humps.decamelize(instance.replication_key))
             if replication_value:
