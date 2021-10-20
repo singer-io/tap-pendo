@@ -483,6 +483,8 @@ class LazyAggregationStream(Stream):
 
             resp.raise_for_status()
 
+            # Return list of records instead of yielding because more than one iteration occur over data in tap flow
+            # and yield will return generator which flushes out after one iteration.
             to_return = []
             for item in ijson.items(resp.raw, 'results.item'):
                 to_return.append(humps.decamelize(item))
