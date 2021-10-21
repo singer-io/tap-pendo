@@ -107,12 +107,15 @@ class TestNoneReplicatioKeysInSubStreams(unittest.TestCase):
 
         parent_instance = streams.Stream(mock_config)
         sub_stream = streams.Stream(mock_config)
+        sub_stream.name = 'test'
         sub_stream.replication_key = 'lastupdated'# set replication ley
         sub_stream.stream = MockStream('test')
         parent_instance.sync_substream(mock_state, parent_instance, sub_stream, mock_parent_data)
 
         # Verify that write record is called for 2 records 
         self.assertEqual(mocked_write.call_count, 2)
+        # Verify state should be updated with expected bookmark
+        self.assertEqual(mock_state, {'bookmarks': {'test': {'lastupdated': '2021-09-02T00:00:00.000000Z'}}, 'currently_syncing': None})
 
     @mock.patch("requests.Session.send")
     @mock.patch("tap_pendo.streams.Stream.sync")
@@ -132,9 +135,12 @@ class TestNoneReplicatioKeysInSubStreams(unittest.TestCase):
 
         parent_instance = streams.Stream(mock_config)
         sub_stream = streams.Stream(mock_config)
+        sub_stream.name = 'test'
         sub_stream.replication_key = 'lastupdated'# set replication ley
         sub_stream.stream = MockStream('test')
         parent_instance.sync_substream(mock_state, parent_instance, sub_stream, mock_parent_data)
 
         # Verify that write record is called for 3 records 
         self.assertEqual(mocked_write.call_count, 3)
+        # Verify state should be updated with expected bookmark
+        self.assertEqual(mock_state, {'bookmarks': {'test': {'lastupdated': '2021-09-01T00:00:00.000000Z'}}, 'currently_syncing': None})
