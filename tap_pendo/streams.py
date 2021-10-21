@@ -415,7 +415,7 @@ class Stream():
         # Loop over records of parent stream
         for record in parent_response:
             try:
-                # Initialize counter and transformer with specific datetime format 
+                # Initialize counter and transformer with specific datetime format
                 with metrics.record_counter(
                         sub_stream.name) as counter, Transformer(
                             integer_datetime_fmt=
