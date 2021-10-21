@@ -1,10 +1,5 @@
 from collections.abc import Generator
 from unittest import mock
-from unittest.mock import patch
-
-import backoff
-import requests
-import requests_mock
 from pytest import raises
 from tap_pendo.streams import Endpoints, Visitors
 
