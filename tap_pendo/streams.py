@@ -219,7 +219,7 @@ class Stream():
     def load_schema(self):
         refs = self.load_shared_schema_refs()
 
-        schema_file = f"schemas/{self.name}.json"
+        schema_file = "schemas/{}.json".format(self.name)
         with open(get_abs_path(schema_file)) as f:
             schema = json.load(f)
         self.resolve_schema_references(schema, "$ref", refs)
@@ -360,7 +360,7 @@ class Stream():
     def lookback_window(self):
         lookback_window = self.config.get('lookback_window') or '0'
         if not lookback_window.isdigit():
-            raise TypeError(f"lookback_window '{lookback_window}' is not numeric. Check your configuration")
+            raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
         return int(lookback_window)
 
 class LazyAggregationStream(Stream):
