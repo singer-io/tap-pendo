@@ -238,6 +238,8 @@ class Stream():
         dec = humps.decamelize(resp.json())
         return dec
 
+    # backoff for Timeout error is already included in "requests.exceptions.RequestException"
+    # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
                           max_tries=5,
                           giveup=lambda e: e.response is not None and 400 <= e.

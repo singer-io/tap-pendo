@@ -245,6 +245,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `x_pendo_integration_key` (string, `ABCdef123`): an integration key from Pendo.
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
    - `lookback_window` (integer): 10 (For event objects. Default: 0)
+   - `request_timeout` (integer): 100 (For passing timeout to the request. Default: 300)
 
    ```json
    {
@@ -252,6 +253,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
      "start_date": "2020-09-18T00:00:00Z",
      "period": "dayRange",
      "lookback_window": 10,
+     "request_timeout": 100,
      "include_anonymous_visitors: "true"
    }
    ```
