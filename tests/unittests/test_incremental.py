@@ -31,8 +31,8 @@ class TestIncremental(unittest.TestCase):
 
     def test_scenario_1(self, mocked_state, mocked_write, mocked_sync, mocked_request):
         '''
-            Verify that only all records are written as
-            both are updated later than start date
+            Verify that all records are written as both are as
+            the replication key is later than start date
         '''
         mock_config = mock_state = {}
         mock_start_date = "2021-01-10T00:00:00Z"
