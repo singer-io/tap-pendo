@@ -344,6 +344,11 @@ class Stream():
                                self.replication_method)
 
         if self.replication_key:
+            # for a certain stream like "features, track_types, pages, guides"
+            # the replication key in schema is "last_updated_at" and in class variable
+            # of stream it is "lastUpdatedAt" so rather than updating the replication key
+            # value in the class variable used "humps.decamelize" for backward compatibility
+            # as for previous syncs the value in the bookmark will contain "lastUpdatedAt"
             mdata = metadata.write(mdata, (), 'valid-replication-keys',
                                    [humps.decamelize(self.replication_key)])
 
