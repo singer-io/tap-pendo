@@ -415,6 +415,7 @@ class Stream():
         # Loop over records of parent stream
         for record in parent_response:
             try:
+                # Initialize counter and transformer with specific datetime format 
                 with metrics.record_counter(
                         sub_stream.name) as counter, Transformer(
                             integer_datetime_fmt=
@@ -423,9 +424,11 @@ class Stream():
                     # Get records of sub-stream
                     stream_events = sub_stream.sync(state, new_bookmark,
                                                     record.get(parent.key_properties[0]))
+                    # Loop over data of sub-stream
                     for event in stream_events:
                         counter.increment()
 
+                        # Get metadata for the stream to use in transform
                         schema_dict = sub_stream.stream.schema.to_dict()
                         stream_metadata = metadata.to_map(
                             sub_stream.stream.metadata)
