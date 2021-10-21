@@ -17,7 +17,7 @@ LOGGER = singer.get_logger()
 
 
 def do_discover(config):
-    # Discover schemas for all streams and dump catalog
+    # Discover schemas for all streams and dump catalog. Also validate the credentials provided in config.json
     LOGGER.info("Starting discover")
     catalog = {"streams": discover_streams(config)}
     json.dump(catalog, sys.stdout, indent=2)
