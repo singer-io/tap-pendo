@@ -1,21 +1,31 @@
-from collections.abc import Generator
 from unittest import mock
-from pytest import raises
 from tap_pendo.streams import Endpoints, Visitors
+import unittest
+import socket
+from requests.models import ProtocolError
 
 config = {'x_pendo_integration_key': "TEST_KEY"}
 stream = Visitors(config=config)
 stream.endpoint = Endpoints('', 'GET')
 
-
-@mock.patch('time.sleep', return_value=None)
+@mock.patch("time.sleep")
 @mock.patch('requests.Session.send')
-def test_request_backoff_on_remote_timeout_conn_reset(mock_send, mock_sleep):
-    mock_send.side_effect = ConnectionResetError()
+class TestConnectionResetError(unittest.TestCase):
 
-    with raises(ConnectionResetError) as ex:
-        stream.request(endpoint=None)
-    # Assert backoff retry count as expected
-    # because there is a time.sleep in pendo_utils.rate_limit and in the backoff implementation also
-    # so the total count sums up to 4 + 4 = 8
-    assert mock_sleep.call_count == 8 
+    def test_connection_reset_error__accounts(self, mocked_send, mocked_sleep):
+        # mock request and raise error
+        
+        config = {'x_pendo_integration_key': "TEST_KEY"}
+        # initialize 'visitors' stream class
+        visitors = Visitors(config=config)
+        stream.endpoint = Endpoints('', 'GET')
+
+        mocked_send.side_effect = socket.error(104, 'Connection reset by peer')
+
+        try:
+            visitors.request(endpoint=None)
+        except ConnectionResetError:
+            pass
+
+        # verify if the request was called 5 times
+        self.assertEquals(mocked_send.call_count, 5)
