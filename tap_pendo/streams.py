@@ -89,16 +89,24 @@ class Endpoints():
         self.params = params
 
     def get_url(self, **kwargs):
+        """
+        Concatenate  and format the dynamic values to the BASE_URL
+        """
         return BASE_URL + self.endpoint.format(**kwargs)
 
 
 class Stream():
+    """
+    Base Stream class that works as a parent for child stream classes.
+    """
     name = None
     replication_method = None
     replication_key = None
     key_properties = KEY_PROPERTIES
     stream = None
     period = None
+    # initialized the endpoint attribute which can be overriden by child streams based on
+    # the different parameters used by the stream.
     endpoint = Endpoints("/api/v1/aggregation", "POST")
 
     def __init__(self, config=None):
@@ -781,6 +789,7 @@ class Reports(Stream):
     name = "reports"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/report", "GET")
 
     def sync(self, state, start_date=None, key_id=None):
@@ -792,6 +801,7 @@ class Reports(Stream):
 class MetadataVisitor(Stream):
     name = "metadata_visitor"
     replication_method = "FULL_TABLE"
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
     def sync(self, state, start_date=None, key_id=None):
@@ -812,6 +822,8 @@ class VisitorHistory(Stream):
     params = {
         "starttime": "start_time"
     }
+    # the endpoint attribute overriden and re-initialized with different endpoint URL, method, headers and params
+    # the visitorId parameter will be formatted in the get_url() function of the endpoints class
     endpoint = Endpoints(
         "/api/v1/visitor/{visitorId}/history", "GET", headers, params)
 
@@ -853,9 +865,6 @@ class Visitors(LazyAggregationStream):
     replication_key = "lastupdated"
     key_properties = ["visitor_id"]
 
-    def get_endpoint(self):
-        return "/api/v1/aggregation"
-
     def get_body(self):
         include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
         return {
@@ -895,6 +904,7 @@ class MetadataAccounts(Stream):
     name = "metadata_accounts"
     replication_method = "FULL_TABLE"
     key_properties = []
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/account", "GET")
 
     def get_body(self):
@@ -922,6 +932,7 @@ class MetadataVisitors(Stream):
     name = "metadata_visitors"
     replication_method = "FULL_TABLE"
     key_properties = []
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
     def get_body(self):
