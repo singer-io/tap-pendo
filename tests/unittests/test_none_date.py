@@ -36,13 +36,15 @@ class TestNoneReplicatioKeys(unittest.TestCase):
             Verify that if replication key value are present in valid form then tap
             write all valid records in tap output
         '''
-        mock_config = mock_state = {}
+        mock_config = {}
+        mock_state = {}
         mock_start_date = "2021-01-01T00:00:00Z"
         mock_records = [{"id":1, "lastupdated": "2021-09-01T00:00:00Z"},
                         {"id":2, "lastupdated": "2021-09-02T00:00:00Z"}]
         mocked_sync.return_value = MockStream('test'), mock_records
 
         stream_instance = streams.Stream(mock_config)
+        stream_instance.name = 'test'
         stream_instance.replication_key = 'lastupdated'# set replication ley
         stream_instance.stream = MockStream('test')
         no_of_record = sync_stream(mock_state, mock_start_date, stream_instance)
@@ -50,6 +52,8 @@ class TestNoneReplicatioKeys(unittest.TestCase):
         # Verify that write record is called for 2 records 
         self.assertEqual(mocked_write.call_count, 2)
         self.assertEqual(no_of_record, 2)
+        # Verify state should be updated with expected bookmark
+        self.assertEqual(mock_state, {'bookmarks': {'test': {'lastupdated': '2021-09-02T00:00:00.000000Z'}}})
 
     @mock.patch("requests.Session.send")
     @mock.patch("tap_pendo.streams.Stream.sync")
@@ -59,7 +63,8 @@ class TestNoneReplicatioKeys(unittest.TestCase):
             Verify that if replication key not present or null value in data then tap should not break and
             write all such records in tap output
         '''
-        mock_config = mock_state = {}
+        mock_config = {}
+        mock_state = {}
         mock_start_date = "2021-01-01T00:00:00Z"
         mock_records = [{"id":1},# No replication key present
                         {"id":2, "lastupdated": "2021-09-01T00:00:00Z"},
@@ -67,6 +72,7 @@ class TestNoneReplicatioKeys(unittest.TestCase):
         mocked_sync.return_value = MockStream('test'), mock_records
 
         stream_instance = streams.Stream(mock_config)
+        stream_instance.name = 'test'
         stream_instance.replication_key = 'lastupdated'# set replication ley
         stream_instance.stream = MockStream('test')
         no_of_record = sync_stream(mock_state, mock_start_date, stream_instance)
@@ -74,6 +80,8 @@ class TestNoneReplicatioKeys(unittest.TestCase):
         # Verify that write record is called for 3 records 
         self.assertEqual(mocked_write.call_count, 3)
         self.assertEqual(no_of_record, 3)
+        # Verify state should be updated with expected bookmark
+        self.assertEqual(mock_state, {'bookmarks': {'test': {'lastupdated': '2021-09-01T00:00:00.000000Z'}}})
 
 
 
