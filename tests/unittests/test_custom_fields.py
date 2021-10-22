@@ -8,6 +8,10 @@ from tap_pendo.streams import Stream
 
 class TestCustomFields(unittest.TestCase):
     def test_build_account_visitor_metadata_for_accounts(self):
+        """
+        This function tests that the build_account_visitor_metadata() correctly takes the data from the accounts API
+        and appends all the custom fields to the custom metadata in the schema.
+        """
         custom_account_fields = {
             "testaccountcfield1": {
                 "type": "boolean",
@@ -34,6 +38,7 @@ class TestCustomFields(unittest.TestCase):
                 "never_index": False
             }
         }
+        # the expected schema contains all the custom fields
         expected_schema = {
             "properties":{
             "custom":{
@@ -191,6 +196,10 @@ class TestCustomFields(unittest.TestCase):
         self.assertEqual(schema, expected_schema)
 
     def test_build_account_visitor_metadata_for_visitors(self):
+        """
+        This function tests that the build_account_visitor_metadata() correctly takes the data from the accounts API
+        and appends all the custom fields to the custom metadata in the schema.
+        """
         custom_visitor_fields = {
             "testcustomfield": {
                 "type": "string",
@@ -205,7 +214,7 @@ class TestCustomFields(unittest.TestCase):
                 "never_index": False
             }
         }
-
+        # the expected schema contains all the custom fields
         expected_schema = {
             "properties":{
                 "custom":{
