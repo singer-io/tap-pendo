@@ -36,7 +36,7 @@ class TestTimeOutValue(unittest.TestCase):
 
     def test_timeout_value_in_config__Stream(self, mocked_send, mocked_sleep):
         """
-            Verify if the request was called with param passed in the config file
+            Verify if the request was called with timeout value param passed in the config file
         """
         json = {"key1": "value1", "key2": "value2"}
         mocked_send.return_value = get_response(json)
@@ -47,12 +47,12 @@ class TestTimeOutValue(unittest.TestCase):
         stream.send_request_get_results('test_req')
 
         # verify if the request was called with the desired timeout
-        mocked_send.assert_called_with('test_req', timeout=100)
+        mocked_send.assert_called_with('test_req', timeout=100.0)
 
     def test_timeout_value_not_in_config__Stream(self, mocked_send, mocked_sleep):
         """
             Verify if the request was called with default timeout value
-            if the timeout param is not passed in the config file
+            as the timeout param is not passed in the config file
         """
         json = {"key1": "value1", "key2": "value2"}
         mocked_send.return_value = get_response(json)
@@ -63,26 +63,27 @@ class TestTimeOutValue(unittest.TestCase):
         stream.send_request_get_results('test_req')
 
         # verify if the request was called with default timeout
-        mocked_send.assert_called_with('test_req', timeout=300)
+        mocked_send.assert_called_with('test_req', timeout=300.0)
 
-    def test_timeout_float__Stream(self, mocked_send, mocked_sleep):
+    def test_timeout_string__Stream(self, mocked_send, mocked_sleep):
         """
-            Verify if the request was called with decimal param passed in the config file
+            Verify if the request was called with integer timeout
+            as param passed in the config file is in string
         """
         json = {"key1": "value1", "key2": "value2"}
         mocked_send.return_value = get_response(json)
 
-        # pass decimal value of 'request_timeout' in the config
-        stream = streams.Stream({'x_pendo_integration_key': 'test', 'request_timeout': 100.002})
+        # pass string value of 'request_timeout' in the config
+        stream = streams.Stream({'x_pendo_integration_key': 'test', 'request_timeout': "100"})
 
         stream.send_request_get_results('test_req')
 
         # verify if the request was called with passed timeout param
-        mocked_send.assert_called_with('test_req', timeout=100.002)
+        mocked_send.assert_called_with('test_req', timeout=100.0)
 
     def test_timeout_value_in_config__LazyAggregation(self, mocked_send, mocked_sleep):
         """
-            Verify if the request was called with param passed in the config file
+            Verify if the request was called with timeout value param passed in the config file
         """
         json = {"key1": "value1", "key2": "value2"}
         mocked_send.return_value = get_response(json)
@@ -93,12 +94,12 @@ class TestTimeOutValue(unittest.TestCase):
         stream.send_request_get_results('test_req')
 
         # verify if the request was called with the desired timeout
-        mocked_send.assert_called_with('test_req', stream=True, timeout=100)
+        mocked_send.assert_called_with('test_req', stream=True, timeout=100.0)
 
     def test_timeout_value_not_in_config__LazyAggregation(self, mocked_send, mocked_sleep):
         """
             Verify if the request was called with default timeout value
-            if the timeout param is not passed in the config file
+            as the timeout param is not passed in the config file
         """
         json = {"key1": "value1", "key2": "value2"}
         mocked_send.return_value = get_response(json)
@@ -109,19 +110,20 @@ class TestTimeOutValue(unittest.TestCase):
         stream.send_request_get_results('test_req')
 
         # verify if the request was called with default timeout
-        mocked_send.assert_called_with('test_req', stream=True, timeout=300)
+        mocked_send.assert_called_with('test_req', stream=True, timeout=300.0)
 
-    def test_timeout_float__LazyAggregation(self, mocked_send, mocked_sleep):
+    def test_timeout_string__LazyAggregation(self, mocked_send, mocked_sleep):
         """
-            Verify if the request was called with decimal param passed in the config file
+            Verify if the request was called with integer timeout
+            as param passed in the config file is in string
         """
         json = {"key1": "value1", "key2": "value2"}
         mocked_send.return_value = get_response(json)
 
-        # pass decimal value of 'request_timeout' in the config
-        stream = streams.LazyAggregationStream({'x_pendo_integration_key': 'test', 'request_timeout': 100.002})
+        # pass string value of 'request_timeout' in the config
+        stream = streams.LazyAggregationStream({'x_pendo_integration_key': 'test', 'request_timeout': "100"})
 
         stream.send_request_get_results('test_req')
 
         # verify if the request was called with passed timeout param
-        mocked_send.assert_called_with('test_req', stream=True, timeout=100.002)
+        mocked_send.assert_called_with('test_req', stream=True, timeout=100.0)
