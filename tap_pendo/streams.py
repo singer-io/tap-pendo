@@ -224,7 +224,7 @@ class Stream():
 
     def send_request_get_results(self, req):
         # add timeout if 'request_timeout' param found in else use default value
-        resp = session.send(req, timeout=float(self.config.get('request_timeout', REQUEST_TIMEOUT)))
+        resp = session.send(req, timeout=float(self.config.get('request_timeout') or REQUEST_TIMEOUT))
 
         if 'Too Many Requests' in resp.reason:
             retry_after = 30
@@ -484,7 +484,7 @@ class Stream():
 class LazyAggregationStream(Stream):
     def send_request_get_results(self, req):
         # add timeout if 'request_timeout' param found in else use default value
-        with session.send(req, stream=True, timeout=float(self.config.get('request_timeout', REQUEST_TIMEOUT))) as resp:
+        with session.send(req, stream=True, timeout=float(self.config.get('request_timeout') or REQUEST_TIMEOUT)) as resp:
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
                 LOGGER.info("Rate limit reached. Sleeping for %s seconds",
