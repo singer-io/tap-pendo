@@ -226,7 +226,7 @@ class Stream():
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
-        request_timeout = float(config_request_timeout) if config_request_timeout else REQUEST_TIMEOUT
+        request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
         resp = session.send(req, timeout=request_timeout)
 
         if 'Too Many Requests' in resp.reason:
@@ -489,7 +489,7 @@ class LazyAggregationStream(Stream):
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
-        request_timeout = float(config_request_timeout) if config_request_timeout else REQUEST_TIMEOUT
+        request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
         with session.send(req, stream=True, timeout=request_timeout) as resp:
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
