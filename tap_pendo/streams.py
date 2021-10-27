@@ -14,12 +14,16 @@ import requests
 import singer
 import singer.metrics as metrics
 from requests.exceptions import HTTPError
+from requests.models import ProtocolError
 from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
 KEY_PROPERTIES = ['id']
 BASE_URL = "https://app.pendo.io"
+
+# timeout request after 300 seconds
+REQUEST_TIMEOUT = 300
 
 endpoints = {
     "account": {
@@ -219,7 +223,11 @@ class Stream():
         self.config = config
 
     def send_request_get_results(self, req):
-        resp = session.send(req)
+        # Set request timeout to config param `request_timeout` value.
+        # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
+        config_request_timeout = self.config.get('request_timeout')
+        request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
+        resp = session.send(req, timeout=request_timeout)
 
         if 'Too Many Requests' in resp.reason:
             retry_after = 30
@@ -233,10 +241,15 @@ class Stream():
         dec = humps.decamelize(resp.json())
         return dec
 
+    # backoff for Timeout error is already included in "requests.exceptions.RequestException"
+    # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
                           max_tries=5,
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
+                          factor=2)
+    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError), # backoff error
+                          max_tries=5,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
     def request(self, endpoint, params=None, **kwargs):
@@ -474,7 +487,11 @@ class Stream():
 
 class LazyAggregationStream(Stream):
     def send_request_get_results(self, req):
-        with session.send(req, stream=True) as resp:
+        # Set request timeout to config param `request_timeout` value.
+        # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
+        config_request_timeout = self.config.get('request_timeout')
+        request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
+        with session.send(req, stream=True, timeout=request_timeout) as resp:
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
                 LOGGER.info("Rate limit reached. Sleeping for %s seconds",
@@ -484,8 +501,15 @@ class LazyAggregationStream(Stream):
 
             resp.raise_for_status()
 
+            # used list to collect items to return and
+            # return list instead of creating a generator, as in
+            # case of any error, it will be raise here itself
+            to_return = []
+
             for item in ijson.items(resp.raw, 'results.item'):
-                yield humps.decamelize(item)
+                to_return.append(humps.decamelize(item))
+
+            return to_return
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
