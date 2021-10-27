@@ -22,6 +22,124 @@ from tap_pendo import utils as tap_pendo_utils
 KEY_PROPERTIES = ['id']
 BASE_URL = "https://app.pendo.io"
 
+# timeout request after 300 seconds
+REQUEST_TIMEOUT = 300
+
+endpoints = {
+    "account": {
+        "method": "GET",
+        "endpoint": "/api/v1/account/{accountId}"
+    },
+    "accounts": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+        "data": {
+            "response": {
+                "mimeType": "application/json"
+            },
+            "request": {
+                "name": "all-accounts",
+                "pipeline": [{
+                    "source": {
+                        "accounts": "null"
+                    }
+                }],
+                "requestId": "all-accounts"
+            }
+        }
+    },
+    "features": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+    },
+    "guide_events": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+    },
+    "feature_events": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+        "data": {
+            "response": {
+                "mimeType": "application/json"
+            },
+            "request": {
+                "pipeline": [{
+                    "source": {
+                        "featureEvents": {
+                            "featureId": "{featureId}"
+                        },
+                        "timeSeries": {
+                            "period": "dayRange",
+                            "first": 1598920967000,
+                            "last": "now()"
+                        }
+                    }
+                }]
+            }
+        }
+    },
+    "guides": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+    },
+    "metadata_accounts": {
+        "method": "GET",
+        "endpoint": "/api/v1/metadata/schema/account"
+    },
+    "metadata_visitors": {
+        "method": "GET",
+        "endpoint": "/api/v1/metadata/schema/visitor"
+    },
+    "events": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+    },
+    "pages": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+    },
+    "page_events": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+    },
+    "poll_events": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation",
+    },
+    "reports": {
+        "method": "GET",
+        "endpoint": "/api/v1/report"
+    },
+    "visitor": {
+        "method": "GET",
+        "endpoint": "/api/v1/visitor/{visitorId}"
+    },
+    "visitors": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation"
+
+    },
+    "visitor_history": {
+        "method": "GET",
+        "endpoint": "/api/v1/visitor/{visitorId}/history",
+        "headers": {
+            'content-type': 'application/x-www-form-urlencoded'
+        },
+        "params": {
+            "starttime": "start_time"
+        }
+    },
+    "track_types": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation"
+    },
+    "track_events": {
+        "method": "POST",
+        "endpoint": "/api/v1/aggregation"
+    }
+}
+
 LOGGER = singer.get_logger()
 session = requests.Session()
 
@@ -305,10 +423,13 @@ class Stream():
 
         for record in parent_response:
             try:
-                with metrics.record_counter(sub_stream.name) as counter, Transformer(
-                        integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
-                ) as transformer:
-                    stream_events = sub_stream.sync(state, new_bookmark,
+                with metrics.record_counter(
+                        sub_stream.name) as counter, Transformer(
+                            integer_datetime_fmt=
+                            "unix-milliseconds-integer-datetime-parsing"
+                        ) as transformer:
+                    # syncing child streams from start date or state file date
+                    stream_events = sub_stream.sync(state, bookmark_dttm,
                                                     record.get(parent.key_properties[0]))
                     for event in stream_events:
                         counter.increment()
