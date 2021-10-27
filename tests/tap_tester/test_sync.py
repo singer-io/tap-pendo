@@ -66,7 +66,9 @@ class TestSyncNonReportStreams(unittest.TestCase):
 
     def get_start_date(self):
         if not hasattr(self, 'start_date'):
-            self.start_date = dt.strftime(dt.utcnow() - timedelta(days=2), self.START_DATE_FORMAT)
+            # updated start date as the tap will collect only records
+            # modified after the start date rather than syncing all records
+            self.start_date = "2020-09-10T00:00:00Z"
 
         return self.start_date
 

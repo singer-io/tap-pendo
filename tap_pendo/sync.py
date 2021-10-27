@@ -46,9 +46,6 @@ def sync_stream(state, start_date, instance):
             if record_timestamp > bookmark_dttm:
                 singer.write_record(stream.tap_stream_id, transformed_record)
                 counter.increment()
-            else:
-                singer.write_record(stream.tap_stream_id, transformed_record)
-                counter.increment()
 
         instance.update_bookmark(state, instance.name, strftime(new_bookmark),
                                  instance.replication_key)
