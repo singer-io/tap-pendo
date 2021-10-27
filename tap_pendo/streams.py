@@ -346,10 +346,12 @@ class Stream():
                                            indent=2))
                             raise err
 
-                        event_time = strptime_to_utc(
-                            transformed_record.get(sub_stream.replication_key))
+                        # Check for replication_value from record and if value found then use it for updating bookmark
+                        replication_value = transformed_record.get(sub_stream.replication_key)
+                        if replication_value:
+                            event_time = strptime_to_utc(replication_value)
+                            new_bookmark = max(new_bookmark, event_time)
 
-                        new_bookmark = max(new_bookmark, event_time)
                         singer.write_record(sub_stream.stream.tap_stream_id,
                                             transformed_record)
 
