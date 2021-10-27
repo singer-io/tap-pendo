@@ -14,6 +14,7 @@ import requests
 import singer
 import singer.metrics as metrics
 from requests.exceptions import HTTPError
+from requests.models import ProtocolError
 from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
@@ -23,7 +24,8 @@ BASE_URL = "https://app.pendo.io"
 
 LOGGER = singer.get_logger()
 session = requests.Session()
-
+# timeout request after 300 seconds
+REQUEST_TIMEOUT = 300
 
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
@@ -89,24 +91,35 @@ class Endpoints():
         self.params = params
 
     def get_url(self, **kwargs):
+        """
+        Concatenate  and format the dynamic values to the BASE_URL
+        """
         return BASE_URL + self.endpoint.format(**kwargs)
 
 
 class Stream():
+    """
+    Base Stream class that works as a parent for child stream classes.
+    """
     name = None
     replication_method = None
     replication_key = None
     key_properties = KEY_PROPERTIES
     stream = None
-    method = "GET"
     period = None
+    # initialized the endpoint attribute which can be overriden by child streams based on
+    # the different parameters used by the stream.
     endpoint = Endpoints("/api/v1/aggregation", "POST")
 
     def __init__(self, config=None):
         self.config = config
 
     def send_request_get_results(self, req):
-        resp = session.send(req)
+        # Set request timeout to config param `request_timeout` value.
+        # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
+        config_request_timeout = self.config.get('request_timeout')
+        request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
+        resp = session.send(req, timeout=request_timeout)
 
         if 'Too Many Requests' in resp.reason:
             retry_after = 30
@@ -120,13 +133,15 @@ class Stream():
         dec = humps.decamelize(resp.json())
         return dec
 
-    @backoff.on_exception(backoff.expo, (ConnectionResetError),
-                          max_tries=5,
-                          factor=2)
+    # backoff for Timeout error is already included in "requests.exceptions.RequestException"
+    # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
                           max_tries=5,
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
+                          factor=2)
+    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError), # backoff error
+                          max_tries=5,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
     def request(self, endpoint, params=None, **kwargs):
@@ -296,7 +311,8 @@ class Stream():
                             integer_datetime_fmt=
                             "unix-milliseconds-integer-datetime-parsing"
                         ) as transformer:
-                    stream_events = sub_stream.sync(state, new_bookmark,
+                    # syncing child streams from start date or state file date
+                    stream_events = sub_stream.sync(state, bookmark_dttm,
                                                     record.get(parent.key_properties[0]))
                     for event in stream_events:
                         counter.increment()
@@ -363,7 +379,11 @@ class Stream():
 
 class LazyAggregationStream(Stream):
     def send_request_get_results(self, req):
-        with session.send(req, stream=True) as resp:
+        # Set request timeout to config param `request_timeout` value.
+        # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
+        config_request_timeout = self.config.get('request_timeout')
+        request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
+        with session.send(req, stream=True, timeout=request_timeout) as resp:
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
                 LOGGER.info("Rate limit reached. Sleeping for %s seconds",
@@ -373,9 +393,14 @@ class LazyAggregationStream(Stream):
 
             resp.raise_for_status()
 
+            # used list to collect items to return and
+            # return list instead of creating a generator, as in
+            # case of any error, it will be raise here itself
             to_return = []
+
             for item in ijson.items(resp.raw, 'results.item'):
                 to_return.append(humps.decamelize(item))
+
             return to_return
 
     def sync(self, state, start_date=None, key_id=None):
@@ -423,7 +448,6 @@ class Accounts(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
     key_properties = ["account_id"]
-    method = "POST"
 
     def get_body(self):
         return {
@@ -790,6 +814,7 @@ class Reports(Stream):
     name = "reports"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/report", "GET")
 
     def sync(self, state, start_date=None, key_id=None):
@@ -801,6 +826,7 @@ class Reports(Stream):
 class MetadataVisitor(Stream):
     name = "metadata_visitor"
     replication_method = "FULL_TABLE"
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
     def sync(self, state, start_date=None, key_id=None):
@@ -821,6 +847,8 @@ class VisitorHistory(Stream):
     params = {
         "starttime": "start_time"
     }
+    # the endpoint attribute overriden and re-initialized with different endpoint URL, method, headers and params
+    # the visitorId parameter will be formatted in the get_url() function of the endpoints class
     endpoint = Endpoints(
         "/api/v1/visitor/{visitorId}/history", "GET", headers, params)
 
@@ -830,12 +858,10 @@ class VisitorHistory(Stream):
     def sync(self, state, start_date=None, key_id=None):
         update_currently_syncing(state, self.name)
 
-        bookmark_date = self.get_bookmark(state, self.name,
-                                          self.config.get('start_date'),
-                                          self.replication_key)
-        bookmark_dttm = strptime_to_utc(bookmark_date)
-
-        abs_start, abs_end = get_absolute_start_end_time(bookmark_dttm)
+        # using "start_date" that is passed and not using the bookmark
+        # value stored in the state file, as it will be updated after
+        # every sync of child stream for parent stream
+        abs_start, abs_end = get_absolute_start_end_time(start_date)
         lookback = abs_start - timedelta(days=self.lookback_window())
         window_next = lookback
 
@@ -861,10 +887,6 @@ class Visitors(LazyAggregationStream):
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
     key_properties = ["visitor_id"]
-    method = "POST"
-
-    def get_endpoint(self):
-        return "/api/v1/aggregation"
 
     def get_body(self):
         include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
@@ -905,6 +927,7 @@ class MetadataAccounts(Stream):
     name = "metadata_accounts"
     replication_method = "FULL_TABLE"
     key_properties = []
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/account", "GET")
 
     def get_body(self):
@@ -932,6 +955,7 @@ class MetadataVisitors(Stream):
     name = "metadata_visitors"
     replication_method = "FULL_TABLE"
     key_properties = []
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
     def get_body(self):
