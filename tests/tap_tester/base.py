@@ -12,7 +12,6 @@ from tap_tester import menagerie
 
 
 class TestPendoBase(unittest.TestCase):
-
     
     REPLICATION_KEYS = "valid-replication-keys"
     PRIMARY_KEYS = "table-key-properties"

@@ -43,7 +43,7 @@ class PendoStartDateTest(TestPendoBase):
         ##########################################################################
 
         # instantiate connection
-        conn_id_1 = connections.ensure_connection(self)
+        conn_id_1 = connections.ensure_connection(self, original_properties=False)
 
         # run check mode
         found_catalogs_1 = self.run_and_verify_check_mode(conn_id_1)
@@ -117,13 +117,11 @@ class PendoStartDateTest(TestPendoBase):
                     expected_replication_key = next(
                         iter(self.expected_replication_keys().get(stream, [])))
                     replication_dates_1 = [row.get('data').get(expected_replication_key) for row in
-                                           synced_records_1.get(
-                        stream, {'messages': []}).get('messages', [])
-                        if row.get('data')]
+                                        synced_records_1.get(stream, {'messages': []}).get('messages', [])
+                                        if row.get('data')]
                     replication_dates_2 = [row.get('data').get(expected_replication_key) for row in
-                                           synced_records_2.get(
-                        stream, {'messages': []}).get('messages', [])
-                        if row.get('data')]
+                                        synced_records_2.get(stream, {'messages': []}).get('messages', [])
+                                        if row.get('data')]
 
                     # Verify replication key is greater or equal to start_date for sync 1
                     for replication_date in replication_dates_1:
