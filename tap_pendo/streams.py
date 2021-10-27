@@ -22,146 +22,13 @@ from tap_pendo import utils as tap_pendo_utils
 KEY_PROPERTIES = ['id']
 BASE_URL = "https://app.pendo.io"
 
+LOGGER = singer.get_logger()
+session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
 
-endpoints = {
-    "account": {
-        "method": "GET",
-        "endpoint": "/api/v1/account/{accountId}"
-    },
-    "accounts": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-        "data": {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "name": "all-accounts",
-                "pipeline": [{
-                    "source": {
-                        "accounts": "null"
-                    }
-                }],
-                "requestId": "all-accounts"
-            }
-        }
-    },
-    "features": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "guide_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "feature_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-        "data": {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "featureEvents": {
-                            "featureId": "{featureId}"
-                        },
-                        "timeSeries": {
-                            "period": "dayRange",
-                            "first": 1598920967000,
-                            "last": "now()"
-                        }
-                    }
-                }]
-            }
-        }
-    },
-    "guides": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "metadata_accounts": {
-        "method": "GET",
-        "endpoint": "/api/v1/metadata/schema/account"
-    },
-    "metadata_visitors": {
-        "method": "GET",
-        "endpoint": "/api/v1/metadata/schema/visitor"
-    },
-    "events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "pages": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "page_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "poll_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation",
-    },
-    "reports": {
-        "method": "GET",
-        "endpoint": "/api/v1/report"
-    },
-    "visitor": {
-        "method": "GET",
-        "endpoint": "/api/v1/visitor/{visitorId}"
-    },
-    "visitors": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation"
-
-    },
-    "visitor_history": {
-        "method": "GET",
-        "endpoint": "/api/v1/visitor/{visitorId}/history",
-        "headers": {
-            'content-type': 'application/x-www-form-urlencoded'
-        },
-        "params": {
-            "starttime": "start_time"
-        }
-    },
-    "track_types": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation"
-    },
-    "track_events": {
-        "method": "POST",
-        "endpoint": "/api/v1/aggregation"
-    }
-}
-
-LOGGER = singer.get_logger()
-session = requests.Session()
-
-
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
-
-
-def get_url(endpoint, **kwargs):
-    return BASE_URL + endpoints[endpoint]['endpoint'].format(**kwargs)
-
-
-def get_method(endpoint):
-    return endpoints[endpoint]['method']
-
-
-def get_headers(endpoint):
-    return endpoints[endpoint].get('headers', {})
-
-
-def get_params(endpoint):
-    return endpoints[endpoint].get('params', {})
 
 # Determine absolute start and end times w/ attribution_window constraint
 # abs_start/end and window_start/end must be rounded to nearest hour or day (granularity)
@@ -210,14 +77,39 @@ def update_currently_syncing(state, stream_name):
 class Server42xRateLimitError(Exception):
     pass
 
+
+class Endpoints():
+    endpoint = ""
+    method = ""
+    headers = {}
+    params = {}
+
+    def __init__(self, endpoint, method, headers=None, params=None):
+        self.endpoint = endpoint
+        self.method = method
+        self.headers = headers
+        self.params = params
+
+    def get_url(self, **kwargs):
+        """
+        Concatenate  and format the dynamic values to the BASE_URL
+        """
+        return BASE_URL + self.endpoint.format(**kwargs)
+
+
 class Stream():
+    """
+    Base Stream class that works as a parent for child stream classes.
+    """
     name = None
     replication_method = None
     replication_key = None
     key_properties = KEY_PROPERTIES
     stream = None
-    method = "GET"
     period = None
+    # initialized the endpoint attribute which can be overriden by child streams based on
+    # the different parameters used by the stream.
+    endpoint = Endpoints("/api/v1/aggregation", "POST")
 
     def __init__(self, config=None):
         self.config = config
@@ -260,13 +152,13 @@ class Stream():
         }
 
         request_kwargs = {
-            'url': get_url(endpoint, **kwargs),
-            'method': get_method(endpoint),
+            'url': self.endpoint.get_url(**kwargs),
+            'method': self.endpoint.method,
             'headers': headers,
             'params': params
         }
 
-        headers = get_headers(endpoint)
+        headers = self.endpoint.headers
         if headers:
             request_kwargs['headers'].update(headers)
 
@@ -369,7 +261,7 @@ class Stream():
                                        'inclusion', 'available')
 
         # For period stream adjust schema for time period
-        if self.replication_key == 'day' or self.replication_key == 'hour':
+        if self.replication_key in ('day', 'hour'):
             if hasattr(self, 'period') and self.period == 'hourRange':
                 mdata.pop(('properties', 'day'))
             elif hasattr(self, 'period') and self.period == 'dayRange':
@@ -556,7 +448,6 @@ class Accounts(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
     key_properties = ["account_id"]
-    method = "POST"
 
     def get_body(self):
         return {
@@ -803,7 +694,7 @@ class GuideEvents(EventsBase):
                                 "period": period,
                                 "first": first,
                                 "last": "now()"
-                                }
+                            }
                         }
                     },
                     {
@@ -923,6 +814,8 @@ class Reports(Stream):
     name = "reports"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
+    endpoint = Endpoints("/api/v1/report", "GET")
 
     def sync(self, state, start_date=None, key_id=None):
         reports = self.request(self.name)
@@ -933,6 +826,8 @@ class Reports(Stream):
 class MetadataVisitor(Stream):
     name = "metadata_visitor"
     replication_method = "FULL_TABLE"
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
+    endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
     def sync(self, state, start_date=None, key_id=None):
         reports = self.request(self.name)
@@ -946,6 +841,16 @@ class VisitorHistory(Stream):
     replication_key = "modified_ts"
     key_properties = ['visitor_id']
     DATE_WINDOW_SIZE = 1
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded'
+    }
+    params = {
+        "starttime": "start_time"
+    }
+    # the endpoint attribute overriden and re-initialized with different endpoint URL, method, headers and params
+    # the visitorId parameter will be formatted in the get_url() function of the endpoints class
+    endpoint = Endpoints(
+        "/api/v1/visitor/{visitorId}/history", "GET", headers, params)
 
     def get_params(self, start_time):
         return {"starttime": start_time}
@@ -982,10 +887,6 @@ class Visitors(LazyAggregationStream):
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
     key_properties = ["visitor_id"]
-    method = "POST"
-
-    def get_endpoint(self):
-        return "/api/v1/aggregation"
 
     def get_body(self):
         include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
@@ -1026,6 +927,8 @@ class MetadataAccounts(Stream):
     name = "metadata_accounts"
     replication_method = "FULL_TABLE"
     key_properties = []
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
+    endpoint = Endpoints("/api/v1/metadata/schema/account", "GET")
 
     def get_body(self):
         return None
@@ -1047,10 +950,13 @@ class MetadataAccounts(Stream):
     def get_fields(self):
         return self.request(self.name, json=self.get_body())
 
+
 class MetadataVisitors(Stream):
     name = "metadata_visitors"
     replication_method = "FULL_TABLE"
     key_properties = []
+    # the endpoint attribute overriden and re-initialized with different endpoint URL and method
+    endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
     def get_body(self):
         return None
