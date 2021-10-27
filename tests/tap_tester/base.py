@@ -13,6 +13,7 @@ from tap_tester import menagerie
 
 class TestPendoBase(unittest.TestCase):
 
+    
     REPLICATION_KEYS = "valid-replication-keys"
     PRIMARY_KEYS = "table-key-properties"
     FOREIGN_KEYS = "table-foreign-key-properties"
@@ -20,7 +21,7 @@ class TestPendoBase(unittest.TestCase):
     INCREMENTAL = "INCREMENTAL"
     FULL_TABLE = "FULL_TABLE"
     START_DATE_FORMAT = "%Y-%m-%dT00:00:00Z"
-    BOOKMARK_COMPARISON_FORMAT = "%Y-%m-%dT00:00:00+00:00"
+    BOOKMARK_COMPARISON_FORMAT = "%Y-%m-%dT%H:%M%S%z"
     start_date = ""
     
     @staticmethod
@@ -31,12 +32,12 @@ class TestPendoBase(unittest.TestCase):
     def tap_name():
         """The name of the tap"""
         return "tap-pendo"
-
+    
     @staticmethod
     def get_type():
         """the expected url route ending"""
         return "platform.pendo"
-
+    
     def expected_metadata(self):
         """The expected streams and metadata about the streams"""
         return {
@@ -115,7 +116,7 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_METHOD: self.FULL_TABLE,
             },
         }
-
+        
     def setUp(self):
         missing_envs = [x for x in [
             "TAP_PENDO_INTEGRATION_KEY",
@@ -123,14 +124,14 @@ class TestPendoBase(unittest.TestCase):
 
         if missing_envs:
             raise Exception("Missing environment variables: {}".format(missing_envs))
-
+        
     @staticmethod
     def get_credentials():
         """Authentication information for the test account"""
         return {
             "x_pendo_integration_key": os.getenv("TAP_PENDO_INTEGRATION_KEY")
         }
-
+        
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         return_value = {
@@ -382,3 +383,6 @@ class TestPendoBase(unittest.TestCase):
             
     def is_incremental(self, stream):
         return self.expected_metadata().get(stream).get(self.REPLICATION_METHOD) == self.INCREMENTAL
+    
+    def is_event(self, stream):
+        return stream.endswith('events')
