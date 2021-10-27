@@ -48,17 +48,17 @@ class TestPendoBase(unittest.TestCase):
             "features": {
                 self.PRIMARY_KEYS: {'id'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'last_updated_at'}
+                self.REPLICATION_KEYS: {'lastUpdatedAt'}
             },
             "guides": {
                 self.PRIMARY_KEYS: {'id'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'last_updated_at'}
+                self.REPLICATION_KEYS: {'lastUpdatedAt'}
             },
             "pages": {
                 self.PRIMARY_KEYS: {'id'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'last_updated_at'}
+                self.REPLICATION_KEYS: {'lastUpdatedAt'}
             },
             # Add back when visitor_history stream causing this test to take
             # 4+ hours is solved, tracked in this JIRA:
@@ -76,7 +76,7 @@ class TestPendoBase(unittest.TestCase):
             "track_types": {
                 self.PRIMARY_KEYS: {'id'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'last_updated_at'}
+                self.REPLICATION_KEYS: {'lastUpdatedAt'}
             },
             "feature_events":{
                 self.PRIMARY_KEYS:  {"visitor_id", "account_id", "server", "remote_ip"},

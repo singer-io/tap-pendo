@@ -128,8 +128,12 @@ class PendoBookMarkTest(TestPendoBase):
                     self.assertEqual(second_bookmark_value,
                                      first_bookmark_value)
 
-                    for record in first_sync_messages:
+                    # As for these four stream API return records with last_updated_at key while in state file 
+                    # it store as bookmark key lastUpdatedAt key.
+                    if stream in ["features", "guides", "pages", "track_types"]: 
+                        replication_key = "last_updated_at"
 
+                    for record in first_sync_messages:
                         # Verify the first sync bookmark value is the max replication key value for a given stream
                         replication_key_value = record.get(replication_key)
                         self.assertLessEqual(
