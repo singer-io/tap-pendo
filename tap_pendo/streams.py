@@ -48,6 +48,7 @@ def get_absolute_start_end_time(last_dttm):
 
 
 def round_times(start=None, end=None):
+    # Return start and end time with rounded time(removed hours local)
     start_rounded = None
     end_rounded = None
     # Round min_start, max_end to hours or dates
@@ -57,6 +58,7 @@ def round_times(start=None, end=None):
 
 
 def remove_hours_local(dttm):
+    # Remove hours local from provided datetime
     new_dttm = dttm.replace(hour=0, minute=0, second=0, microsecond=0)
     return new_dttm
 
@@ -121,6 +123,7 @@ class Stream():
         request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
         resp = session.send(req, timeout=request_timeout)
 
+        # Sleep for provided time and retry if rate limit exceeded
         if 'Too Many Requests' in resp.reason:
             retry_after = 30
             LOGGER.info("Rate limit reached. Sleeping for %s seconds",
@@ -128,7 +131,7 @@ class Stream():
             time.sleep(retry_after)
             raise Server42xRateLimitError(resp.reason)
 
-        resp.raise_for_status()
+        resp.raise_for_status() # Check for requests status and raise exception in failure
 
         dec = humps.decamelize(resp.json())
         return dec
@@ -145,6 +148,7 @@ class Stream():
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
     def request(self, endpoint, params=None, **kwargs):
+        # Set requests headers, url, methods, params and extra provided arguments
         # params = params or {}
         headers = {
             'x-pendo-integration-key': self.config['x_pendo_integration_key'],
@@ -168,7 +172,7 @@ class Stream():
         if kwargs.get('json'):
             request_kwargs['json'] = kwargs.get('json')
 
-        req = requests.Request(**request_kwargs).prepare()
+        req = requests.Request(**request_kwargs).prepare() # Prepare request
 
         LOGGER.info("%s %s %s", request_kwargs['method'],
                     request_kwargs['url'], request_kwargs['params'])
@@ -176,10 +180,13 @@ class Stream():
         return self.send_request_get_results(req)
 
     def get_bookmark(self, state, stream, default, key=None):
+        # Return default value if no bookmark present in state for provided stream
         if (state is None) or ('bookmarks' not in state):
             return default
+        # Initialize bookmark if not present
         if not state.get('bookmarks').get(stream):
             state['bookmarks'][stream] = {}
+        # Look for bookmark with key for stream
         if key:
             return (state.get('bookmarks', {}).get(stream,
                                                    {}).get(key, default))
@@ -203,6 +210,7 @@ class Stream():
 
 
     def load_shared_schema_refs(self):
+        # Load and return dictionary of referenced schemas from 'schemas/shared'
         shared_schemas_path = get_abs_path('schemas/shared')
 
         shared_file_names = [
@@ -218,6 +226,7 @@ class Stream():
         return shared_schema_refs
 
     def resolve_schema_references(self, schema, key, refs):
+        # Resolve $ref of schemas with provided referenced schema
         if isinstance(schema, dict):
             for k, v in schema.items():
                 if isinstance(v, (dict, list)):
@@ -228,7 +237,7 @@ class Stream():
 
 
     def load_schema(self):
-        refs = self.load_shared_schema_refs()
+        refs = self.load_shared_schema_refs() # Load references scheamas
 
         schema_file = "schemas/{}.json".format(self.name)
         with open(get_abs_path(schema_file)) as f:
@@ -243,11 +252,13 @@ class Stream():
         schema = self.load_schema()
         mdata = metadata.new()
 
+        # Write key properties and replication method to metadata
         mdata = metadata.write(mdata, (), 'table-key-properties',
                                self.key_properties)
         mdata = metadata.write(mdata, (), 'forced-replication-method',
                                self.replication_method)
 
+        # Write replication key to metadata
         if self.replication_key:
             # for a certain stream like "features, track_types, pages, guides"
             # the replication key in schema is "last_updated_at" and in class variable
@@ -257,6 +268,7 @@ class Stream():
             mdata = metadata.write(mdata, (), 'valid-replication-keys',
                                    [humps.decamelize(self.replication_key)])
 
+        # Make inclusion automatic for the key properties and replication keys
         for field_name in schema['properties'].keys():
             # for a certain stream like "features, track_types, pages, guides"
             # the replication key in schema is "last_updated_at" and in class variable
@@ -286,6 +298,7 @@ class Stream():
         return humps.decamelize(record)
 
     def sync_substream(self, state, parent, sub_stream, parent_response):
+        # Get bookmark from state or start date for the stream
         bookmark_date = self.get_bookmark(state, sub_stream.name,
                                           self.config.get('start_date'),
                                           sub_stream.replication_key)
@@ -314,8 +327,10 @@ class Stream():
                     break
                 i += 1
 
+        # Loop over records of parent stream
         for record in parent_response:
             try:
+                # Initialize counter and transformer with specific datetime format
                 with metrics.record_counter(
                         sub_stream.name) as counter, Transformer(
                             integer_datetime_fmt=
@@ -324,15 +339,18 @@ class Stream():
                     # syncing child streams from start date or state file date
                     stream_events = sub_stream.sync(state, bookmark_dttm,
                                                     record.get(parent.key_properties[0]))
+                    # Loop over data of sub-stream
                     for event in stream_events:
                         counter.increment()
 
+                        # Get metadata for the stream to use in transform
                         schema_dict = sub_stream.stream.schema.to_dict()
                         stream_metadata = metadata.to_map(
                             sub_stream.stream.metadata)
 
                         transformed_event = sub_stream.transform(event)
 
+                        # Transform record as per field selection in metadata
                         try:
                             transformed_record = transformer.transform(
                                 transformed_event, schema_dict,
@@ -372,11 +390,13 @@ class Stream():
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body())['results'] or []
 
+        # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
         else:
             sub_stream = None
 
+        # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
@@ -384,6 +404,7 @@ class Stream():
         return (self.stream, stream_response)
 
     def lookback_window(self):
+        # Get lookback window from config and verify value
         lookback_window = self.config.get('lookback_window') or '0'
         if not lookback_window.isdigit():
             raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
@@ -403,7 +424,7 @@ class LazyAggregationStream(Stream):
                 time.sleep(retry_after)
                 raise Server42xRateLimitError(resp.reason)
 
-            resp.raise_for_status()
+            resp.raise_for_status() # Check for requests status and raise exception in failure
 
             # Return list of records instead of yielding because more than one iteration occur over data in tap flow
             # and yield will return generator which flushes out after one iteration.
@@ -415,11 +436,13 @@ class LazyAggregationStream(Stream):
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
 
+        # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
         else:
             sub_stream = None
 
+        # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
@@ -440,6 +463,7 @@ class EventsBase(Stream):
     def sync(self, state, start_date=None, key_id=None):
         update_currently_syncing(state, self.name)
 
+        # Calculate lookback window
         lookback = start_date - timedelta(
             days=self.lookback_window())
         ts = int(lookback.timestamp()) * 1000
@@ -476,6 +500,7 @@ class Accounts(Stream):
         }
 
     def transform(self, record):
+        # Transform data of accounts into one level dictionary with following transformation
         record['lastupdated'] = record.get('metadata').get('auto').get(
             'lastupdated')
         transformed = record
@@ -562,10 +587,12 @@ class Events(LazyAggregationStream):
                                           self.replication_key)
         bookmark_dttm = strptime_to_utc(bookmark_date)
 
+        # Set lookback window
         lookback = bookmark_dttm - timedelta(
             days=self.lookback_window())
         ts = int(lookback.timestamp()) * 1000
 
+        # Get period type from config and make request for event's data
         period = self.config.get('period')
         body = self.get_body(period, ts)
         events = self.request(self.name, json=body) or []
@@ -632,15 +659,18 @@ class PollEvents(Stream):
     def sync(self, state, start_date=None, key_id=None):
         update_currently_syncing(state, self.name)
 
+        # Get bookmark from state or start date for the stream
         bookmark_date = self.get_bookmark(state, self.name,
                                           self.config.get('start_date'),
                                           self.replication_key)
         bookmark_dttm = strptime_to_utc(bookmark_date)
 
+        # Set lookback window
         lookback = bookmark_dttm - timedelta(
             days=self.lookback_window())
         ts = int(lookback.timestamp()) * 1000
 
+        # Get period type from config and make request for event's data
         period = self.config.get('period')
         body = self.get_body(period, ts)
         events = self.request(self.name, json=body).get('results') or []
@@ -874,6 +904,7 @@ class VisitorHistory(Stream):
         lookback = abs_start - timedelta(days=self.lookback_window())
         window_next = lookback
 
+        # Get data with sliding window upto abs_end
         while window_next <= abs_end:
             ts = int(window_next.timestamp()) * 1000
             params = self.get_params(start_time=ts)
@@ -883,7 +914,7 @@ class VisitorHistory(Stream):
             for visitor in visitor_history:
                 visitor['visitorId'] = key_id
                 yield visitor
-            window_next = window_next + timedelta(days=self.DATE_WINDOW_SIZE)
+            window_next = window_next + timedelta(days=self.DATE_WINDOW_SIZE) # Update window for next call
 
     def transform(self, record):
         max_value = max(record.get('ts', 0), record.get('last_ts', 0))
@@ -921,6 +952,7 @@ class Visitors(LazyAggregationStream):
         }
 
     def transform(self, record):
+        # Transform data of accounts into one level dictionary with following transformation
         record['lastupdated'] = record.get('metadata').get('auto').get(
             'lastupdated')
         transformed = record
@@ -945,11 +977,13 @@ class MetadataAccounts(Stream):
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body())
 
+        # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
         else:
             sub_stream = None
 
+        # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
@@ -973,11 +1007,13 @@ class MetadataVisitors(Stream):
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body())
 
+        # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
         else:
             sub_stream = None
 
+        # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 

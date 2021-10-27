@@ -13,6 +13,7 @@ LOGGER = singer.get_logger()
 def sync_stream(state, start_date, instance):
     stream = instance.stream
 
+    # Get bookmark from state or start date for the stream
     bookmark_date = instance.get_bookmark(state, instance.name, start_date,
                                           instance.replication_key)
     bookmark_dttm = strptime_to_utc(bookmark_date)
@@ -21,6 +22,7 @@ def sync_stream(state, start_date, instance):
     with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
             integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
     ) as transformer:
+        # Get records for the stream
         (stream, records) = instance.sync(state)
         for record in records:
             schema_dict = stream.schema.to_dict()
@@ -28,6 +30,7 @@ def sync_stream(state, start_date, instance):
 
             transformed_record = instance.transform(record)
 
+            # Transform record as per field selection in metadata
             try:
                 transformed_record = transformer.transform(
                     transformed_record, schema_dict, stream_metadata)
@@ -53,6 +56,7 @@ def sync_stream(state, start_date, instance):
                 singer.write_record(stream.tap_stream_id, transformed_record)
                 counter.increment()
 
+        # Update bookmark and write state for the stream with new_bookmark
         instance.update_bookmark(state, instance.name, strftime(new_bookmark),
                                  instance.replication_key)
         singer.write_state(state)
@@ -66,6 +70,7 @@ def sync_full_table(state, instance):
     with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
             integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
     ) as transformer:
+        # Get records for the stream
         (stream, records) = instance.sync(state)
         for record in records:
             schema_dict = stream.schema.to_dict()
@@ -73,6 +78,7 @@ def sync_full_table(state, instance):
 
             transformed_record = instance.transform(record)
 
+            # Transform record as per field selection in metadata
             try:
                 transformed_record = transformer.transform(
                     transformed_record, schema_dict, stream_metadata)

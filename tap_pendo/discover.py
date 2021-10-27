@@ -46,10 +46,12 @@ def get_abs_path(path):
 
 
 def get_custom_fields(instance):
+    # Return custom fields to add into a catalog for provided instance(stream)
     return instance.get_fields().get('custom')
 
 
 def get_schema_property_type(schema_type):
+    # Return dictionary of types to add into catalog based on provided data type
     if schema_type == 'string':
         return {"type": ["null", "string"]}
     elif schema_type == 'time':
@@ -67,6 +69,7 @@ def get_schema_property_type(schema_type):
 
 
 def build_metadata_metadata(mdata, schema, custom_fields):
+    # Build metadata with custom fields for streams 'metadata_accounts' and 'metadata_visitors'
     if 'custom' not in schema['properties']:
         schema['properties']['custom'] = {}
         schema['properties']['custom']['type'] = ["null", "object"]
@@ -86,6 +89,7 @@ def build_metadata_metadata(mdata, schema, custom_fields):
 
 
 def build_account_visitor_metadata(mdata, schema, custom_fields):
+    # Build metadata with custom fields for streams 'accounts' and 'visitors'
     if 'metadata_custom' not in schema['properties']:
         schema['properties']['metadata_custom'] = {}
         schema['properties']['metadata_custom']['type'] = ["null", "object"]
@@ -102,6 +106,7 @@ def build_account_visitor_metadata(mdata, schema, custom_fields):
 
 
 def discover_streams(config):
+    # Discover schemas, build metadata for all the steams and return catalog
     streams = []
 
     LOGGER.info("Discovering custom fields for Accounts")
@@ -116,9 +121,10 @@ def discover_streams(config):
 
         s = s(config)
 
-        schema = s.load_schema()
+        schema = s.load_schema() # load schema for the stream
         mdata = metadata.to_map(s.load_metadata())
 
+        # additionally, build metadata for custom fields for below streams
         if s.name == 'accounts':
             build_account_visitor_metadata(mdata, schema,
                                            custom_account_fields)
