@@ -102,6 +102,12 @@ class PendoBookMarkTest(TestPendoBase):
                     # collect information specific to incremental streams from syncs 1 & 2
                     replication_key = next(
                         iter(expected_replication_keys[stream]))
+                    
+                    # As for below four stream API return records with last_updated_at key while in state file 
+                    # it store bookmark as lastUpdatedAt key. So, to fetch bookmark from state file set it to lastUpdatedAt.
+                    if stream in ["features", "guides", "pages", "track_types"]: 
+                        replication_key = "lastUpdatedAt"
+
                     first_bookmark_value = first_bookmark_key_value.get(replication_key)
                     second_bookmark_value = second_bookmark_key_value.get(replication_key)
                     first_bookmark_value_utc = self.convert_state_to_utc(
@@ -128,8 +134,10 @@ class PendoBookMarkTest(TestPendoBase):
                     self.assertEqual(second_bookmark_value,
                                      first_bookmark_value)
 
-                    # As for these four stream API return records with last_updated_at key while in state file 
-                    # it store as bookmark key lastUpdatedAt key.
+                    # As for these four stream record comes with last_updated_at key while in state file 
+                    # it store as bookmark key lastUpdatedAt key. 
+                    # We updated replication_key to lastUpdatedAt for these streams at above.
+                    # So, reverting back again to fetch records by replication key.
                     if stream in ["features", "guides", "pages", "track_types"]: 
                         replication_key = "last_updated_at"
 

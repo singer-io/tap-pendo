@@ -43,10 +43,10 @@ class PendoStartDateTest(TestPendoBase):
         ##########################################################################
 
         # instantiate connection
-        conn_id_1 = connections.ensure_connection(self)
+        conn_id_1 = connections.ensure_connection(self, original_properties=False)
 
         # run check mode
-        found_catalogs_1 = self.run_and_verify_check_mode(conn_id_1, original_properties=False)
+        found_catalogs_1 = self.run_and_verify_check_mode(conn_id_1)
 
         # table and field selection
         test_catalogs_1_all_fields = [catalog for catalog in found_catalogs_1
