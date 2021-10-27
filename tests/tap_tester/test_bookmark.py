@@ -121,6 +121,12 @@ class PendoBookMarkTest(TestPendoBase):
                         simulated_bookmark_value, days=expected_lookback_window
                     ) if self.is_event(stream) else simulated_bookmark_value
 
+                    # For track_event we have data within 2 days. As per pendo documentation for dayRange 
+                    # period sometimes it may include 23 or 25 hours of data before bookmark.
+                    # So, we have subtracted 1 day from last saved bookmark.
+                    # More details can be found at https://developers.pendo.io/docs/?bash#time-series. 
+                    simulated_bookmark_minus_lookback = self.timedelta_formatted(simulated_bookmark_minus_lookback, -1)
+                    
                     # Verify the first sync sets a bookmark of the expected form
                     self.assertIsNotNone(first_bookmark_key_value)
                     self.assertIsNotNone(first_bookmark_value)
