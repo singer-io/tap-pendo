@@ -38,8 +38,6 @@ class PendoDiscoverTest(TestPendoBase):
         self.assertTrue(all([re.fullmatch(r"[a-z_]+",  name) for name in found_catalog_names]),
                         msg="One or more streams don't follow standard naming")
         
-        # Commented some asserstion as existing bug fix resolved as part of other card. 
-        # So, once existing bug fixed, will remove comment.
         for stream in streams_to_test:
             with self.subTest(stream=stream):
 
@@ -101,12 +99,10 @@ class PendoDiscoverTest(TestPendoBase):
                                     msg="The actual replication method {} doesn't match the expected {}".format(
                                         actual_replication_method, expected_replication_method))
 
-                print(stream_properties[0].get(
-                    "metadata", {self.REPLICATION_KEYS: []}))
                 # verify replication key(s)
-                # self.assertEqual(expected_replication_keys, actual_replication_keys,
-                #                  msg="expected replication key {} but actual is {}".format(
-                #                      expected_replication_keys, actual_replication_keys))
+                self.assertEqual(expected_replication_keys, actual_replication_keys,
+                                 msg="expected replication key {} but actual is {}".format(
+                                     expected_replication_keys, actual_replication_keys))
 
                 # verify primary key(s) match expectations
                 self.assertSetEqual(
@@ -115,8 +111,8 @@ class PendoDiscoverTest(TestPendoBase):
 
                 # verify that primary keys and replication keys
                 # are given the inclusion of automatic in metadata.
-                # self.assertSetEqual(expected_automatic_fields,
-                #                     actual_automatic_fields)
+                self.assertSetEqual(expected_automatic_fields,
+                                    actual_automatic_fields)
 
                 # verify that all other fields have inclusion of available
                 # This assumes there are no unsupported fields for SaaS sources

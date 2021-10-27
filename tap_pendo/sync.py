@@ -38,15 +38,18 @@ def sync_stream(state, start_date, instance):
                 LOGGER.error('Transform failed for %s', record)
                 raise err
 
-            record_timestamp = strptime_to_utc(
-                transformed_record.get(
-                    humps.decamelize(instance.replication_key)))
-            new_bookmark = max(new_bookmark, record_timestamp)
+            # Check for replication_value from record and if value found then use it for updating bookmark
+            replication_value = transformed_record.get(
+                humps.decamelize(instance.replication_key))
+            if replication_value:
+                record_timestamp = strptime_to_utc(replication_value)
+                new_bookmark = max(new_bookmark, record_timestamp)
 
-            if record_timestamp > bookmark_dttm:
-                singer.write_record(stream.tap_stream_id, transformed_record)
-                counter.increment()
-            else:
+                if record_timestamp > bookmark_dttm:
+                    singer.write_record(stream.tap_stream_id, transformed_record)
+                    counter.increment()
+
+            else: # No replication_value found then write record without considering for bookmark
                 singer.write_record(stream.tap_stream_id, transformed_record)
                 counter.increment()
 
@@ -82,4 +85,5 @@ def sync_full_table(state, instance):
 
             singer.write_record(stream.tap_stream_id, transformed_record)
             counter.increment()
-    return counter.value
+        # return the count of records synced
+        return counter.value

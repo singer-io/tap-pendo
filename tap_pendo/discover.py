@@ -71,8 +71,8 @@ def build_metadata_metadata(mdata, schema, custom_fields):
         schema['properties']['custom'] = {}
         schema['properties']['custom']['type'] = ["null", "object"]
         schema['properties']['custom']['additional_properties'] = "false"
-    for key, _ in custom_fields.items():
         schema['properties']['custom']['properties'] = {}
+    for key, _ in custom_fields.items():
         schema['properties']['custom']['properties'][key] = {}
         schema['properties']['custom']['properties'][key]['type'] = [
             "null", "object"

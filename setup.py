@@ -10,15 +10,16 @@ setup(
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_pendo"],
     install_requires=[
-        'singer-python==5.2.1',
+        'singer-python==5.12.2',
         "requests",
         'pyhumps==1.3.1',
-        'backoff==1.3.2',
+        'backoff==1.8.0',
         'ijson==3.1.4',
     ],
     extras_require={
         'test': [
-            'pylint==2.5.3'
+            'pylint==2.5.3',
+            'nose'
         ],
         'dev': [
             'ipdb==0.11'

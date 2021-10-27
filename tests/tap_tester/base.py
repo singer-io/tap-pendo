@@ -68,7 +68,6 @@ class TestPendoBase(unittest.TestCase):
             #     self.REPLICATION_METHOD: self.INCREMENTAL,
             #     self.REPLICATION_KEYS: {'modified_ts'}
             # },
-
             "visitors": {
                 self.PRIMARY_KEYS: {'visitor_id'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
@@ -227,14 +226,10 @@ class TestPendoBase(unittest.TestCase):
         # Verify actual rows were synced
         sync_record_count = runner.examine_target_output_file(
             self, conn_id, self.expected_streams(), self.expected_pks())
-        
-        # Commented below asserstion as existing bug fix resolved as part of other card. 
-        # So, once existing bug fixed, will remove comment.
-                
-        # self.assertGreater(
-        #     sum(sync_record_count.values()), 0,
-        #     msg="failed to replicate any data: {}".format(sync_record_count)
-        # )
+        self.assertGreater(
+            sum(sync_record_count.values()), 0,
+            msg="failed to replicate any data: {}".format(sync_record_count)
+        )
         print("total replicated row count: {}".format(
             sum(sync_record_count.values())))
 
@@ -284,9 +279,7 @@ class TestPendoBase(unittest.TestCase):
                     cat['stream_name'])
                 selected_fields = self.get_selected_fields_from_metadata(
                     catalog_entry['metadata'])
-                # Commented below asserstion as existing bug fix resolved as part of other card. 
-                # So, once existing bug fixed, will remove comment.
-                # self.assertEqual(expected_automatic_fields, selected_fields)
+                self.assertEqual(expected_automatic_fields, selected_fields)
                 
     def get_selected_fields_from_metadata(self, metadata):
         selected_fields = set()

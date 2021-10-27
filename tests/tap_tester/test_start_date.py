@@ -5,23 +5,22 @@ from base import TestPendoBase
 class PendoStartDateTest(TestPendoBase):
     """Instantiate start date according to the desired data set and run the test"""
 
-    
+    def get_properties(self, *args, **kwargs):
+        props = super().get_properties(*args, **kwargs)
+        props.pop('lookback_window')
+        return props
+
     start_date_1 = ""
     start_date_2 = ""
 
     def name(self):
         return "pendo_start_date_test"
-    
-    
+
     def test_run(self):
-        # Skipped this test case as existing bug fix resolved as part of other card. 
-        # So, once existing bug fixed, will remove comment.
-        
-        # self.run_test("2021-09-09T00:00:00Z", "2021-09-13T00:00:00Z", {"accounts", "visitors", "metadata_visitors", "metadata_accounts"})
-        # self.run_test("2020-09-01T00:00:00Z", "2021-03-01T00:00:00Z", {"features", "feature_events", "pages", "page_events", "events"})
-        # self.run_test("2021-09-09T00:00:00Z", "2021-09-16T00:00:00Z", {"guides", "guide_events"})
-        # self.run_test("2021-09-13T00:00:00Z", "2021-09-15T00:00:00Z", {"track_types", "track_events"})
-        pass
+        self.run_test("2021-09-09T00:00:00Z", "2021-09-13T00:00:00Z", {"accounts", "visitors", "metadata_visitors", "metadata_accounts"})
+        self.run_test("2020-09-01T00:00:00Z", "2021-03-01T00:00:00Z", {"features", "feature_events", "pages", "page_events", "events"})
+        self.run_test("2021-09-09T00:00:00Z", "2021-09-16T00:00:00Z", {"guides", "guide_events"})
+        self.run_test("2021-09-13T00:00:00Z", "2021-09-15T00:00:00Z", {"track_types", "track_events"})
 
     def run_test(self, start_date_1, start_date_2, streams):
         """
@@ -32,8 +31,8 @@ class PendoStartDateTest(TestPendoBase):
         • verify all data from later start data has bookmark values >= start_date
         """
 
-        self.start_date_1 = self.get_properties().get('start_date')
-        self.start_date_2 = self.timedelta_formatted(self.start_date_1, days=1)
+        self.start_date_1 = start_date_1
+        self.start_date_2 = start_date_2
         
         self.start_date = self.start_date_1
 
@@ -96,7 +95,7 @@ class PendoStartDateTest(TestPendoBase):
                 expected_start_date_1 = self.timedelta_formatted(
                     self.start_date_1, -1)
                 expected_start_date_2 = self.timedelta_formatted(
-                    self.start_date_2)
+                    self.start_date_2, -1)
 
                 # collect information for assertions from syncs 1 & 2 base on expected values
                 record_count_sync_1 = record_count_by_stream_1.get(stream, 0)
