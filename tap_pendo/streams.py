@@ -583,7 +583,7 @@ class FeatureEvents(EventsBase):
 class Events(LazyAggregationStream):
     name = "events"
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server']
+    key_properties = ['visitor_id', 'account_id']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
