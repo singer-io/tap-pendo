@@ -54,6 +54,7 @@ def sync_stream(state, start_date, instance):
 
             else: # No replication_value found then write record without considering for bookmark
                 singer.write_record(stream.tap_stream_id, transformed_record)
+                LOGGER.info('Replication Value NULL for tap_stream_id: %s', stream.tap_stream_id)
                 counter.increment()
 
         # Update bookmark and write state for the stream with new_bookmark
