@@ -416,6 +416,8 @@ class LazyAggregationStream(Stream):
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
         request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
+        # Send request for stream data directly(without 'with' statement) so that
+        # exception handling and yielding can be utilized properly below
         resp = session.send(req, stream=True, timeout=request_timeout)
 
         if 'Too Many Requests' in resp.reason:
