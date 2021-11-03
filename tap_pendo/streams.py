@@ -416,22 +416,29 @@ class LazyAggregationStream(Stream):
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
         request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
-        with session.send(req, stream=True, timeout=request_timeout) as resp:
-            if 'Too Many Requests' in resp.reason:
-                retry_after = 30
-                LOGGER.info("Rate limit reached. Sleeping for %s seconds",
-                            retry_after)
-                time.sleep(retry_after)
-                raise Server42xRateLimitError(resp.reason)
+        # Send request for stream data directly(without 'with' statement) so that
+        # exception handling and yielding can be utilized properly below
+        resp = session.send(req, stream=True, timeout=request_timeout)
 
-            resp.raise_for_status() # Check for requests status and raise exception in failure
+        if 'Too Many Requests' in resp.reason:
+            retry_after = 30
+            LOGGER.info("Rate limit reached. Sleeping for %s seconds",
+                        retry_after)
+            time.sleep(retry_after)
+            raise Server42xRateLimitError(resp.reason)
 
-            # Return list of records instead of yielding because more than one iteration occur over data in tap flow
-            # and yield will return generator which flushes out after one iteration.
-            to_return = []
-            for item in ijson.items(resp.raw, 'results.item'):
-                to_return.append(humps.decamelize(item))
-            return to_return
+        resp.raise_for_status() # Check for requests status and raise exception in failure
+
+        # Separated yielding of records into a new function and called that here
+        # so that any exception raised from the session.send can be thrown from here and
+        # handled properly using backoff on request function.
+        return self.send_records(resp)
+
+    def send_records(self, resp):
+        # Yielding records from results
+        for item in ijson.items(resp.raw, 'results.item'):
+            yield humps.decamelize(item)
+        resp.close()
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
@@ -446,7 +453,10 @@ class LazyAggregationStream(Stream):
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
-        update_currently_syncing(state, None)
+            # Get parent data again as stream_response returned from request() is a generator
+            # which flush out during sync_substream call above
+            stream_response = self.request(self.name, json=self.get_body()) or []
+
         return (self.stream, stream_response)
 
 class EventsBase(Stream):

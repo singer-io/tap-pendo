@@ -23,6 +23,9 @@ class Mockresponse:
     def __exit__(self, exc_type, exc_value, tb):
         return True
 
+    def close(self):
+        return True
+
 # Mocking sync of substream
 def mocked_substream(state, parent, sub_stream, parent_response):
     for record in parent_response:
@@ -51,7 +54,7 @@ class TestLazyAggregationSync(unittest.TestCase):
         lazzy_aggr = Visitors(config)
         stream, stream_response = lazzy_aggr.sync({})
 
-        self.assertEqual(stream_response, expected_data) # parent stream get all expected data
+        self.assertEqual(list(stream_response), expected_data) # parent stream get all expected data
         self.assertEqual(mocked_substream.call_count, 1)
 
     @mock.patch("requests.Session.send")
@@ -72,5 +75,5 @@ class TestLazyAggregationSync(unittest.TestCase):
         lazzy_aggr = Visitors(config)
         stream, stream_response = lazzy_aggr.sync({})
 
-        self.assertEqual(stream_response, expected_data)
+        self.assertEqual(list(stream_response), expected_data)
         self.assertEqual(mocked_substream.call_count, 0)

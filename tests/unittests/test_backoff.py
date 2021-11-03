@@ -29,6 +29,9 @@ class Mockresponse:
     def json(self):
         return self.text
 
+    def close(self):
+        return True
+
 def get_response(json={}):
     return Mockresponse(200, json, False)
 
@@ -902,7 +905,7 @@ class Positive(unittest.TestCase):
         resp = visitors.request('visitors')
         
         # verify if the desired data was returned from the request
-        self.assertEquals(resp, [json])
+        self.assertEquals(list(resp), [json])
 
     def test_positive__events(self, mocked_send):
         json = {"key1": "value1", "key2": "value2"}
@@ -915,4 +918,4 @@ class Positive(unittest.TestCase):
         resp = events.request('events')
         
         # verify if the desired data was returned from the request
-        self.assertEquals(resp, [json])
+        self.assertEquals(list(resp), [json])
