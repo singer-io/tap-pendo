@@ -427,9 +427,9 @@ class LazyAggregationStream(Stream):
 
         resp.raise_for_status() # Check for requests status and raise exception in failure
 
-        # Separated yielding of records into a new function and called that here 
+        # Separated yielding of records into a new function and called that here
         # so that any exception raised from the session.send can be thrown from here and
-        # handled properly using backoff on request function. 
+        # handled properly using backoff on request function.
         return self.send_records(resp)
 
     def send_records(self, resp):
