@@ -426,12 +426,8 @@ class LazyAggregationStream(Stream):
 
             resp.raise_for_status() # Check for requests status and raise exception in failure
 
-            # Return list of records instead of yielding because more than one iteration occur over data in tap flow
-            # and yield will return generator which flushes out after one iteration.
-            to_return = []
             for item in ijson.items(resp.raw, 'results.item'):
-                to_return.append(humps.decamelize(item))
-            return to_return
+                yield humps.decamelize(item)
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
@@ -446,7 +442,9 @@ class LazyAggregationStream(Stream):
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
-        update_currently_syncing(state, None)
+            # Get parent data again as stream_response is generator ehich was flush out durinf sync_substream
+            stream_response = self.request(self.name, json=self.get_body()) or []
+
         return (self.stream, stream_response)
 
 class EventsBase(Stream):
