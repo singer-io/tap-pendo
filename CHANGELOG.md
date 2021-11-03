@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.1
+  * Fix Out of Memory Issue[#74](https://github.com/singer-io/tap-pendo/pull/74)
+
 ## 0.3.0
   * For FULL_TABLE stream, the record count shown by the logger message is incorrect[#59](https://github.com/singer-io/tap-pendo/pull/59)
   * Added code comments [#58](https://github.com/singer-io/tap-pendo/pull/58)
