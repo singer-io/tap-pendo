@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.1
+  * Fix Out of Memory Issue[#74](https://github.com/singer-io/tap-pendo/pull/74)
+
+## 0.3.0
+  * For FULL_TABLE stream, the record count shown by the logger message is incorrect[#59](https://github.com/singer-io/tap-pendo/pull/59)
+  * Added code comments [#58](https://github.com/singer-io/tap-pendo/pull/58)
+  * Data loss of child streams [#57](https://github.com/singer-io/tap-pendo/pull/57)
+  * Removed endpoints dict [#54](https://github.com/singer-io/tap-pendo/pull/54)
+  * Add retry logic to requests and timeouts and retries to requests [#46](https://github.com/singer-io/tap-pendo/pull/46)
+  * Fix incremental streams behaves as a full table and Make replication key with automatic inclusion [#45](https://github.com/singer-io/tap-pendo/pull/45)
+
+
 ## 0.2.0
   * Added support for custom field of type "float" [#39](https://github.com/singer-io/tap-pendo/pull/39)
 
