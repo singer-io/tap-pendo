@@ -18,6 +18,7 @@ def strftime(dt):
 
 
 def ratelimit(limit, every):
+    # Limit on numbers of call in 'limit' time by sleeping for required time
     def limitdecorator(fn):
         times = collections.deque()
 
@@ -39,6 +40,7 @@ def ratelimit(limit, every):
 
 
 def chunk(l, n):
+    # Return provided list into chunk of size n
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
@@ -63,21 +65,24 @@ def update_state(state, entity, dt):
     if isinstance(dt, datetime.datetime):
         dt = strftime(dt)
 
+    # Add entity in state if not found
     if entity not in state:
         state[entity] = dt
 
+    # Update state if provided datetime is greater than existing one
     if dt >= state[entity]:
         state[entity] = dt
 
 
 def parse_args(required_config_keys):
+    # Parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', help='Config file', required=True)
     parser.add_argument('-s', '--state', help='State file')
     args = parser.parse_args()
 
     config = load_json(args.config)
-    check_config(config, required_config_keys)
+    check_config(config, required_config_keys) # Check config for missing fields
 
     if args.state:
         state = load_json(args.state)
@@ -88,6 +93,7 @@ def parse_args(required_config_keys):
 
 
 def check_config(config, required_keys):
+    # Verify that all the required keys are present in config
     missing_keys = [key for key in required_keys if key not in config]
     if missing_keys:
         raise Exception(
