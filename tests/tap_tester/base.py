@@ -70,7 +70,6 @@ class TestPendoBase(unittest.TestCase):
             #     self.REPLICATION_METHOD: self.INCREMENTAL,
             #     self.REPLICATION_KEYS: {'modified_ts'}
             # },
-
             "visitors": {
                 self.PRIMARY_KEYS: {'visitor_id'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,

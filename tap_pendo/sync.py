@@ -13,6 +13,7 @@ LOGGER = singer.get_logger()
 def sync_stream(state, start_date, instance):
     stream = instance.stream
 
+    # Get bookmark from state or start date for the stream
     bookmark_date = instance.get_bookmark(state, instance.name, start_date,
                                           instance.replication_key)
     bookmark_dttm = strptime_to_utc(bookmark_date)
@@ -21,6 +22,7 @@ def sync_stream(state, start_date, instance):
     with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
             integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
     ) as transformer:
+        # Get records for the stream
         (stream, records) = instance.sync(state)
         for record in records:
             schema_dict = stream.schema.to_dict()
@@ -28,6 +30,7 @@ def sync_stream(state, start_date, instance):
 
             transformed_record = instance.transform(record)
 
+            # Transform record as per field selection in metadata
             try:
                 transformed_record = transformer.transform(
                     transformed_record, schema_dict, stream_metadata)
@@ -38,18 +41,23 @@ def sync_stream(state, start_date, instance):
                 LOGGER.error('Transform failed for %s', record)
                 raise err
 
-            record_timestamp = strptime_to_utc(
-                transformed_record.get(
-                    humps.decamelize(instance.replication_key)))
-            new_bookmark = max(new_bookmark, record_timestamp)
+            # Check for replication_value from record and if value found then use it for updating bookmark
+            replication_value = transformed_record.get(
+                humps.decamelize(instance.replication_key))
+            if replication_value:
+                record_timestamp = strptime_to_utc(replication_value)
+                new_bookmark = max(new_bookmark, record_timestamp)
 
-            if record_timestamp > bookmark_dttm:
+                if record_timestamp > bookmark_dttm:
+                    singer.write_record(stream.tap_stream_id, transformed_record)
+                    counter.increment()
+
+            else: # No replication_value found then write record without considering for bookmark
                 singer.write_record(stream.tap_stream_id, transformed_record)
-                counter.increment()
-            else:
-                singer.write_record(stream.tap_stream_id, transformed_record)
+                LOGGER.info('Replication Value NULL for tap_stream_id: %s', stream.tap_stream_id)
                 counter.increment()
 
+        # Update bookmark and write state for the stream with new_bookmark
         instance.update_bookmark(state, instance.name, strftime(new_bookmark),
                                  instance.replication_key)
         singer.write_state(state)
@@ -63,6 +71,7 @@ def sync_full_table(state, instance):
     with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
             integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
     ) as transformer:
+        # Get records for the stream
         (stream, records) = instance.sync(state)
         for record in records:
             schema_dict = stream.schema.to_dict()
@@ -70,6 +79,7 @@ def sync_full_table(state, instance):
 
             transformed_record = instance.transform(record)
 
+            # Transform record as per field selection in metadata
             try:
                 transformed_record = transformer.transform(
                     transformed_record, schema_dict, stream_metadata)
@@ -82,4 +92,5 @@ def sync_full_table(state, instance):
 
             singer.write_record(stream.tap_stream_id, transformed_record)
             counter.increment()
-    return counter.value
+        # return the count of records synced
+        return counter.value
