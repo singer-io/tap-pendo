@@ -324,8 +324,8 @@ class Stream():
 
         # If in_progress_sync_start is not found then store the start time of the new fresh sync(current time)
         if not in_progress_sync_start:
-            in_progress_sync_start = now()
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(in_progress_sync_start), bookmark_key="in_progress_sync_start")
+            in_progress_sync_start = strftime(now())
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=in_progress_sync_start, bookmark_key="in_progress_sync_start")
 
         singer.write_schema(sub_stream.name,
                             sub_stream.stream.schema.to_dict(),
