@@ -307,8 +307,25 @@ class Stream():
                                            sub_stream.name,
                                            None,
                                            key="last_processed")
+        # If the last sync was interrupted, get starting time of the in-progress sync
+        in_progress_sync_start = self.get_bookmark(state,
+                                                   sub_stream.name,
+                                                   None,
+                                                   key="in_progress_sync_start")
+        # If the last sync was interrupted, get maximum bookmark value found in in-progress sync so far
+        max_bookmark_seen = self.get_bookmark(state,
+                                              sub_stream.name,
+                                              None,
+                                              key="max_bookmark_seen")
+
         bookmark_dttm = strptime_to_utc(bookmark_date)
-        new_bookmark = bookmark_dttm
+        # new_bookmark is updating with maximum replication key's value found from child stream's records
+        new_bookmark = strptime_to_utc(max_bookmark_seen) if max_bookmark_seen else bookmark_dttm
+
+        # If in_progress_sync_start is not found then store the start time of the new fresh sync(current time)
+        if not in_progress_sync_start:
+            in_progress_sync_start = now()
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(in_progress_sync_start), bookmark_key="in_progress_sync_start")
 
         singer.write_schema(sub_stream.name,
                             sub_stream.stream.schema.to_dict(),
@@ -380,10 +397,17 @@ class Stream():
 
             # All events for all parents processed; can removed last processed
             self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=record.get(parent.key_properties[0]), bookmark_key="last_processed")
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
+            # Update maximum bookmark found for child stream's records so far, remove it after processing all parent ids
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key="max_bookmark_seen")
+
+        # Update bookmark value with a minimum of replication value found from all child records or start time of last completed sync
+        bookmark_value = min(new_bookmark, strptime_to_utc(in_progress_sync_start))
+        self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(bookmark_value), bookmark_key=sub_stream.replication_key)
 
         # After processing for all parent ids we can remove our resumption state
         state.get('bookmarks').get(sub_stream.name).pop('last_processed')
+        state.get('bookmarks').get(sub_stream.name).pop('max_bookmark_seen')
+        state.get('bookmarks').get(sub_stream.name).pop('in_progress_sync_start')
         update_currently_syncing(state, None)
 
 
