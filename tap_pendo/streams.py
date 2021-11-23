@@ -401,7 +401,7 @@ class Stream():
             self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key="max_bookmark_seen")
 
         # Update bookmark value with a minimum of replication value found from all child records or start time of last completed sync
-        bookmark_value = min(new_bookmark, strptime_to_utc(in_progress_sync_start)) # Convert in_progress_sync_start into dattetime object for comparison
+        bookmark_value = min(new_bookmark, strptime_to_utc(in_progress_sync_start)) # Convert in_progress_sync_start into datetime object for comparison
         self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(bookmark_value), bookmark_key=sub_stream.replication_key)
 
         # After processing for all parent ids we can remove our resumption state
