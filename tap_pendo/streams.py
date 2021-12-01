@@ -7,13 +7,13 @@ import os
 import time
 from datetime import timedelta
 
+import hashlib
 import backoff
 import humps
 import ijson
 import requests
 import singer
 import singer.metrics as metrics
-import hashlib
 from requests.exceptions import HTTPError
 from requests.models import ProtocolError
 from singer import Transformer, metadata
@@ -891,8 +891,8 @@ class PageEvents(EventsBase):
         return events
 
     # extend 'sync' to add hash field in the records
-    def sync(self, *args, **kwargs):
-        page_events = super().sync(*args, **kwargs)
+    def sync(self, state, start_date=None, key_id=None):
+        page_events = super().sync(state, start_date=start_date, key_id=key_id)
         page_events_with_hash = self.generate_sdc_parameters_hash(page_events)
         return page_events_with_hash
 
