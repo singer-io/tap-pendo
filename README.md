@@ -254,7 +254,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
      "period": "dayRange",
      "lookback_window": 10,
      "request_timeout": 300,
-     "include_anonymous_visitors: "true"
+     "include_anonymous_visitors": "true"
    }
    ```
 
