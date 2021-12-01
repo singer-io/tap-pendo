@@ -127,7 +127,7 @@ This tap:
 **[poll_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
-- Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
+- Primary key fields: `visitor_id`, `account_id`, `poll_id`, `browser_time`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `browserTime`
 - Transformations: Camel to snake case.
