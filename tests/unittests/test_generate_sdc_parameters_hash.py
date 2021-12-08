@@ -2,6 +2,23 @@ import unittest
 import hashlib
 from tap_pendo.streams import PageEvents
 
+# generate hash from the passed parameters
+# return empty string hash if parameters is None
+def generate_hash(parameters):
+    # create empty string for calculating hash
+    parameters_string = ""
+    if parameters:
+        # create key-value tuple
+        parameters_pairs = sorted(tuple((k, v) for k, v in parameters.items()), key=lambda x: x[0])
+        for pair in parameters_pairs:
+            # create string of key-values ie. key1value1key2value2...
+            parameters_string += "".join(pair)
+    # encode the created string
+    parameters_string_bytes = parameters_string.encode('utf-8')
+    # calculate the hash of the string for assertion
+    parameters_string_hash = hashlib.sha256(parameters_string_bytes).hexdigest()
+    return parameters_string_hash
+
 class TestPageEventsPrimaryKeyHash(unittest.TestCase):
 
     def test_page_events_null_parameters(self):
@@ -26,12 +43,8 @@ class TestPageEventsPrimaryKeyHash(unittest.TestCase):
             }
         ]
 
-        # create empty string for calculating hash
-        empty_string = ""
-        # encode the created string
-        empty_string_bytes = empty_string.encode('utf-8')
-        # calculate the hash of the string for assertion
-        empty_string_hash = hashlib.sha256(empty_string_bytes).hexdigest()
+        # get hash
+        empty_string_hash = generate_hash(None)
 
         # create 'PageEvents' class
         page_event = PageEvents(config)
@@ -65,17 +78,8 @@ class TestPageEventsPrimaryKeyHash(unittest.TestCase):
             }
         ]
 
-        # create empty string for calculating hash
-        parameters_string = ""
-        # create key-value tuple
-        parameters_pairs = sorted(tuple((k, v) for k, v in parameters.items()), key=lambda x: x[0])
-        for pair in parameters_pairs:
-            # create string of key-values ie. key1value1key2value2...
-            parameters_string += "".join(pair)
-        # encode the created string
-        parameters_string_bytes = parameters_string.encode('utf-8')
-        # calculate the hash of the string for assertion
-        parameters_string_hash = hashlib.sha256(parameters_string_bytes).hexdigest()
+        # get hash
+        parameters_string_hash = generate_hash(parameters)
 
         # create 'PageEvents' class
         page_event = PageEvents(config)
@@ -108,17 +112,8 @@ class TestPageEventsPrimaryKeyHash(unittest.TestCase):
             }
         ]
 
-        # create empty string for calculating hash
-        parameters_string = ""
-        # create key-value tuple
-        parameters_pairs = sorted(tuple((k, v) for k, v in parameters.items()), key=lambda x: x[0])
-        for pair in parameters_pairs:
-            # create string of key-values ie. key1value1key2value2...
-            parameters_string += "".join(pair)
-        # encode the created string
-        parameters_string_bytes = parameters_string.encode('utf-8')
-        # calculate the hash of the string for assertion
-        parameters_string_hash = hashlib.sha256(parameters_string_bytes).hexdigest()
+        # get hash
+        parameters_string_hash = generate_hash(parameters)
 
         # create 'PageEvents' class
         page_event = PageEvents(config)
