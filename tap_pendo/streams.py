@@ -5,7 +5,7 @@ import itertools
 import json
 import os
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 import backoff
 import humps
@@ -600,19 +600,63 @@ class Events(LazyAggregationStream):
         # Set lookback window
         lookback = bookmark_dttm - timedelta(
             days=self.lookback_window())
-        ts = int(lookback.timestamp()) * 1000
 
+        # get events data
+        events = self.get_events(lookback, state)
+        return (self.stream, events)
+
+    def get_events(self, window_start_date, state):
         # Get period type from config and make request for event's data
         period = self.config.get('period')
-        body = self.get_body(period, ts)
-        events = self.request(self.name, json=body) or []
-        update_currently_syncing(state, None)
-        return self.stream, events
+        # date format to filter
+        date = "date({}, {}, {})"
+        while True:
+            update_currently_syncing(state, self.name)
+
+            # get year, month and day from the start date
+            start_date, end_date = round_times(window_start_date, window_start_date + timedelta(days=int(self.config.get('events_date_window', 30))))
+
+            # create start filter
+            start = date.format(start_date.year, start_date.month, start_date.day)
+            # create end filter
+            end = date.format(end_date.year, end_date.month, end_date.day)
+
+            body = self.get_body(period, start, end)
+            events = self.request(self.name, json=body) or []
+            event = None
+
+            # loop over every event and yield
+            for event in events:
+                yield event
+
+            # as we are fetching the data in sorted manner (ascending),
+            # the last event will contain the highest bookmark value
+            if event:
+                replication_value = event.get(humps.decamelize(self.replication_key))
+                bookmark_value = strptime_to_utc(strftime(datetime.fromtimestamp(replication_value / 1000, timezone.utc)))
+                self.update_bookmark(state, self.name, strftime(bookmark_value), self.replication_key)
+
+            # for 'dayRange' the data is aggregated by day,
+            # hence adding 1 day more in the start date ie.
+            # Old Start date = date(2021, 1, 1)
+            # Old End date = date(2021, 1, 31)
+            # New Start date = date(2021, 2, 1)
+            # New End date = date(2021, 3, 3)
+            if self.period == 'dayRange':
+                window_start_date = end_date + timedelta(days=1)
+            else:
+                window_start_date = end_date
+
+            # break the loop if the starting window is greater than now
+            if window_start_date > now():
+                break
+
+            update_currently_syncing(state, None)
 
     def transform(self, record):
         return humps.decamelize(record)
 
-    def get_body(self, period, first):
+    def get_body(self, period, first, end):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -624,7 +668,7 @@ class Events(LazyAggregationStream):
                         "timeSeries": {
                             "period": period,
                             "first": first,
-                            "last": "now()"
+                            "last": str(end)
                         }
                     }
                 }, {
