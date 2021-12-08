@@ -1,27 +1,11 @@
 import unittest
-import hashlib
+from unittest import mock
 from tap_pendo.streams import PageEvents
 
-# generate hash from the passed parameters
-# return empty string hash if parameters is None
-def generate_hash(parameters):
-    # create empty string for calculating hash
-    parameters_string = ""
-    if parameters:
-        # create key-value tuple
-        parameters_pairs = sorted(tuple((k, v) for k, v in parameters.items()), key=lambda x: x[0])
-        for pair in parameters_pairs:
-            # create string of key-values ie. key1value1key2value2...
-            parameters_string += "".join(pair)
-    # encode the created string
-    parameters_string_bytes = parameters_string.encode('utf-8')
-    # calculate the hash of the string for assertion
-    parameters_string_hash = hashlib.sha256(parameters_string_bytes).hexdigest()
-    return parameters_string_hash
-
+@mock.patch("hashlib.sha256")
 class TestPageEventsPrimaryKeyHash(unittest.TestCase):
 
-    def test_page_events_null_parameters(self):
+    def test_page_events_null_parameters(self, mocked_sha256):
         """
             Test case to verify the hash for 'parameters' having 'null' value
         """
@@ -43,18 +27,15 @@ class TestPageEventsPrimaryKeyHash(unittest.TestCase):
             }
         ]
 
-        # get hash
-        empty_string_hash = generate_hash(None)
-
         # create 'PageEvents' class
         page_event = PageEvents(config)
         # function call
-        records = page_event.generate_sdc_parameters_hash(records)
+        new_records = page_event.generate_sdc_parameters_hash(records)
 
-        # verify the hash we calculated and the hash we get in the record
-        self.assertEquals(empty_string_hash, records[0].get("_sdc_parameters_hash"))
+        # verify that we called hash function with empty string
+        mocked_sha256.assert_called_with(b"")
 
-    def test_page_events_empty_string_value(self):
+    def test_page_events_empty_string_value(self, mocked_sha256):
         """
             Test case to verify the hash for 'parameters' containing empty string as value
         """
@@ -78,17 +59,15 @@ class TestPageEventsPrimaryKeyHash(unittest.TestCase):
             }
         ]
 
-        # get hash
-        parameters_string_hash = generate_hash(parameters)
-
         # create 'PageEvents' class
         page_event = PageEvents(config)
         # function call
         new_records = page_event.generate_sdc_parameters_hash(records)
-        # verify the hash we calculated and the hash we get in the record
-        self.assertEquals(parameters_string_hash, new_records[0].get("_sdc_parameters_hash"))
 
-    def test_page_events_key_value(self):
+        # verify that we called hash function with key and value as empty string
+        mocked_sha256.assert_called_with(b"param")
+
+    def test_page_events_key_value(self, mocked_sha256):
         """
             Test case to verify the hash for 'parameters' containing key-value pairs
         """
@@ -112,12 +91,10 @@ class TestPageEventsPrimaryKeyHash(unittest.TestCase):
             }
         ]
 
-        # get hash
-        parameters_string_hash = generate_hash(parameters)
-
         # create 'PageEvents' class
         page_event = PageEvents(config)
         # function call
         new_records = page_event.generate_sdc_parameters_hash(records)
-        # verify the hash we calculated and the hash we get in the record
-        self.assertEquals(parameters_string_hash, new_records[0].get("_sdc_parameters_hash"))
+
+        # verify that we called hash function with key and value
+        mocked_sha256.assert_called_with(b"paramvalue")
