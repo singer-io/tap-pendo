@@ -81,12 +81,12 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_KEYS: {'last_updated_at'}
             },
             "feature_events":{
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
+                self.PRIMARY_KEYS: {"feature_id", "visitor_id", "account_id", "server", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key}
             },
             "events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
+                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key}
             },
@@ -96,17 +96,17 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_KEYS: {event_replication_key}
             },
             "guide_events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server_name", "remote_ip"},
+                self.PRIMARY_KEYS: {"guide_id", "guide_step_id", "visitor_id", "type", "account_id", "browser_time", "server_name", "url"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'browser_time'}
             },
             "poll_events":{
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server_name", "remote_ip"},
+                self.PRIMARY_KEYS: {"visitor_id", "account_id", "poll_id", "browser_time"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'browser_time'}
             },
             "track_events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
+                self.PRIMARY_KEYS: {"track_type_id", "visitor_id", "account_id", "server", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key}
             },
