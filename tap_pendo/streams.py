@@ -603,6 +603,7 @@ class Events(LazyAggregationStream):
 
         # get events data
         events = self.get_events(lookback, state, bookmark_dttm)
+        update_currently_syncing(state, None)
         return (self.stream, events)
 
     def get_events(self, window_start_date, state, bookmark_dttm):
@@ -612,8 +613,9 @@ class Events(LazyAggregationStream):
         period = self.config.get('period')
         # date format to filter
         date = "date({}, {}, {})"
+        update_currently_syncing(state, self.name)
+
         while True:
-            update_currently_syncing(state, self.name)
 
             # get year, month and day from the start date
             # if the start date is '2021-01-01' and 'events_date_window' is 25 days
@@ -655,8 +657,6 @@ class Events(LazyAggregationStream):
                 # Note: This may result into data duplication of boundary hours of
                 #   consecutive date windows which will be handled at the target side
                 window_start_date = end_date
-
-            update_currently_syncing(state, None)
 
             # break the loop if the starting window is greater than now
             # the Pendo API supports passing future date, the data will be collected till the current date
