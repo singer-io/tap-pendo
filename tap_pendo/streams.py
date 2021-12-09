@@ -641,7 +641,7 @@ class Events(LazyAggregationStream):
 class PollEvents(Stream):
     replication_method = "INCREMENTAL"
     name = "poll_events"
-    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'poll_id', 'browser_time']
 
     def __init__(self, config):
         super().__init__(config=config)
