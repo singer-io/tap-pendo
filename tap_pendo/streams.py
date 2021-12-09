@@ -796,7 +796,11 @@ class Features(Stream):
 class FeatureEvents(EventsBase):
     name = "feature_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['feature_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
+
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)

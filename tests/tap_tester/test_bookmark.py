@@ -5,7 +5,7 @@ from tap_tester import menagerie
 
 class PendoBookMarkTest(TestPendoBase):
     """Test tap sets a bookmark and respects it for the next sync of a stream"""
-    
+
     def name(self):
         return "pendo_bookmark_test"
 
@@ -217,3 +217,12 @@ class PendoBookMarkTest(TestPendoBase):
                 # Verify at least 1 record was replicated in the second sync
                 self.assertGreater(
                     second_sync_count, 0, msg="We are not fully testing bookmarking for {}".format(stream))
+
+    def test_run(self):
+        # test for hourRange period
+        self.is_day_range = False
+        self.run_test()
+
+        # test for dayRange period
+        self.is_day_range = True
+        self.run_test()
