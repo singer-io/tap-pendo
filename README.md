@@ -95,7 +95,7 @@ This tap:
 **[feature_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
-- Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
+- Primary key fields: `feature_id`, `visitor_id`, `account_id`, `server`, `remote_ip`, `user_agent`, `day` or `hour`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
 - Transformations: Camel to snake case.
@@ -103,7 +103,7 @@ This tap:
 **[events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
-- Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
+- Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`, `user_agent`, `day` or `hour`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
 - Transformations: Camel to snake case.
@@ -135,7 +135,7 @@ This tap:
 **[track_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
-- Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
+- Primary key fields: `track_type_id`, `visitor_id`, `account_id`, `server`, `remote_ip`, `user_agent`, `day` or `hour`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
 - Transformations: Camel to snake case.
