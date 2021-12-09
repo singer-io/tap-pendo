@@ -23,7 +23,7 @@ class PendoDiscoverTest(TestPendoBase):
     def name(self):
         return "pendo_discover_test"
 
-    def test_run(self):
+    def discovery_test_run(self):
         streams_to_test = self.expected_streams()
 
         conn_id = connections.ensure_connection(self, payload_hook=None)
@@ -123,3 +123,13 @@ class PendoDiscoverTest(TestPendoBase):
                          and item.get("breadcrumb", ["properties", None])[1]
                          not in actual_automatic_fields}),
                     msg="Not all non key properties are set to available in metadata")
+
+    def test_run(self):
+
+        #Discovery test for hourRange period
+        self.is_day_range = False
+        self.discovery_test_run()
+
+        #Discovery test for dayRange period
+        self.is_day_range = True
+        self.discovery_test_run()
