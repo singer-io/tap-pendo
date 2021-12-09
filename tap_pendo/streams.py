@@ -673,7 +673,7 @@ class Events(LazyAggregationStream):
                         "timeSeries": {
                             "period": period,
                             "first": first,
-                            "last": str(end)
+                            "last": end
                         }
                     }
                 }, {
