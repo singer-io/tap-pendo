@@ -641,22 +641,27 @@ class Events(LazyAggregationStream):
                 max_bookmark = max(bookmark_value, max_bookmark)
                 self.update_bookmark(state, self.name, strftime(max_bookmark), self.replication_key)
 
-            # for 'dayRange' the data is aggregated by day,
-            # hence adding 1 day more in the start date ie.
-            # Old Start date = date(2021, 1, 1)
-            # Old End date = date(2021, 1, 31)
-            # New Start date = date(2021, 2, 1)
-            # New End date = date(2021, 3, 3)
             if self.period == 'dayRange':
+                # for 'dayRange' the data is aggregated by day,
+                # hence adding 1 day more in the next start date ie.
+                # Old Start date = date(2021, 1, 1), Old End date = date(2021, 1, 31)
+                # New Start date = date(2021, 2, 1), New End date = date(2021, 3, 3)
                 window_start_date = end_date + timedelta(days=1)
             else:
+                # for 'hourRange' the data is aggregated by hour, adding 1 day in the next start date
+                # results in data loss hence keeping previous end date as the next start date
+                # Old Start date = date(2021, 1, 1), Old End date = date(2021, 1, 31)
+                # New Start date = date(2021, 1, 31), New End date = date(2021, 3, 2)
+                # Note: This may result into data duplication of boundary hours of
+                #   consecutive date windows which will be handled at the target side
                 window_start_date = end_date
 
+            update_currently_syncing(state, None)
+
             # break the loop if the starting window is greater than now
+            # the Pendo API supports passing future date, the data will be collected till the current date
             if window_start_date > now():
                 break
-
-            update_currently_syncing(state, None)
 
     def transform(self, record):
         return humps.decamelize(record)
