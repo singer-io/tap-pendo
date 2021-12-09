@@ -602,10 +602,12 @@ class Events(LazyAggregationStream):
             days=self.lookback_window())
 
         # get events data
-        events = self.get_events(lookback, state)
+        events = self.get_events(lookback, state, bookmark_dttm)
         return (self.stream, events)
 
-    def get_events(self, window_start_date, state):
+    def get_events(self, window_start_date, state, bookmark_dttm):
+        # initialize start date as max bookmark
+        max_bookmark = bookmark_dttm
         # Get period type from config and make request for event's data
         period = self.config.get('period')
         # date format to filter
@@ -614,6 +616,8 @@ class Events(LazyAggregationStream):
             update_currently_syncing(state, self.name)
 
             # get year, month and day from the start date
+            # if the start date is '2021-01-01' and 'events_date_window' is 25 days
+            # then the window end date will be '2021-01-26'
             start_date, end_date = round_times(window_start_date, window_start_date + timedelta(days=int(self.config.get('events_date_window', 30))))
 
             # create start filter
@@ -634,7 +638,8 @@ class Events(LazyAggregationStream):
             if event:
                 replication_value = event.get(humps.decamelize(self.replication_key))
                 bookmark_value = strptime_to_utc(strftime(datetime.fromtimestamp(replication_value / 1000, timezone.utc)))
-                self.update_bookmark(state, self.name, strftime(bookmark_value), self.replication_key)
+                max_bookmark = max(bookmark_value, max_bookmark)
+                self.update_bookmark(state, self.name, strftime(max_bookmark), self.replication_key)
 
             # for 'dayRange' the data is aggregated by day,
             # hence adding 1 day more in the start date ie.
