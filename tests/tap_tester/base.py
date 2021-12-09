@@ -105,7 +105,7 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_KEYS: {'browser_time'}
             },
             "track_events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
+                self.PRIMARY_KEYS: {"track_type_id", "visitor_id", "account_id", "server", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key}
             },
