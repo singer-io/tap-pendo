@@ -461,7 +461,7 @@ class LazyAggregationStream(Stream):
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip', 'day']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -551,7 +551,7 @@ class Features(Stream):
 class FeatureEvents(EventsBase):
     name = "feature_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip', 'feature_id', 'day']
 
     def get_body(self, key_id, period, first):
         return {
@@ -580,7 +580,7 @@ class FeatureEvents(EventsBase):
 class Events(LazyAggregationStream):
     name = "events"
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip', 'day']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -689,7 +689,7 @@ class PollEvents(Stream):
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "track_events"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip', 'track_type_id', 'day']
 
 
     def get_body(self, key_id, period, first):
@@ -718,7 +718,7 @@ class TrackEvents(EventsBase):
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "guide_events"
-    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip', 'guide_id', 'day']
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -833,7 +833,7 @@ class Pages(Stream):
 class PageEvents(EventsBase):
     name = "page_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip', 'page_id', 'day']
 
     def get_body(self, key_id, period, first):
         return {
