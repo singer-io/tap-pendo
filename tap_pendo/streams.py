@@ -613,6 +613,8 @@ class Events(LazyAggregationStream):
         period = self.config.get('period')
         # date format to filter
         date = "date({}, {}, {})"
+        # get events date window size
+        events_date_window_size = int(self.config.get('events_date_window', 30))
         update_currently_syncing(state, self.name)
 
         while True:
@@ -620,7 +622,6 @@ class Events(LazyAggregationStream):
             # get year, month and day from the start date
             # if the start date is '2021-01-01' and 'events_date_window' is 25 days
             # then the window end date will be '2021-01-26'
-            events_date_window_size = int(self.config.get('events_date_window', 30))
             start_date, end_date = round_times(window_start_date, window_start_date + timedelta(days=events_date_window_size))
 
             # create start filter
