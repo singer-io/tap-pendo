@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.2
+  * Added data windowing for the events stream with configurable window size [#89](https://github.com/singer-io/tap-pendo/pull/89)
+
 ## 0.3.1
   * Fix Out of Memory Issue[#74](https://github.com/singer-io/tap-pendo/pull/74)
 
