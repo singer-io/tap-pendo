@@ -5,7 +5,7 @@ import itertools
 import json
 import os
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 import backoff
 import humps
@@ -600,19 +600,75 @@ class Events(LazyAggregationStream):
         # Set lookback window
         lookback = bookmark_dttm - timedelta(
             days=self.lookback_window())
-        ts = int(lookback.timestamp()) * 1000
 
+        # get events data
+        events = self.get_events(lookback, state, bookmark_dttm)
+        update_currently_syncing(state, None)
+        return (self.stream, events)
+
+    def get_events(self, window_start_date, state, bookmark_dttm):
+        # initialize start date as max bookmark
+        max_bookmark = bookmark_dttm
         # Get period type from config and make request for event's data
         period = self.config.get('period')
-        body = self.get_body(period, ts)
-        events = self.request(self.name, json=body) or []
-        update_currently_syncing(state, None)
-        return self.stream, events
+        # date format to filter
+        date = "date({}, {}, {})"
+        # get events date window size
+        events_date_window_size = int(self.config.get('events_date_window', 30))
+        update_currently_syncing(state, self.name)
+
+        while True:
+
+            # get year, month and day from the start date
+            # if the start date is '2021-01-01' and 'events_date_window' is 25 days
+            # then the window end date will be '2021-01-26'
+            start_date, end_date = round_times(window_start_date, window_start_date + timedelta(days=events_date_window_size))
+
+            # create start filter
+            start = date.format(start_date.year, start_date.month, start_date.day)
+            # create end filter
+            end = date.format(end_date.year, end_date.month, end_date.day)
+
+            body = self.get_body(period, start, end)
+            events = self.request(self.name, json=body) or []
+            event = None
+
+            # loop over every event and yield
+            for event in events:
+                yield event
+
+            # as we are fetching the data in sorted manner (ascending),
+            # the last event will contain the highest bookmark value
+            if event:
+                replication_value = event.get(humps.decamelize(self.replication_key))
+                bookmark_value = strptime_to_utc(strftime(datetime.fromtimestamp(replication_value / 1000, timezone.utc)))
+                max_bookmark = max(bookmark_value, max_bookmark)
+                self.update_bookmark(state, self.name, strftime(max_bookmark), self.replication_key)
+
+            if self.period == 'dayRange':
+                # for 'dayRange' the data is aggregated by day,
+                # hence adding 1 day more in the next start date ie.
+                # Old Start date = date(2021, 1, 1), Old End date = date(2021, 1, 31)
+                # New Start date = date(2021, 2, 1), New End date = date(2021, 3, 3)
+                window_start_date = end_date + timedelta(days=1)
+            else:
+                # for 'hourRange' the data is aggregated by hour, adding 1 day in the next start date
+                # results in data loss hence keeping previous end date as the next start date
+                # Old Start date = date(2021, 1, 1), Old End date = date(2021, 1, 31)
+                # New Start date = date(2021, 1, 31), New End date = date(2021, 3, 2)
+                # Note: This may result into data duplication of boundary hours of
+                #   consecutive date windows which will be handled at the target side
+                window_start_date = end_date
+
+            # break the loop if the starting window is greater than now
+            # the Pendo API supports passing future date, the data will be collected till the current date
+            if window_start_date > now():
+                break
 
     def transform(self, record):
         return humps.decamelize(record)
 
-    def get_body(self, period, first):
+    def get_body(self, period, first, end):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -624,7 +680,7 @@ class Events(LazyAggregationStream):
                         "timeSeries": {
                             "period": period,
                             "first": first,
-                            "last": "now()"
+                            "last": end
                         }
                     }
                 }, {
