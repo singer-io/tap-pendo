@@ -23,7 +23,7 @@ def sync_stream(state, start_date, instance):
             integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
     ) as transformer:
         # Get records for the stream
-        (stream, records) = instance.sync(state)
+        (stream, records) = instance.sync(state, start_date)
         for record in records:
             schema_dict = stream.schema.to_dict()
             stream_metadata = metadata.to_map(stream.metadata)

@@ -388,7 +388,12 @@ class Stream():
 
 
     def sync(self, state, start_date=None, key_id=None):
-        stream_response = self.request(self.name, json=self.get_body())['results'] or []
+        # Get bookmark and convert it into epoch for filter data in request
+        bookmark_date = self.get_bookmark(state, self.name, start_date,
+                                          self.replication_key)
+        bookmark_epoch = datetime.timestamp(strptime_to_utc(bookmark_date)) * 1000
+
+        stream_response = self.request(self.name, json=self.get_body(bookmark_epoch))['results'] or []
 
         # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
@@ -490,9 +495,10 @@ class Accounts(Stream):
     name = "accounts"
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
+    replication_key_path = "metadata.auto.lastupdated"
     key_properties = ["account_id"]
 
-    def get_body(self):
+    def get_body(self, bookmark):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -503,6 +509,8 @@ class Accounts(Stream):
                     "source": {
                         "accounts": None
                     }
+                }, {
+                    "filter": self.replication_key_path + " > " + str(bookmark)
                 }],
                 "requestId": "all-accounts",
                 "sort": ["accountId"]
@@ -527,7 +535,7 @@ class Features(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self):
+    def get_body(self, bookmark):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -541,6 +549,8 @@ class Features(Stream):
                     }
                 }, {
                     "sort": ["id"]
+                }, {
+                    "filter": self.replication_key + " > " + str(bookmark)
                 }],
                 "requestId":
                 "all-features"
@@ -815,7 +825,7 @@ class TrackTypes(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self):
+    def get_body(self, bookmark):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -828,6 +838,8 @@ class TrackTypes(Stream):
                     }
                 }, {
                     "sort": ["id"]
+                }, {
+                    "filter": self.replication_key + " > " + str(bookmark)
                 }],
                 "requestId": "all-track-types"
             }
@@ -839,7 +851,7 @@ class Guides(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self):
+    def get_body(self, bookmark):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -853,6 +865,8 @@ class Guides(Stream):
                     }
                 }, {
                     "sort": ["id"]
+                }, {
+                    "filter": self.replication_key + " > " + str(bookmark)
                 }],
                 "requestId":
                 "all-guides"
@@ -865,7 +879,8 @@ class Pages(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self):
+    def get_body(self, bookmark):
+        # bookmark = "1637901743542"
         return {
             "response": {
                 "mimeType": "application/json"
@@ -879,6 +894,8 @@ class Pages(Stream):
                     }
                 }, {
                     "sort": ["id"]
+                }, {
+                    "filter": self.replication_key + " > " + str(bookmark)
                 }],
                 "requestId":
                 "all-pages"
