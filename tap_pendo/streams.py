@@ -880,7 +880,6 @@ class Pages(Stream):
     replication_key = "lastUpdatedAt"
 
     def get_body(self, bookmark):
-        # bookmark = "1637901743542"
         return {
             "response": {
                 "mimeType": "application/json"
