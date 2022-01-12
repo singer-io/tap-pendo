@@ -383,17 +383,15 @@ class Stream():
             self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
 
         # After processing for all parent ids we can remove our resumption state
-        state.get('bookmarks').get(sub_stream.name).pop('last_processed')
+        state.get('bookmarks').get(sub_stream.name).pop('last_processed', None)
         update_currently_syncing(state, None)
 
 
     def sync(self, state, start_date=None, key_id=None):
-        # Get bookmark and convert it into epoch for filter data in request
         bookmark_date = self.get_bookmark(state, self.name, start_date,
                                           self.replication_key)
-        bookmark_epoch = datetime.timestamp(strptime_to_utc(bookmark_date)) * 1000
 
-        stream_response = self.request(self.name, json=self.get_body(bookmark_epoch))['results'] or []
+        stream_response = self.get_records(bookmark_date)
 
         # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
@@ -405,8 +403,46 @@ class Stream():
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
+            # Get parent data again as stream_response returned from get_records() is a generator
+            # which flush out during sync_substream call above
+            stream_response = self.get_records(bookmark_date, is_for_parent=True)
+
         update_currently_syncing(state, None)
         return (self.stream, stream_response)
+
+    def get_records(self, bookmark, is_for_parent=False):
+
+        # Get date window size and parent lookback window
+        date_window_size = int(self.config.get('events_date_window', 30))
+        parent_lookback_window =  int(self.config.get('parent_lookback_window', 90))
+        bookmark_dttm = strptime_to_utc(bookmark)
+
+        # Set start_time using parent_lookback_window to get parents for substreams
+        now_dttm = now()
+        start_dttm = now_dttm - timedelta(days=parent_lookback_window)
+
+        # If bookmark is older than lookback or get_records called for parent then consider bookmark.
+        if is_for_parent or bookmark_dttm < start_dttm:
+            start_dttm = bookmark_dttm
+        end_dttm = start_dttm + timedelta(days=date_window_size)
+
+        # If start_date is less than date_window_size away then consider current time as end_time
+        if end_dttm > now_dttm:
+            end_dttm = now_dttm
+
+        while start_dttm < now_dttm:
+            # Convert start_time and end_time of date window to epoch to pass into request body
+            start_epoch = datetime.timestamp(start_dttm) * 1000
+            end_epoch = datetime.timestamp(end_dttm) * 1000
+            records = self.request(self.name, json=self.get_body(start_epoch, end_epoch))['results'] or []
+            for record in records:
+                yield record
+
+            # Set start_date and end_date of date window for next API call
+            start_dttm = end_dttm
+            end_dttm = start_dttm + timedelta(days=date_window_size)
+            if end_dttm > now_dttm:
+                end_dttm = now_dttm
 
     def lookback_window(self):
         # Get lookback window from config and verify value
@@ -498,7 +534,10 @@ class Accounts(Stream):
     replication_key_path = "metadata.auto.lastupdated"
     key_properties = ["account_id"]
 
-    def get_body(self, bookmark):
+    def get_body(self, start, end):
+        # Ex. of filter: "metadata.auto.lastupdated > 1637905603845 && metadata.auto.lastupdated <= 1637908104974"
+        filter = self.replication_key_path + " > " + str(start) + " && " + self.replication_key_path + " <= " + str(end)
+
         return {
             "response": {
                 "mimeType": "application/json"
@@ -510,7 +549,7 @@ class Accounts(Stream):
                         "accounts": None
                     }
                 }, {
-                    "filter": self.replication_key_path + " > " + str(bookmark)
+                    "filter": filter
                 }],
                 "requestId": "all-accounts",
                 "sort": ["accountId"]
@@ -535,7 +574,10 @@ class Features(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self, bookmark):
+    def get_body(self, start, end):
+        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
+        filter = self.replication_key + " > " + str(start) + " && " + self.replication_key + " <= " + str(end)
+
         return {
             "response": {
                 "mimeType": "application/json"
@@ -550,7 +592,7 @@ class Features(Stream):
                 }, {
                     "sort": ["id"]
                 }, {
-                    "filter": self.replication_key + " > " + str(bookmark)
+                    "filter": filter
                 }],
                 "requestId":
                 "all-features"
@@ -825,7 +867,10 @@ class TrackTypes(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self, bookmark):
+    def get_body(self, start, end):
+        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
+        filter = self.replication_key + " > " + str(start) + " && " + self.replication_key + " <= " + str(end)
+
         return {
             "response": {
                 "mimeType": "application/json"
@@ -839,7 +884,7 @@ class TrackTypes(Stream):
                 }, {
                     "sort": ["id"]
                 }, {
-                    "filter": self.replication_key + " > " + str(bookmark)
+                    "filter": filter
                 }],
                 "requestId": "all-track-types"
             }
@@ -851,7 +896,10 @@ class Guides(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self, bookmark):
+    def get_body(self, start, end):
+        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
+        filter = self.replication_key + " > " + str(start) + " && " + self.replication_key + " <= " + str(end)
+
         return {
             "response": {
                 "mimeType": "application/json"
@@ -866,7 +914,7 @@ class Guides(Stream):
                 }, {
                     "sort": ["id"]
                 }, {
-                    "filter": self.replication_key + " > " + str(bookmark)
+                    "filter": filter
                 }],
                 "requestId":
                 "all-guides"
@@ -879,7 +927,10 @@ class Pages(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self, bookmark):
+    def get_body(self, start, end):
+        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
+        filter = self.replication_key + " > " + str(start) + " && " + self.replication_key + " <= " + str(end)
+
         return {
             "response": {
                 "mimeType": "application/json"
@@ -894,7 +945,7 @@ class Pages(Stream):
                 }, {
                     "sort": ["id"]
                 }, {
-                    "filter": self.replication_key + " > " + str(bookmark)
+                    "filter": filter
                 }],
                 "requestId":
                 "all-pages"
