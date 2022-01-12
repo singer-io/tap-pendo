@@ -7,6 +7,7 @@ import os
 import time
 from datetime import datetime, timedelta, timezone
 
+import hashlib
 import backoff
 import humps
 import ijson
@@ -551,7 +552,11 @@ class Features(Stream):
 class FeatureEvents(EventsBase):
     name = "feature_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['feature_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
+
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         return {
@@ -580,7 +585,7 @@ class FeatureEvents(EventsBase):
 class Events(LazyAggregationStream):
     name = "events"
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -588,6 +593,7 @@ class Events(LazyAggregationStream):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
+        self.key_properties.append(self.replication_key)
 
     def sync(self, state, start_date=None, key_id=None):
         update_currently_syncing(state, self.name)
@@ -692,7 +698,7 @@ class Events(LazyAggregationStream):
 class PollEvents(Stream):
     replication_method = "INCREMENTAL"
     name = "poll_events"
-    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'poll_id', 'browser_time']
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -745,8 +751,11 @@ class PollEvents(Stream):
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "track_events"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['track_type_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
 
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         return {
@@ -774,7 +783,7 @@ class TrackEvents(EventsBase):
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "guide_events"
-    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
+    key_properties = ['guide_id', 'guide_step_id', 'visitor_id', 'type', 'account_id', 'browser_time', 'server_name', 'url']
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -889,7 +898,11 @@ class Pages(Stream):
 class PageEvents(EventsBase):
     name = "page_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['page_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent', '_sdc_parameters_hash']
+
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         return {
@@ -914,6 +927,38 @@ class PageEvents(EventsBase):
             }
         }
 
+    def generate_sdc_parameters_hash(self, events):
+        # loop over every event
+        for event in events:
+            # initialize empty string to hash
+            parameters_string = ""
+
+            # get 'parameters' value from record
+            parameters = event.get("parameters")
+
+            # create hash string if parameters value is not 'null' else keep empty string
+            if parameters:
+                # create sorted tuple of key-value ie. ((key1, value1), (key2, value2), ...)
+                parameters_pairs = sorted(tuple((k, v) for k, v in parameters.items()), key=lambda x: x[0])
+
+                for pair in parameters_pairs:
+                    # create string of key-values ie. key1value1key2value2...
+                    parameters_string += "".join(pair)
+
+            # encode the created string
+            parameters_string_bytes = parameters_string.encode('utf-8')
+            # calculate the hash of the string
+            parameters_hash = hashlib.sha256(parameters_string_bytes).hexdigest()
+            # create a field in the record and assign the hash value
+            event["_sdc_parameters_hash"] = parameters_hash
+
+        return events
+
+    # extend 'sync' to add hash field in the records
+    def sync(self, state, start_date=None, key_id=None):
+        page_events = super().sync(state, start_date=start_date, key_id=key_id)
+        page_events_with_hash = self.generate_sdc_parameters_hash(page_events)
+        return page_events_with_hash
 
 class Reports(Stream):
     name = "reports"

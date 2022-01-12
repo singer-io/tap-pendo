@@ -2,6 +2,9 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+      "_sdc_parameters_hash": {
+        "type": ["null", "string"]
+      },
       "app_id": {
         "type": ["null", "number"]
       },
