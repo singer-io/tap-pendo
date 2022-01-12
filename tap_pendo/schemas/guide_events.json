@@ -31,6 +31,12 @@
         "guide_id": {
             "type": ["null", "string"]
         },
+        "guide_step_id": {
+            "type": ["null", "string"]
+        },
+        "url": {
+            "type": ["null", "string"]
+        },
         "latitude": {
             "type": ["null", "number"]
         },
