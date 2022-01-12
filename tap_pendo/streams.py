@@ -551,7 +551,11 @@ class Features(Stream):
 class FeatureEvents(EventsBase):
     name = "feature_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['feature_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
+
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         return {
@@ -580,7 +584,7 @@ class FeatureEvents(EventsBase):
 class Events(LazyAggregationStream):
     name = "events"
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -588,6 +592,7 @@ class Events(LazyAggregationStream):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
+        self.key_properties.append(self.replication_key)
 
     def sync(self, state, start_date=None, key_id=None):
         update_currently_syncing(state, self.name)
@@ -745,8 +750,11 @@ class PollEvents(Stream):
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "track_events"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['track_type_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
 
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         return {
@@ -774,7 +782,7 @@ class TrackEvents(EventsBase):
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "guide_events"
-    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
+    key_properties = ['guide_id', 'guide_step_id', 'visitor_id', 'type', 'account_id', 'browser_time', 'server_name', 'url']
 
     def __init__(self, config):
         super().__init__(config=config)
