@@ -106,6 +106,7 @@ class Stream():
     name = None
     replication_method = None
     replication_key = None
+    replication_key_path = None
     key_properties = KEY_PROPERTIES
     stream = None
     period = None
@@ -451,6 +452,11 @@ class Stream():
             raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
         return int(lookback_window)
 
+    def build_filter(self, start, end):
+        # Create filter with start_time and end_time to pass in request body
+        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
+        return self.replication_key_path + " > " + str(start) + " && " + self.replication_key_path + " <= " + str(end)
+
 class LazyAggregationStream(Stream):
     def send_request_get_results(self, req):
         # Set request timeout to config param `request_timeout` value.
@@ -535,9 +541,6 @@ class Accounts(Stream):
     key_properties = ["account_id"]
 
     def get_body(self, start, end):
-        # Ex. of filter: "metadata.auto.lastupdated > 1637905603845 && metadata.auto.lastupdated <= 1637908104974"
-        filter = self.replication_key_path + " > " + str(start) + " && " + self.replication_key_path + " <= " + str(end)
-
         return {
             "response": {
                 "mimeType": "application/json"
@@ -549,7 +552,7 @@ class Accounts(Stream):
                         "accounts": None
                     }
                 }, {
-                    "filter": filter
+                    "filter": self.build_filter(start, end)
                 }],
                 "requestId": "all-accounts",
                 "sort": ["accountId"]
@@ -573,11 +576,9 @@ class Features(Stream):
     name = "features"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
+    replication_key_path = "lastUpdatedAt"
 
     def get_body(self, start, end):
-        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
-        filter = self.replication_key + " > " + str(start) + " && " + self.replication_key + " <= " + str(end)
-
         return {
             "response": {
                 "mimeType": "application/json"
@@ -592,7 +593,7 @@ class Features(Stream):
                 }, {
                     "sort": ["id"]
                 }, {
-                    "filter": filter
+                    "filter": self.build_filter(start, end)
                 }],
                 "requestId":
                 "all-features"
@@ -866,11 +867,9 @@ class TrackTypes(Stream):
     name = "track_types"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
+    replication_key_path = "lastUpdatedAt"
 
     def get_body(self, start, end):
-        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
-        filter = self.replication_key + " > " + str(start) + " && " + self.replication_key + " <= " + str(end)
-
         return {
             "response": {
                 "mimeType": "application/json"
@@ -884,7 +883,7 @@ class TrackTypes(Stream):
                 }, {
                     "sort": ["id"]
                 }, {
-                    "filter": filter
+                    "filter": self.build_filter(start, end)
                 }],
                 "requestId": "all-track-types"
             }
@@ -895,11 +894,9 @@ class Guides(Stream):
     name = "guides"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
+    replication_key_path = "lastUpdatedAt"
 
     def get_body(self, start, end):
-        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
-        filter = self.replication_key + " > " + str(start) + " && " + self.replication_key + " <= " + str(end)
-
         return {
             "response": {
                 "mimeType": "application/json"
@@ -914,7 +911,7 @@ class Guides(Stream):
                 }, {
                     "sort": ["id"]
                 }, {
-                    "filter": filter
+                    "filter": self.build_filter(start, end)
                 }],
                 "requestId":
                 "all-guides"
@@ -926,11 +923,9 @@ class Pages(Stream):
     name = "pages"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
+    replication_key_path = "lastUpdatedAt"
 
     def get_body(self, start, end):
-        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
-        filter = self.replication_key + " > " + str(start) + " && " + self.replication_key + " <= " + str(end)
-
         return {
             "response": {
                 "mimeType": "application/json"
@@ -945,7 +940,7 @@ class Pages(Stream):
                 }, {
                     "sort": ["id"]
                 }, {
-                    "filter": filter
+                    "filter": self.build_filter(start, end)
                 }],
                 "requestId":
                 "all-pages"
