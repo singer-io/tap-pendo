@@ -9,7 +9,7 @@ class PendoBookMarkTest(TestPendoBase):
     def name(self):
         return "pendo_bookmark_test"
 
-    def test_run(self):
+    def run_test(self):
         """
         Verify that for each stream you can do a sync which records bookmarks.
         That the bookmark is the maximum value sent to the target for the replication key.
@@ -192,3 +192,12 @@ class PendoBookMarkTest(TestPendoBase):
                 # Verify at least 1 record was replicated in the second sync
                 self.assertGreater(
                     second_sync_count, 0, msg="We are not fully testing bookmarking for {}".format(stream))
+
+    def test_run(self):
+        # test for hourRange period
+        self.is_day_range = False
+        self.run_test()
+
+        # test for dayRange period
+        self.is_day_range = True
+        self.run_test()
