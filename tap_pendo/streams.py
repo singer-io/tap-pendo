@@ -16,6 +16,7 @@ import singer.metrics as metrics
 from requests.exceptions import HTTPError
 from requests.models import ProtocolError
 from singer import Transformer, metadata
+from singer.transform import unix_milliseconds_to_datetime
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
@@ -384,15 +385,22 @@ class Stream():
             self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
 
         # After processing for all parent ids we can remove our resumption state
-        state.get('bookmarks').get(sub_stream.name).pop('last_processed', None)
+        state.get('bookmarks', {}).get(sub_stream.name, {}).pop('last_processed', None)
         update_currently_syncing(state, None)
 
 
     def sync(self, state, start_date=None, key_id=None):
-        bookmark_date = self.get_bookmark(state, self.name, start_date,
-                                          self.replication_key)
 
-        stream_response = self.get_records(bookmark_date)
+        # The feature_events, page_events and track_events required all the parents so call request() to retrive all the parents
+        if self.name in ['features', 'pages', 'track_types']:
+            stream_response = self.request(self.name, json=self.get_body())['results'] or []
+        else:
+            # Call get_records(), which yields records greater than bookmark using date_windows.
+            bookmark_date = self.get_bookmark(state, self.name,
+                                              self.config.get('start_date'),
+                                              self.replication_key)
+            bookmark_dttm = strptime_to_utc(bookmark_date)
+            stream_response = self.get_records(state, bookmark_dttm)
 
         # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
@@ -404,40 +412,48 @@ class Stream():
         if stream_response and sub_stream and sub_stream.is_selected():
             self.sync_substream(state, self, sub_stream, stream_response)
 
-            # Get parent data again as stream_response returned from get_records() is a generator
-            # which flush out during sync_substream call above
-            stream_response = self.get_records(bookmark_date, is_for_parent=True)
-
         update_currently_syncing(state, None)
         return (self.stream, stream_response)
 
-    def get_records(self, bookmark, is_for_parent=False):
+    def get_records(self, state, bookmark):
 
-        # Get date window size and parent lookback window
+        # Get date window size
         date_window_size = int(self.config.get('events_date_window', 30))
-        parent_lookback_window =  int(self.config.get('parent_lookback_window', 90))
-        bookmark_dttm = strptime_to_utc(bookmark)
 
-        # Set start_time using parent_lookback_window to get parents for substreams
+        # Set start_time using bookmark/start_date to get parents for substreams
         now_dttm = now()
-        start_dttm = now_dttm - timedelta(days=parent_lookback_window)
-
-        # If bookmark is older than lookback or get_records called for parent then consider bookmark.
-        if is_for_parent or bookmark_dttm < start_dttm:
-            start_dttm = bookmark_dttm
+        start_dttm = bookmark
         end_dttm = start_dttm + timedelta(days=date_window_size)
 
         # If start_date is less than date_window_size away then consider current time as end_time
         if end_dttm > now_dttm:
             end_dttm = now_dttm
 
+        max_bookmark = bookmark
+
         while start_dttm < now_dttm:
             # Convert start_time and end_time of date window to epoch to pass into request body
-            start_epoch = datetime.timestamp(start_dttm) * 1000
-            end_epoch = datetime.timestamp(end_dttm) * 1000
-            records = self.request(self.name, json=self.get_body(start_epoch, end_epoch))['results'] or []
+            start_epoch = int(start_dttm.timestamp()) * 1000
+            end_epoch = int(end_dttm.timestamp()) * 1000
+
+            # Visitor is extended from LazyAggregationStream, which return data directly from request
+            if self.name == "visitors":
+                records = self.request(self.name, json=self.get_body(start_epoch, end_epoch)) or []
+            else:
+                records = self.request(self.name, json=self.get_body(start_epoch, end_epoch))['results'] or []
+            record = None
+
+            # Calculate maximum replication key from all records of current page and yield records
             for record in records:
+                transformed_record = self.transform(record.copy())
+                replication_value = transformed_record.get(humps.decamelize(self.replication_key))
+                replication_value = strptime_to_utc(unix_milliseconds_to_datetime(replication_value))
+                max_bookmark = max(replication_value, max_bookmark)
                 yield record
+
+            # If data found in current date_window page then update_bookmark after yielding page of data.
+            if record:
+                self.update_bookmark(state, self.name, strftime(max_bookmark), self.replication_key)
 
             # Set start_date and end_date of date window for next API call
             start_dttm = end_dttm
@@ -488,7 +504,13 @@ class LazyAggregationStream(Stream):
         resp.close()
 
     def sync(self, state, start_date=None, key_id=None):
-        stream_response = self.request(self.name, json=self.get_body()) or []
+
+        # Call get_records(), which yields records greater than bookmark using date_windows.
+        bookmark_date = self.get_bookmark(state, self.name,
+                                          self.config.get('start_date'),
+                                          self.replication_key)
+        bookmark_dttm = strptime_to_utc(bookmark_date)
+        stream_response = self.get_records(state, bookmark_dttm)
 
         # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
@@ -502,7 +524,7 @@ class LazyAggregationStream(Stream):
 
             # Get parent data again as stream_response returned from request() is a generator
             # which flush out during sync_substream call above
-            stream_response = self.request(self.name, json=self.get_body()) or []
+            stream_response = self.get_records(state, bookmark_dttm)
 
         return (self.stream, stream_response)
 
@@ -576,9 +598,8 @@ class Features(Stream):
     name = "features"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
-    replication_key_path = "lastUpdatedAt"
 
-    def get_body(self, start, end):
+    def get_body(self):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -592,8 +613,6 @@ class Features(Stream):
                     }
                 }, {
                     "sort": ["id"]
-                }, {
-                    "filter": self.build_filter(start, end)
                 }],
                 "requestId":
                 "all-features"
@@ -753,7 +772,7 @@ class PollEvents(Stream):
         self.period = config.get('period')
         self.replication_key = 'browser_time'
 
-    def get_body(self, period, first):
+    def get_body(self, start, end):
         sort = humps.camelize(self.replication_key)
         return {
             "response": {
@@ -764,9 +783,9 @@ class PollEvents(Stream):
                     "source": {
                         "pollEvents": None,
                         "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
+                            "period": self.period,
+                            "first": str(start),
+                            "last": str(end)
                         }
                     }
                 }, {
@@ -787,12 +806,9 @@ class PollEvents(Stream):
         # Set lookback window
         lookback = bookmark_dttm - timedelta(
             days=self.lookback_window())
-        ts = int(lookback.timestamp()) * 1000
 
-        # Get period type from config and make request for event's data
-        period = self.config.get('period')
-        body = self.get_body(period, ts)
-        events = self.request(self.name, json=body).get('results') or []
+        # Call get_records(), which yields records greater than bookmark using date_windows.
+        events = self.get_records(state, lookback)
         return self.stream, events
 
 class TrackEvents(EventsBase):
@@ -835,7 +851,7 @@ class GuideEvents(EventsBase):
         self.period = config.get('period')
         self.replication_key = 'browser_time'
 
-    def get_body(self, key_id, period, first):
+    def get_body(self, start, end):
         sort = humps.camelize(self.replication_key)
         return {
             "response": {
@@ -845,13 +861,11 @@ class GuideEvents(EventsBase):
                 "pipeline": [
                     {
                         "source": {
-                            "guideEvents": {
-                                "guideId": key_id
-                            },
+                            "guideEvents": None,
                             "timeSeries": {
-                                "period": period,
-                                "first": first,
-                                "last": "now()"
+                                "period": self.period,
+                                "first": str(start),
+                                "last": str(end)
                             }
                         }
                     },
@@ -862,14 +876,30 @@ class GuideEvents(EventsBase):
             }
         }
 
+    def sync(self, state, start_date=None, key_id=None):
+        update_currently_syncing(state, self.name)
+
+        # Get bookmark from state or start date for the stream
+        bookmark_date = self.get_bookmark(state, self.name,
+                                          self.config.get('start_date'),
+                                          self.replication_key)
+        bookmark_dttm = strptime_to_utc(bookmark_date)
+
+        # Set lookback window
+        lookback = bookmark_dttm - timedelta(
+            days=self.lookback_window())
+
+        # Call get_records(), which yields records greater than bookmark using date_windows.
+        events = self.get_records(state, lookback)
+        return self.stream, events
+
 
 class TrackTypes(Stream):
     name = "track_types"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
-    replication_key_path = "lastUpdatedAt"
 
-    def get_body(self, start, end):
+    def get_body(self):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -882,8 +912,6 @@ class TrackTypes(Stream):
                     }
                 }, {
                     "sort": ["id"]
-                }, {
-                    "filter": self.build_filter(start, end)
                 }],
                 "requestId": "all-track-types"
             }
@@ -923,9 +951,8 @@ class Pages(Stream):
     name = "pages"
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
-    replication_key_path = "lastUpdatedAt"
 
-    def get_body(self, start, end):
+    def get_body(self):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -939,8 +966,6 @@ class Pages(Stream):
                     }
                 }, {
                     "sort": ["id"]
-                }, {
-                    "filter": self.build_filter(start, end)
                 }],
                 "requestId":
                 "all-pages"
@@ -1054,9 +1079,10 @@ class Visitors(LazyAggregationStream):
     name = "visitors"
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
+    replication_key_path = "metadata.auto.lastupdated"
     key_properties = ["visitor_id"]
 
-    def get_body(self):
+    def get_body(self, start, end):
         include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
         return {
             "response": {
@@ -1071,6 +1097,8 @@ class Visitors(LazyAggregationStream):
                             "identified": not include_anonymous_visitors
                         }
                     }
+                }, {
+                    "filter": self.build_filter(start, end)
                 }],
                 "requestId": "all-visitors",
                 "sort": [
@@ -1175,6 +1203,5 @@ SUB_STREAMS = {
     'visitors': 'visitor_history',
     'features': 'feature_events',
     'pages': 'page_events',
-    'guides': 'guide_events',
     'track_types': 'track_events'
 }
