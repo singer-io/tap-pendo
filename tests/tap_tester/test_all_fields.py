@@ -61,8 +61,10 @@ class PendoAllFieldsTest(TestPendoBase):
 
                 # collect actual values
                 messages = synced_records.get(stream)
-                actual_all_keys = [set(message['data'].keys()) for message in messages['messages']
-                                   if message['action'] == 'upsert'][0]
+                actual_all_keys = set()
+                for message in messages['messages']:
+                    if message['action'] == 'upsert':
+                        actual_all_keys.update(message['data'].keys())
 
                 # Verify that more than just the automatic fields are replicated for each stream.
                 self.assertTrue(expected_automatic_keys.issubset(
@@ -80,8 +82,6 @@ class PendoAllFieldsTest(TestPendoBase):
                     expected_all_keys = expected_all_keys - {'hour', "properties"}
                 elif stream == "guide_events":
                     expected_all_keys = expected_all_keys - {'poll_response', "poll_id"}
-                elif stream == "features":
-                    expected_all_keys = expected_all_keys - {'page_id'}
                     
                 # verify all fields for each stream are replicated
                 self.assertSetEqual(expected_all_keys, actual_all_keys)
