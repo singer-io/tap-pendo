@@ -435,7 +435,7 @@ class Stream():
             start_epoch = int(start_dttm.timestamp()) * 1000
             end_epoch = int(end_dttm.timestamp()) * 1000
 
-            # Get page records between start_epoch and end_epoch 
+            # Get page records between start_epoch and end_epoch
             records = self.get_page_response(start_epoch, end_epoch)
             record = None
 
