@@ -388,21 +388,16 @@ class Stream():
         state.get('bookmarks', {}).get(sub_stream.name, {}).pop('last_processed', None)
         update_currently_syncing(state, None)
 
+    def get_stream_response(self, state):
+        # Returns whole stream response by making request call
+        return self.request(self.name, json=self.get_body())['results'] or []
 
     def sync(self, state, start_date=None, key_id=None):
 
-        # The feature_events, page_events and track_events required all the parents so call request() to retrive all the parents
-        if self.name in ['features', 'pages', 'track_types']:
-            stream_response = self.request(self.name, json=self.get_body())['results'] or []
-        else:
-            # Call get_records(), which yields records greater than bookmark using date_windows.
-            bookmark_date = self.get_bookmark(state, self.name,
-                                              self.config.get('start_date'),
-                                              self.replication_key)
-            bookmark_dttm = strptime_to_utc(bookmark_date)
-            stream_response = self.get_records(state, bookmark_dttm)
+        # Get stream response
+        stream_response = self.get_stream_response(state)
 
-        # Get and intialize sub-stream for the current stream
+        # Get and initialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
         else:
@@ -414,6 +409,10 @@ class Stream():
 
         update_currently_syncing(state, None)
         return (self.stream, stream_response)
+
+    def get_page_response(self, start_epoch, end_epoch):
+        # Returns stream response between provided start and end
+        return self.request(self.name, json=self.get_body(start_epoch, end_epoch))['results'] or []
 
     def get_records(self, state, bookmark):
 
@@ -436,11 +435,8 @@ class Stream():
             start_epoch = int(start_dttm.timestamp()) * 1000
             end_epoch = int(end_dttm.timestamp()) * 1000
 
-            # Visitor is extended from LazyAggregationStream, which return data directly from request
-            if self.name == "visitors":
-                records = self.request(self.name, json=self.get_body(start_epoch, end_epoch)) or []
-            else:
-                records = self.request(self.name, json=self.get_body(start_epoch, end_epoch))['results'] or []
+            # Get page records between start_epoch and end_epoch 
+            records = self.get_page_response(start_epoch, end_epoch)
             record = None
 
             # Calculate maximum replication key from all records of current page and yield records
@@ -528,6 +524,10 @@ class LazyAggregationStream(Stream):
 
         return (self.stream, stream_response)
 
+    def get_page_response(self, start_epoch, end_epoch):
+        # Returns stream response between provided start and end
+        return self.request(self.name, json=self.get_body(start_epoch, end_epoch)) or []
+
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
@@ -593,6 +593,13 @@ class Accounts(Stream):
 
         return super().transform(transformed)
 
+    def get_stream_response(self, state):
+        # Return stream response by calling get_records(), which yields records greater than bookmark using date_windows.
+        bookmark_date = self.get_bookmark(state, self.name,
+                                          self.config.get('start_date'),
+                                          self.replication_key)
+        bookmark_dttm = strptime_to_utc(bookmark_date)
+        return self.get_records(state, bookmark_dttm)
 
 class Features(Stream):
     name = "features"
@@ -946,6 +953,13 @@ class Guides(Stream):
             }
         }
 
+    def get_stream_response(self, state):
+        # Return stream response by calling get_records(), which yields records greater than bookmark using date_windows.
+        bookmark_date = self.get_bookmark(state, self.name,
+                                          self.config.get('start_date'),
+                                          self.replication_key)
+        bookmark_dttm = strptime_to_utc(bookmark_date)
+        return self.get_records(state, bookmark_dttm)
 
 class Pages(Stream):
     name = "pages"
