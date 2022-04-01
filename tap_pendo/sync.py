@@ -3,6 +3,7 @@ import json
 import humps
 import singer
 import singer.metrics as metrics
+from datetime import timedelta
 from singer import Transformer, metadata
 from singer.transform import strptime_to_utc
 from singer.utils import strftime
@@ -17,6 +18,11 @@ def sync_stream(state, start_date, instance):
     bookmark_date = instance.get_bookmark(state, instance.name, start_date,
                                           instance.replication_key)
     bookmark_dttm = strptime_to_utc(bookmark_date)
+
+    # Guide_events is using a lookback window so decrease bookmark value here to consider all records respecting lookback
+    if instance.name in ["guide_events"]:
+        bookmark_dttm -= timedelta(days=instance.lookback_window())
+
     new_bookmark = bookmark_dttm
 
     with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(

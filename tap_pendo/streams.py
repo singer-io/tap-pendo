@@ -506,7 +506,6 @@ class LazyAggregationStream(Stream):
                                           self.config.get('start_date'),
                                           self.replication_key)
         bookmark_dttm = strptime_to_utc(bookmark_date)
-        stream_response = self.get_records(state, bookmark_dttm)
 
         # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
@@ -515,12 +514,15 @@ class LazyAggregationStream(Stream):
             sub_stream = None
 
         # Sync substream if the current stream has sub-stream and selected in the catalog
-        if stream_response and sub_stream and sub_stream.is_selected():
-            self.sync_substream(state, self, sub_stream, stream_response)
+        if sub_stream and sub_stream.is_selected():
+            # Sub streams are using lookback so use lookback for parents also while using it for sub stream
+            stream_response = self.get_records(state, bookmark_dttm - timedelta(days=self.lookback_window()))
+            if stream_response:
+                self.sync_substream(state, self, sub_stream, stream_response)
 
-            # Get parent data again as stream_response returned from request() is a generator
-            # which flush out during sync_substream call above
-            stream_response = self.get_records(state, bookmark_dttm)
+        # Collect data for stream even if it is already collected for a sub-stream above as stream_response is a generator
+        # which flush out during sync_substream call above
+        stream_response = self.get_records(state, bookmark_dttm)
 
         return (self.stream, stream_response)
 
