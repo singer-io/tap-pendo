@@ -1,9 +1,9 @@
 import json
+from datetime import timedelta
 
 import humps
 import singer
 import singer.metrics as metrics
-from datetime import timedelta
 from singer import Transformer, metadata
 from singer.transform import strptime_to_utc
 from singer.utils import strftime
