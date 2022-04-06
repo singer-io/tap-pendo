@@ -5,7 +5,7 @@ from tap_pendo.streams import Features
 class TestAppIdConfiguration(unittest.TestCase):
     def test_app_ids_not_in_config(self):
         """
-            To verify that if app_ids is not in config than select all apps.
+            To verify that if app_ids is not in config then select all apps.
         """
         config = {}
         stream_obj = Features(config)
@@ -13,7 +13,7 @@ class TestAppIdConfiguration(unittest.TestCase):
         
     def test_app_ids_empty_in_config(self):
         """
-            To verify that if app_ids is blank string or empty string in config than select all apps.
+            To verify that if app_ids is blank string or empty string in config then select all apps.
         """
         config = {"app_ids": " "}
         stream_obj = Features(config)
@@ -21,7 +21,7 @@ class TestAppIdConfiguration(unittest.TestCase):
     
     def test_app_ids_comaseperated_string_in_config(self):
         """
-            To verify that f app_ids is comma seperated string in config than get list of those app_ids.
+            To verify that if app_ids is comma seperated string in config then get list of those app_ids.
         """
         config = {"app_ids": "test1, test2"}
         stream_obj = Features(config)
