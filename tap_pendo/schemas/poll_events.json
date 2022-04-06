@@ -2,6 +2,9 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+      "app_id": {
+        "type": ["null", "number"]
+      },
       "account_id": {
         "type": ["null", "string"]
       },

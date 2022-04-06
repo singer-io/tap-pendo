@@ -87,6 +87,12 @@ class PendoAllFieldsTest(TestPendoBase):
                     
                 # verify all fields for each stream are replicated
                 self.assertSetEqual(expected_all_keys, actual_all_keys)
+                
+                # Verify we have more than one app data
+                # below four streams are independent of the app_id
+                if stream not in ["accounts", "visitors", "metadata_accounts", "metadata_visitors"]:
+                    records_appid_set = set([message.get('data').get('app_id') for message in messages.get("messages")])
+                    self.assertGreater(len(records_appid_set), 1, msg=f"We have only one app's records for {stream}")
 
 
 

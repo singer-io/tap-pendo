@@ -115,6 +115,16 @@ class Stream():
 
     def __init__(self, config=None):
         self.config = config
+        
+        # If app_ids are not given in config then select all apps data
+        self.app_ids = self.config.get('app_ids', "expandAppIds(\"*\")").replace(" ", "")
+        
+        # If app_ids are empty string or space contains string then select all apps data
+        self.app_ids = self.app_ids or "expandAppIds(\"*\")"
+        
+        # If appIds are given then create list of app_ids
+        if self.app_ids != "expandAppIds(\"*\")":
+            self.app_ids = self.app_ids.split(",")
 
     def send_request_get_results(self, req):
         # Set request timeout to config param `request_timeout` value.
@@ -537,7 +547,7 @@ class Features(Stream):
                 "all-features",
                 "pipeline": [{
                     "source": {
-                        "features": None
+                        "features": {"appId": self.app_ids}
                     }
                 }, {
                     "sort": ["id"]
@@ -676,7 +686,7 @@ class Events(LazyAggregationStream):
             "request": {
                 "pipeline": [{
                     "source": {
-                        "events": None,
+                        "events": {"appId": self.app_ids},
                         "timeSeries": {
                             "period": period,
                             "first": first,
@@ -709,7 +719,7 @@ class PollEvents(Stream):
             "request": {
                 "pipeline": [{
                     "source": {
-                        "pollEvents": None,
+                        "pollEvents": {"appId": self.app_ids},
                         "timeSeries": {
                             "period": period,
                             "first": first,
@@ -824,7 +834,7 @@ class TrackTypes(Stream):
                 "name": "all-track-types",
                 "pipeline": [{
                     "source": {
-                        "trackTypes": None
+                        "trackTypes": {"appId": self.app_ids}
                     }
                 }, {
                     "sort": ["id"]
@@ -849,7 +859,7 @@ class Guides(Stream):
                 "all-guides",
                 "pipeline": [{
                     "source": {
-                        "guides": None
+                        "guides": {"appId": self.app_ids}
                     }
                 }, {
                     "sort": ["id"]
@@ -875,7 +885,7 @@ class Pages(Stream):
                 "all-pages",
                 "pipeline": [{
                     "source": {
-                        "pages": None
+                        "pages": {"appId": self.app_ids}
                     }
                 }, {
                     "sort": ["id"]
