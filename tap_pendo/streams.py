@@ -122,7 +122,7 @@ class Stream():
         # If app_ids are empty string or space contains string then select all apps data
         if bool(self.app_ids) == False:
             self.app_ids = self.app_ids or "expandAppIds(\"*\")"
-        else:
+        elif self.app_ids != "expandAppIds(\"*\")":
         # If appIds are given then create list of app_ids
             self.app_ids = self.app_ids.split(",")
             prev_len = len(self.app_ids)
@@ -131,9 +131,9 @@ class Stream():
             self.app_ids = list(filter(None, self.app_ids))
             
             if self.app_ids == []:
-                raise Exception("Provided all app_ids are invalid")
+                raise Exception("All app_ids provided in a configuration are blank.")
             elif len(self.app_ids) != prev_len:
-                LOGGER.info("User have provided Null app_ids in config")
+                LOGGER.warning("The app_ids provided in a configuration contain some blank values and the tap will ignore blank values.")
 
     def send_request_get_results(self, req):
         # Set request timeout to config param `request_timeout` value.
