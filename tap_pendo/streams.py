@@ -115,7 +115,7 @@ class Stream():
 
     def __init__(self, config=None):
         self.config = config
-      
+
     def send_request_get_results(self, req):
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
