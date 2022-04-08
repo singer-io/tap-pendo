@@ -1,53 +1,41 @@
 import unittest
 from unittest import mock
-from tap_pendo.streams import Features
+from argparse import Namespace
+from tap_pendo import main
 
 
 class TestAppIdConfiguration(unittest.TestCase):
-    def test_app_ids_not_in_config(self):
+    @mock.patch("tap_pendo.utils.parse_args", side_effect=lambda required_config_keys: Namespace(config={"start_date": "", "x_pendo_integration_key": "", "period":""},  discover=True))
+    @mock.patch("tap_pendo.discover_streams", side_effect=lambda config: {})
+    def test_app_ids_not_in_config(self, mocked_discover_stream, mocked_parse_args):
         """
-            To verify that if app_ids is not in config then select all apps.
+            To verify that if app_ids is not in configure file then select all apps and run discover mode.
         """
-        config = {}
-        stream_obj = Features(config)
-        self.assertEqual(stream_obj.app_ids,  "expandAppIds(\"*\")", "Both values are not same")
+        main()
         
-    def test_app_ids_empty_in_config(self):
+    @mock.patch("tap_pendo.utils.parse_args", side_effect=lambda required_config_keys: Namespace(config={"app_ids": "123, 456","start_date": "", "x_pendo_integration_key": "", "period":""},  discover=True))
+    @mock.patch("tap_pendo.discover_streams", side_effect=lambda config: {})
+    def test_app_ids_coma_seperated_string_in_config(self, mocked_discover_stream, mocked_parse_args):
         """
-            To verify that if app_ids is blank string or empty string in config then select all apps.
+            To verify that if app_ids is comma seperated string in configure file then get list of those app_ids and run discover mode.
         """
-        config = {"app_ids": " "}
-        stream_obj = Features(config)
-        self.assertEqual(stream_obj.app_ids,  "expandAppIds(\"*\")", "Both values are not same")
+        main()
+        
+    @mock.patch("tap_pendo.utils.parse_args", side_effect=lambda required_config_keys: Namespace(config={"app_ids": "","start_date": "", "x_pendo_integration_key": "", "period":""},  discover=True))
+    @mock.patch("tap_pendo.discover_streams", side_effect=lambda config: {})
+    def test_app_ids_empty_in_config(self, mocked_discover_stream, mocked_parse_args):
+        """
+            To verify that if app_ids is blank string or empty string in configure file then select all apps and run discover mode.
+        """
+        main()
     
-    def test_app_ids_coma_seperated_string_in_config(self):
+    @mock.patch("tap_pendo.utils.parse_args", side_effect=lambda required_config_keys: Namespace(config={"app_ids": "123, test, test123, 123test,  ","start_date": "", "x_pendo_integration_key": "", "period":""},  discover=True))
+    def test_app_ids_valid_app_ids_with_invalid_app_ids_config(self, mocked_parse_args):
         """
-            To verify that if app_ids is comma seperated string in config then get list of those app_ids.
-        """
-        config = {"app_ids": "test1, test2"}
-        stream_obj = Features(config)
-        self.assertEqual(stream_obj.app_ids,  ["test1", "test2"], "Both values are not same")
-        
-    def test_app_ids_coma_seperated_blanks_in_config(self):
-        """
-            To verify that if app_ids is comma seperated blanks in config then exception is raised.
+            To verify that if app_ids is comma seperated blanks with string in configure file then then raise exception.
         """
         
-        config = {"app_ids": ","}
         with self.assertRaises(Exception) as e:
-            stream_obj = Features(config)
-
-        self.assertEqual(str(e.exception), "All app_ids provided in a configuration are blank.")
-        
-    @mock.patch("tap_pendo.streams.LOGGER.warning")
-    def test_app_ids_blank_ids_with_non_blank_ids_in_config(self, mocked_logger):
-        """
-            To verify that if app_ids is comma seperated blanks with string in config then logger gives warning
-        """
-        
-        config = {"app_ids": "test1, "}
-        stream_obj = Features(config)
-
-        self.assertTrue(stream_obj.app_ids==["test1"])
-
-        mocked_logger.assert_called_with("The app_ids provided in a configuration contain some blank values and the tap will ignore blank values.")
+            main()
+            
+        self.assertEqual(str(e.exception), "Invalid appIDs provided during the configuration:['test', 'test123', '123test', '']", "Not get expected exception")

@@ -16,9 +16,13 @@ REQUIRED_CONFIG_KEYS = ["start_date", "x_pendo_integration_key", "period"]
 LOGGER = singer.get_logger()
 
 
-def do_discover(config):
+def do_discover(config, invlaid_app_ids):
     # Discover schemas for all streams and dump catalog. Also validate the credentials provided in config.json
     LOGGER.info("Starting discover")
+    # If non numeric app_ids are given in configure file then raise exception
+    if len(invlaid_app_ids) > 0:
+        raise Exception('Invalid appIDs provided during the configuration:{}'.format(invlaid_app_ids)) from None
+        
     catalog = {"streams": discover_streams(config)}
     json.dump(catalog, sys.stdout, indent=2)
     LOGGER.info("Finished discover")
@@ -151,14 +155,32 @@ def sync(config, state, catalog):
         singer.write_state(state)
     LOGGER.info("Finished sync")
 
+# To check that given number is numeric or not
+def isInteger(n):
+    try:
+        int(n)
+        return False
+    except:
+        return True
+    
 @utils.handle_top_exception(LOGGER)
 def main():
 
     # Parse command line arguments
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
-
+    
+    # If app_ids is not in configure file then get all apps data
+    app_ids = args.config.get("app_ids", "expandAppIds(\"*\")").replace(" ", "") or "expandAppIds(\"*\")"
+    # If app_ids is given in configure file then check all app_ids are numeric or not
+    invlaid_app_ids = []
+    if app_ids != "expandAppIds(\"*\")":
+        app_ids = app_ids.split(",")
+        invlaid_app_ids = list(filter(isInteger, app_ids))
+        
+    args.config["app_ids"] = app_ids
+        
     if args.discover:
-        do_discover(args.config)
+        do_discover(args.config, invlaid_app_ids)
     elif args.catalog:
         state = args.state
         sync(args.config, state, args.catalog)

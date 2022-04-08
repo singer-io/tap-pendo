@@ -115,26 +115,7 @@ class Stream():
 
     def __init__(self, config=None):
         self.config = config
-        
-        # If app_ids are not given in config then select all apps data
-        self.app_ids = self.config.get('app_ids', "expandAppIds(\"*\")").replace(" ", "")
-        
-        # If app_ids are empty string or space contains string then select all apps data
-        if bool(self.app_ids) == False:
-            self.app_ids = self.app_ids or "expandAppIds(\"*\")"
-        elif self.app_ids != "expandAppIds(\"*\")":
-        # If appIds are given then create list of app_ids
-            self.app_ids = self.app_ids.split(",")
-            prev_len = len(self.app_ids)
-            
-            # Remove empty string in list    
-            self.app_ids = list(filter(None, self.app_ids))
-            
-            if self.app_ids == []:
-                raise Exception("All app_ids provided in a configuration are blank.")
-            elif len(self.app_ids) != prev_len:
-                LOGGER.warning("The app_ids provided in a configuration contain some blank values and the tap will ignore blank values.")
-
+                
     def send_request_get_results(self, req):
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
@@ -556,7 +537,7 @@ class Features(Stream):
                 "all-features",
                 "pipeline": [{
                     "source": {
-                        "features": {"appId": self.app_ids}
+                        "features": {"appId": self.config["app_ids"]}
                     }
                 }, {
                     "sort": ["id"]
@@ -695,7 +676,7 @@ class Events(LazyAggregationStream):
             "request": {
                 "pipeline": [{
                     "source": {
-                        "events": {"appId": self.app_ids},
+                        "events": {"appId": self.config["app_ids"]},
                         "timeSeries": {
                             "period": period,
                             "first": first,
@@ -728,7 +709,7 @@ class PollEvents(Stream):
             "request": {
                 "pipeline": [{
                     "source": {
-                        "pollEvents": {"appId": self.app_ids},
+                        "pollEvents": {"appId": self.config["app_ids"]},
                         "timeSeries": {
                             "period": period,
                             "first": first,
@@ -843,7 +824,7 @@ class TrackTypes(Stream):
                 "name": "all-track-types",
                 "pipeline": [{
                     "source": {
-                        "trackTypes": {"appId": self.app_ids}
+                        "trackTypes": {"appId": self.config["app_ids"]}
                     }
                 }, {
                     "sort": ["id"]
@@ -868,7 +849,7 @@ class Guides(Stream):
                 "all-guides",
                 "pipeline": [{
                     "source": {
-                        "guides": {"appId": self.app_ids}
+                        "guides": {"appId": self.config["app_ids"]}
                     }
                 }, {
                     "sort": ["id"]
@@ -894,7 +875,7 @@ class Pages(Stream):
                 "all-pages",
                 "pipeline": [{
                     "source": {
-                        "pages": {"appId": self.app_ids}
+                        "pages": {"appId": self.config["app_ids"]}
                     }
                 }, {
                     "sort": ["id"]
