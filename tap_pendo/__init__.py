@@ -16,13 +16,9 @@ REQUIRED_CONFIG_KEYS = ["start_date", "x_pendo_integration_key", "period"]
 LOGGER = singer.get_logger()
 
 
-def do_discover(config, invalid_app_ids):
+def do_discover(config):
     # Discover schemas for all streams and dump catalog. Also validate the credentials provided in config.json
     LOGGER.info("Starting discover")
-    # If non numeric app_ids are given in configure file then raise exception
-    if len(invalid_app_ids) > 0:
-        raise Exception('Invalid appIDs provided during the configuration:{}'.format(invalid_app_ids)) from None
-
     catalog = {"streams": discover_streams(config)}
     json.dump(catalog, sys.stdout, indent=2)
     LOGGER.info("Finished discover")
@@ -180,7 +176,10 @@ def main():
     args.config["app_ids"] = app_ids
 
     if args.discover:
-        do_discover(args.config, invalid_app_ids)
+        # If non numeric app_ids are given in configure file then raise exception
+        if len(invalid_app_ids) > 0:
+            raise Exception('Invalid appIDs provided during the configuration:{}'.format(invalid_app_ids)) from None
+        do_discover(args.config)
     elif args.catalog:
         state = args.state
         sync(args.config, state, args.catalog)
