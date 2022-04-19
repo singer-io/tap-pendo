@@ -173,12 +173,12 @@ def main():
         app_ids = app_ids.split(",")
         invalid_app_ids = list(filter(isInteger, app_ids))
 
+    # If non numeric app_ids are given in configure file then raise exception
+    if len(invalid_app_ids) > 0:
+        raise Exception('Invalid appIDs provided during the configuration:{}'.format(invalid_app_ids)) from None
     args.config["app_ids"] = app_ids
 
     if args.discover:
-        # If non numeric app_ids are given in configure file then raise exception
-        if len(invalid_app_ids) > 0:
-            raise Exception('Invalid appIDs provided during the configuration:{}'.format(invalid_app_ids)) from None
         do_discover(args.config)
     elif args.catalog:
         state = args.state
