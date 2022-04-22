@@ -13,6 +13,9 @@ spec](https://github.com/singer-io/getting-started/blob/master/SPEC.md).
 This tap:
 
 - Pulls raw data from the [Pendo API](https://developers.pendo.io/docs/?bash#overview).
+- Supports following two server
+  - US Server
+  - EU Server
 - Extracts the following resources:
   - Accounts
   - Features
@@ -37,7 +40,8 @@ This tap:
 
 **[accounts](https://developers.pendo.io/docs/?bash#entities)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `account_id`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `lastupdated`
@@ -48,7 +52,8 @@ This tap:
 
 **[features](https://developers.pendo.io/docs/?bash#entities)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/feature)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `id`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `last_updated_at`
@@ -56,7 +61,8 @@ This tap:
 
 **[guides](https://developers.pendo.io/docs/?bash#entities)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `id`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `last_pdated_at`
@@ -64,7 +70,8 @@ This tap:
 
 **[track types](https://developers.pendo.io/docs/?bash#entities)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `id`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `last_pdated_at`
@@ -72,7 +79,8 @@ This tap:
 
 **[visitors](https://developers.pendo.io/docs/?bash#entities)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `lastupdated`
@@ -86,7 +94,8 @@ This tap:
 
 **[visitor_history](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `modified_ts` (Max from `ts` or `lastTs`)
@@ -94,7 +103,8 @@ This tap:
 
 **[feature_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
@@ -102,7 +112,8 @@ This tap:
 
 **[events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
@@ -110,7 +121,8 @@ This tap:
 
 **[page_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
@@ -118,7 +130,8 @@ This tap:
 
 **[guide_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `browserTime`
@@ -126,7 +139,8 @@ This tap:
 
 **[poll_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `browserTime`
@@ -134,7 +148,8 @@ This tap:
 
 **[track_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `visitor_id`, `account_id`, `server`, `remote_ip`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
@@ -142,7 +157,8 @@ This tap:
 
 **[guides](https://developers.pendo.io/docs/?bash#entities)**
 
-- Endpoint: [https://api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- US Server Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
 - Primary key fields: `id`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `last_pdated_at`
@@ -150,13 +166,15 @@ This tap:
 
 **[metadata accounts](https://developers.pendo.io/docs/?bash#automatically-generated-metadata)**
 
-- Endpoint: [https://api/v1/metadata/schema/account](https://app.pendo.io/api/v1/metadata/schema/account)
+- US Server Endpoint: [https://app.pendo.io/api/v1/metadata/schema/account](https://app.pendo.io/api/v1/metadata/schema/account)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/metadata/schema/account](https://app.pendo.io/api/v1/metadata/schema/account)
 - Replication strategy: FULL_TABLE
 - Transformations: Camel to snake case.
 
 **[metadata visitors](https://developers.pendo.io/docs/?bash#automatically-generated-metadata)**
 
-- Endpoint: [https://api/v1/metadata/schema/account](https://app.pendo.io/api/v1/metadata/schema/visitor)
+- US Server Endpoint: [https://app.pendo.io/api/v1/metadata/schema/visitor](https://app.pendo.io/api/v1/metadata/schema/visitor)
+- EU Server Endpoint: [https://app.eu.pendo.io/api/v1/metadata/schema/visitor](https://app.pendo.io/api/v1/metadata/schema/visitor)
 - Replication strategy: FULL_TABLE
 - Transformations: Camel to snake case.
 
@@ -164,6 +182,8 @@ This tap:
 
 Authentication is managed by integration keys. An integration key may be created in the Pendo website: Settings -> Integrations -> Integration Keys.
 
+### Note 
+- If you selected eu_domain then please make sure you enter integration_key of that project only.
 ## State
 
 ```json
@@ -246,6 +266,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
    - `lookback_window` (integer): 10 (For event objects. Default: 0)
    - `request_timeout` (integer): 300 (For passing timeout to the request. Default: 300)
+   - `eu_domain` (boolean, `true` or `false`): EU domain refers to the physical storage location of an organization's data or information. Setting this config parameter to true ensures that it uses the EU endpoint to capture the records.
 
    ```json
    {
@@ -254,7 +275,8 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
      "period": "dayRange",
      "lookback_window": 10,
      "request_timeout": 300,
-     "include_anonymous_visitors": "true"
+     "include_anonymous_visitors": "true",
+     "eu_domain": "true"
    }
    ```
 

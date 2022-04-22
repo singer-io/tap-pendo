@@ -1,4 +1,5 @@
 {
   "x_pendo_integration_key": "x_pendo_integration_key",
-  "start_date": "2017-01-01T00:00:00Z"
+  "start_date": "2017-01-01T00:00:00Z",
+  "eu_domain": "true"
 }
