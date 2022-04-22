@@ -183,7 +183,7 @@ This tap:
 Authentication is managed by integration keys. An integration key may be created in the Pendo website: Settings -> Integrations -> Integration Keys.
 
 ### Note 
-- If you selected eu_domain then please make sure you enter integration_key of that project only.
+- If you selected eu_domain then please make sure you enter integration_key of Pendo EU subscription only.
 ## State
 
 ```json
@@ -266,7 +266,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
    - `lookback_window` (integer): 10 (For event objects. Default: 0)
    - `request_timeout` (integer): 300 (For passing timeout to the request. Default: 300)
-   - `eu_domain` (boolean, `true` or `false`): EU domain refers to the physical storage location of an organization's data or information. Setting this config parameter to true ensures that it uses the EU endpoint to capture the records.
+   - `eu_domain` (boolean, `true` or `false`): EU domain refers to the physical storage location of an organization's data or information. Setting this config parameter to true ensures that it uses the EU endpoint to capture the records else it will use the US endpoint to capture the records. It is an optional property.
 
    ```json
    {
