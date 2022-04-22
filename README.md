@@ -266,7 +266,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
    - `lookback_window` (integer): 10 (For event objects. Default: 0)
    - `request_timeout` (integer): 300 (For passing timeout to the request. Default: 300)
-   - `eu_domain` (boolean, `true` or `false`): EU domain refers to the physical storage location of an organization's data or information. Setting this config parameter to true ensures that it uses the EU endpoint to capture the records else it will use the US endpoint to capture the records. It is an optional property.
+   - `eu_domain` (boolean, `true` or `false`): It is an optional property. EU domain refers to the physical storage location of an organization's data or information. Setting this config parameter to true ensures that it uses the EU endpoint to capture the records else it will use the US endpoint by default to capture the records.
 
    ```json
    {
