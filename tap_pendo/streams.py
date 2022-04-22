@@ -20,7 +20,8 @@ from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
 KEY_PROPERTIES = ['id']
-BASE_URL = "https://app.pendo.io"
+US_BASE_URL = "https://app.pendo.io"
+EU_BASE_URL = "https://app.eu.pendo.io"
 
 LOGGER = singer.get_logger()
 session = requests.Session()
@@ -92,11 +93,16 @@ class Endpoints():
         self.headers = headers
         self.params = params
 
-    def get_url(self, **kwargs):
+    def get_url(self, is_eu_domain, **kwargs):
         """
         Concatenate  and format the dynamic values to the BASE_URL
         """
-        return BASE_URL + self.endpoint.format(**kwargs)
+        # Update url if `eu` domain is selected
+        if str(is_eu_domain).lower() == "true":
+            return EU_BASE_URL + self.endpoint.format(**kwargs)
+        else:
+            return US_BASE_URL + self.endpoint.format(**kwargs)
+
 
 
 class Stream():
@@ -156,7 +162,7 @@ class Stream():
         }
 
         request_kwargs = {
-            'url': self.endpoint.get_url(**kwargs),
+            'url': self.endpoint.get_url(self.config.get('eu_domain', False), **kwargs),
             'method': self.endpoint.method,
             'headers': headers,
             'params': params
