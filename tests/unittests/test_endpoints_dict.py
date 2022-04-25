@@ -14,12 +14,12 @@ def test_correct_values_passed_in_endpoint_object():
 def test_correct_endpoint_url():
     stream.endpoint = Endpoints(
         "/api/v1/visitor/{visitorID}/history", "GET")
-    formatted_url = stream.endpoint.get_url(visitorID='abc', is_eu_domain=False) # Assign is_eu_domain=False for US region endpoint
+    formatted_url = stream.endpoint.get_url(visitorID='abc', integration_key="rf4007a20459.us") # Pass integration_key of US subscription account
     assert formatted_url == 'https://app.pendo.io/api/v1/visitor/abc/history'
 
 def test_eu_endpoint_url():
     stream.endpoint = Endpoints(
         "/api/v1/visitor/{visitorID}/history", "GET")
-    formatted_url = stream.endpoint.get_url(visitorID='abc', is_eu_domain=True)
-    # Verify formatted_url for eu endpoint
+    formatted_url = stream.endpoint.get_url(visitorID='abc', integration_key="rf4007a20459.eu")
+    # Verify formatted_url for eu subscription account by integration_key.
     assert formatted_url == 'https://app.eu.pendo.io/api/v1/visitor/abc/history'

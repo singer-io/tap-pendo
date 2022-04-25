@@ -93,12 +93,12 @@ class Endpoints():
         self.headers = headers
         self.params = params
 
-    def get_url(self, is_eu_domain, **kwargs):
+    def get_url(self, integration_key, **kwargs):
         """
         Concatenate  and format the dynamic values to the BASE_URL
         """
-        # Update url if `eu` domain is selected
-        if str(is_eu_domain).lower() == "true":
+        # Update url if integration_key ends with `.eu`.
+        if integration_key[-3:] == ".eu":
             return EU_BASE_URL + self.endpoint.format(**kwargs)
         else:
             return US_BASE_URL + self.endpoint.format(**kwargs)
@@ -162,7 +162,7 @@ class Stream():
         }
 
         request_kwargs = {
-            'url': self.endpoint.get_url(self.config.get('eu_domain', False), **kwargs),
+            'url': self.endpoint.get_url(self.config['x_pendo_integration_key'], **kwargs),
             'method': self.endpoint.method,
             'headers': headers,
             'params': params
