@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.0
+  * Add support for EU endpoints [#95](https://github.com/singer-io/tap-pendo/pull/95)
+
 ## 0.3.2
   * Added data windowing for the events stream with configurable window size [#89](https://github.com/singer-io/tap-pendo/pull/89)
 
