@@ -2,8 +2,8 @@ import tap_tester.connections as connections
 import tap_tester.runner as runner
 from base import TestPendoBase
 
-class PendoStartDateTest(TestPendoBase):
-    """Instantiate start date according to the desired data set and run the test"""
+class PendoAPPIDSTest(TestPendoBase):
+    """Instantiate app_ids with value and None then run the test"""
 
     def get_properties(self, *args, **kwargs):
         props = super().get_properties(*args, **kwargs)
@@ -14,19 +14,16 @@ class PendoStartDateTest(TestPendoBase):
     app_ids_2 = ""
 
     def name(self):
-        return "pendo_start_date_test"
+        return "pendo_app_ids_test"
 
     def test_run(self):
-        # self.run_test("2021-09-09T00:00:00Z", "2021-09-13T00:00:00Z", {"accounts", "visitors", "metadata_visitors", "metadata_accounts"})
         self.run_test("-323232", None, {"features", "feature_events", "pages", "page_events", "events", "guides", "guide_events", "track_types", "track_events"})
 
     def run_test(self, app_ids_1, app_ids_2, streams):
         """
-        Test that the start_date configuration is respected
-        • verify that a sync with a later start date has at least one record synced
-        and less records than the 1st sync with a previous start date
-        • verify that each stream has less records than the earlier start date sync
-        • verify all data from later start data has bookmark values >= start_date
+        Test that the app_ids configuration is respected
+        • verify that a sync with app_ids have one app's data 
+        • verify that a sync with None app_ids get more than one app's data
         """
         
         self.app_ids = app_ids_1
@@ -51,7 +48,6 @@ class PendoStartDateTest(TestPendoBase):
             conn_id_1, test_catalogs_1_all_fields, select_all_fields=True)
 
         # run initial sync
-        record_count_by_stream_1 = self.run_and_verify_sync(conn_id_1)
         synced_records_1 = runner.get_records_from_target_output()
         
         for stream in expected_streams:
@@ -61,10 +57,11 @@ class PendoStartDateTest(TestPendoBase):
         
 
         ##########################################################################
-        # Update START DATE Between Syncs
+        # Update APP IDs Between Syncs
         ##########################################################################
         
         print("Start syncing with no app_ids in config.json")
+        # for no app_ids given None value in self.app_ids
         self.app_ids = app_ids_2
         
 
@@ -72,7 +69,7 @@ class PendoStartDateTest(TestPendoBase):
         # # Second Sync
         # ##########################################################################
 
-        # create a new connection with the new start_date
+        # create a new connection with the new config where app_ids are not given
         conn_id_2 = connections.ensure_connection(
             self, original_properties=False)
 
@@ -86,85 +83,9 @@ class PendoStartDateTest(TestPendoBase):
             conn_id_2, test_catalogs_2_all_fields, select_all_fields=True)
 
         # run sync
-        record_count_by_stream_2 = self.run_and_verify_sync(conn_id_2)
         synced_records_2 = runner.get_records_from_target_output()
         
         for stream in expected_streams:
             messages_2 = synced_records_2.get(stream)
             records_appid_set = set([message.get('data').get('app_id') for message in messages_2.get("messages")])
             self.assertGreater(len(records_appid_set), 1, msg=f"We have only one app's records for {stream}")
-
-        # for stream in expected_streams:
-        #     with self.subTest(stream=stream):
-
-        #         # expected values
-        #         expected_primary_keys = self.expected_pks()[stream]
-        #         expected_start_date_1 = self.timedelta_formatted(
-        #             self.start_date_1, -1)
-        #         expected_start_date_2 = self.timedelta_formatted(
-        #             self.start_date_2, -1)
-
-        #         # collect information for assertions from syncs 1 & 2 base on expected values
-        #         record_count_sync_1 = record_count_by_stream_1.get(stream, 0)
-        #         record_count_sync_2 = record_count_by_stream_2.get(stream, 0)
-
-        #         primary_keys_list_1 = [tuple(message.get('data').get(expected_pk) for expected_pk in expected_primary_keys)
-        #                                for message in synced_records_1.get(stream, {}).get('messages', [])
-        #                                if message.get('action') == 'upsert']
-        #         primary_keys_list_2 = [tuple(message.get('data').get(expected_pk) for expected_pk in expected_primary_keys)
-        #                                for message in synced_records_2.get(stream, {}).get('messages', [])
-        #                                if message.get('action') == 'upsert']
-
-        #         primary_keys_sync_1 = set(primary_keys_list_1)
-        #         primary_keys_sync_2 = set(primary_keys_list_2)
-
-        #         if self.is_incremental(stream):
-
-        #             # collect information specific to incremental streams from syncs 1 & 2
-        #             expected_replication_key = next(
-        #                 iter(self.expected_replication_keys().get(stream, [])))
-        #             replication_dates_1 = [row.get('data').get(expected_replication_key) for row in
-        #                                 synced_records_1.get(stream, {'messages': []}).get('messages', [])
-        #                                 if row.get('data')]
-        #             replication_dates_2 = [row.get('data').get(expected_replication_key) for row in
-        #                                 synced_records_2.get(stream, {'messages': []}).get('messages', [])
-        #                                 if row.get('data')]
-
-        #             # Verify replication key is greater or equal to start_date for sync 1
-        #             for replication_date in replication_dates_1:
-        #                 self.assertGreaterEqual(
-        #                     self.parse_date(replication_date), self.parse_date(
-        #                         expected_start_date_1),
-        #                     msg="Report pertains to a date prior to our start date.\n" +
-        #                     "Sync start_date: {}\n".format(expected_start_date_1) +
-        #                         "Record date: {} ".format(replication_date)
-        #                 )
-
-        #             # Verify replication key is greater or equal to start_date for sync 2
-        #             for replication_date in replication_dates_2:
-        #                 self.assertGreaterEqual(
-        #                     self.parse_date(replication_date), self.parse_date(
-        #                         expected_start_date_2),
-        #                     msg="Report pertains to a date prior to our start date.\n" +
-        #                     "Sync start_date: {}\n".format(expected_start_date_2) +
-        #                         "Record date: {} ".format(replication_date)
-        #                 )
-
-        #             # Verify the number of records replicated in sync 1 is greater than the number
-        #             # of records replicated in sync 2
-        #             self.assertGreater(record_count_sync_1,
-        #                                record_count_sync_2)
-
-        #             # Verify the records replicated in sync 2 were also replicated in sync 1
-        #             self.assertTrue(
-        #                 primary_keys_sync_2.issubset(primary_keys_sync_1))
-
-        #         else:
-
-        #             # Verify that the 2nd sync with a later start date replicates the same number of
-        #             # records as the 1st sync.
-        #             self.assertEqual(record_count_sync_2, record_count_sync_1)
-
-        #             # Verify by primary key the same records are replicated in the 1st and 2nd syncs
-        #             self.assertSetEqual(primary_keys_sync_1,
-        #                                 primary_keys_sync_2)
