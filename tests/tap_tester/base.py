@@ -22,6 +22,7 @@ class TestPendoBase(unittest.TestCase):
     START_DATE_FORMAT = "%Y-%m-%dT00:00:00Z"
     BOOKMARK_COMPARISON_FORMAT = "%Y-%m-%dT%H:%M%S%z"
     start_date = ""
+    app_ids = None
     
     @staticmethod
     def name():
@@ -142,6 +143,8 @@ class TestPendoBase(unittest.TestCase):
             return return_value
         
         return_value["start_date"] = self.start_date
+        if self.app_ids is not None:
+            return_value["app_ids"] = self.app_ids
         return return_value
     
     
