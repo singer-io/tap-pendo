@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.1
+  * Allow custom metadata types to be more permissive [#97](https://github.com/singer-io/tap-pendo/pull/97)
+
 ## 0.4.0
   * Add support for EU endpoints [#95](https://github.com/singer-io/tap-pendo/pull/95)
 
