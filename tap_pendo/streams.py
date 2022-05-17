@@ -445,6 +445,8 @@ class LazyAggregationStream(Stream):
             # pass existing generator and record to create generator
             to_return = create_generator(humps.decamelize(item), to_return)
 
+        # close response
+        resp.close()
         # return the generator
         return to_return
 
