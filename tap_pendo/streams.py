@@ -1,7 +1,7 @@
 # pylint: disable=E1101,R0201,W0613
 
 #!/usr/bin/env python3
-from itertools import chain
+import itertools
 import json
 import os
 import time
@@ -76,9 +76,6 @@ def update_currently_syncing(state, stream_name):
         singer.set_currently_syncing(state, stream_name)
     singer.write_state(state)
 
-# function to return generator by combining existing records and new record
-def create_generator(record, generator):
-    return (x for x in chain(generator, [record]))
 
 class Server42xRateLimitError(Exception):
     pass
@@ -332,7 +329,7 @@ class Stream():
                     if isinstance(parent_response, list):
                         parent_response = parent_response[i:]
                     else:
-                        parent_response = chain([response], parent_response)
+                        parent_response = itertools.chain([response], parent_response)
                     break
                 i += 1
 
@@ -438,13 +435,8 @@ class LazyAggregationStream(Stream):
 
         resp.raise_for_status() # Check for requests status and raise exception in failure
 
-        # create empty generator
-        to_return = (x for x in [])
-        # loop over every record and update 'to_return' for every records
-        for item in ijson.items(resp.raw, 'results.item'):
-            # pass existing generator and record to create generator
-            to_return = create_generator(humps.decamelize(item), to_return)
-
+        # collect response by looping over raw response
+        to_return = (humps.decamelize(x) for x in ijson.items(resp.raw, 'results.item'))
         # close response
         resp.close()
         # return the generator
