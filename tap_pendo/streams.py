@@ -1,7 +1,7 @@
 # pylint: disable=E1101,R0201,W0613
 
 #!/usr/bin/env python3
-import itertools
+from itertools import chain
 import json
 import os
 import time
@@ -12,6 +12,7 @@ import humps
 import ijson
 import requests
 import singer
+from urllib3.exceptions import ReadTimeoutError
 import singer.metrics as metrics
 from requests.exceptions import HTTPError
 from requests.models import ProtocolError
@@ -75,7 +76,9 @@ def update_currently_syncing(state, stream_name):
         singer.set_currently_syncing(state, stream_name)
     singer.write_state(state)
 
-
+# function to return generator by combining existing records and new record
+def create_generator(record, generator):
+    return (x for x in chain(generator, [record]))
 
 class Server42xRateLimitError(Exception):
     pass
@@ -149,7 +152,7 @@ class Stream():
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
                           factor=2)
-    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError), # backoff error
+    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError, ReadTimeoutError), # backoff error
                           max_tries=5,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
@@ -329,7 +332,7 @@ class Stream():
                     if isinstance(parent_response, list):
                         parent_response = parent_response[i:]
                     else:
-                        parent_response = itertools.chain([response], parent_response)
+                        parent_response = chain([response], parent_response)
                     break
                 i += 1
 
@@ -435,16 +438,15 @@ class LazyAggregationStream(Stream):
 
         resp.raise_for_status() # Check for requests status and raise exception in failure
 
-        # Separated yielding of records into a new function and called that here
-        # so that any exception raised from the session.send can be thrown from here and
-        # handled properly using backoff on request function.
-        return self.send_records(resp)
-
-    def send_records(self, resp):
-        # Yielding records from results
+        # create empty generator
+        to_return = (x for x in [])
+        # loop over every record and update 'to_return' for every records
         for item in ijson.items(resp.raw, 'results.item'):
-            yield humps.decamelize(item)
-        resp.close()
+            # pass existing generator and record to create generator
+            to_return = create_generator(humps.decamelize(item), to_return)
+
+        # return the generator
+        return to_return
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
