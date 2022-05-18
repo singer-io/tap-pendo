@@ -435,12 +435,15 @@ class LazyAggregationStream(Stream):
 
         resp.raise_for_status() # Check for requests status and raise exception in failure
 
-        # collect response by looping over raw response
-        to_return = (humps.decamelize(x) for x in ijson.items(resp.raw, 'results.item'))
-        # close response
+        # get records from raw response
+        records = ijson.items(resp.raw, 'results.item')
+        return self.send_records(records, resp)
+
+    def send_records(self, records, resp):
+        # Yielding records and close response
+        for item in records:
+            yield humps.decamelize(item)
         resp.close()
-        # return the generator
-        return to_return
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
