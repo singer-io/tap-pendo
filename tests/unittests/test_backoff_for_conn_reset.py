@@ -1,4 +1,5 @@
 from unittest import mock
+from urllib3.exceptions import ReadTimeoutError
 from tap_pendo.streams import Endpoints, Visitors
 import unittest
 import socket
@@ -27,6 +28,17 @@ class TestConnectionResetError(unittest.TestCase):
         mocked_request.side_effect = socket.error(104, 'Connection reset by peer')
 
         with self.assertRaises(ProtocolError):
+            self.stream.request(endpoint=None)
+
+        # verify if the request was called 5 times
+        self.assertEquals(mocked_request.call_count, 5)
+
+    @mock.patch('http.client.HTTPResponse.readinto')
+    def test_timeout_error__from_ijson(self, mocked_request, mocked_sleep):
+        # mock request and raise error
+        mocked_request.side_effect = socket.timeout('The read operation timed out')
+
+        with self.assertRaises(ReadTimeoutError):
             self.stream.request(endpoint=None)
 
         # verify if the request was called 5 times
