@@ -27,6 +27,9 @@ class Mockresponse:
     def json(self):
         return self.text
 
+    def close(self):
+        return None
+
 def get_response(json={}):
     return Mockresponse(200, json, False)
 

@@ -12,6 +12,7 @@ import humps
 import ijson
 import requests
 import singer
+from urllib3.exceptions import ReadTimeoutError
 import singer.metrics as metrics
 from requests.exceptions import HTTPError
 from requests.models import ProtocolError
@@ -74,7 +75,6 @@ def update_currently_syncing(state, stream_name):
     else:
         singer.set_currently_syncing(state, stream_name)
     singer.write_state(state)
-
 
 
 class Server42xRateLimitError(Exception):
@@ -149,7 +149,7 @@ class Stream():
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
                           factor=2)
-    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError), # backoff error
+    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError, ReadTimeoutError), # backoff error
                           max_tries=5,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
@@ -435,14 +435,13 @@ class LazyAggregationStream(Stream):
 
         resp.raise_for_status() # Check for requests status and raise exception in failure
 
-        # Separated yielding of records into a new function and called that here
-        # so that any exception raised from the session.send can be thrown from here and
-        # handled properly using backoff on request function.
-        return self.send_records(resp)
+        # get records from raw response
+        records = ijson.items(resp.raw, 'results.item')
+        return self.send_records(records, resp)
 
-    def send_records(self, resp):
-        # Yielding records from results
-        for item in ijson.items(resp.raw, 'results.item'):
+    def send_records(self, records, resp):
+        # Yielding records and close response
+        for item in records:
             yield humps.decamelize(item)
         resp.close()
 
