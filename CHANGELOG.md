@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.2
+  * Retry when the connection snaps [#98](https://github.com/singer-io/tap-pendo/pull/98)
+
 ## 0.4.1
   * Allow custom metadata types to be more permissive [#97](https://github.com/singer-io/tap-pendo/pull/97)
 
