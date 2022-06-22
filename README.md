@@ -260,7 +260,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
 3. Create your tap's `config.json` file. The tap config file for this tap should include these entries:
 
    - `start_date` - the default value to use if no bookmark exists for an endpoint (rfc3339 date string)
-   - `x_pendo_integration_key` (string, `ABCdef123`): an integration key from Pendo.
+   - `x_pendo_integration_key` (string, `ABCdef123`): an integration key from Pendo. If not provided in `config.json`, `X_PENDO_INTEGRATION_KEY` environment variable will be used.
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
    - `lookback_window` (integer): 10 (For event objects. Default: 0)
    - `request_timeout` (integer): 300 (For passing timeout to the request. Default: 300)
