@@ -82,6 +82,10 @@ def parse_args(required_config_keys):
     args = parser.parse_args()
 
     config = load_json(args.config)
+    if "x_pendo_integration_key" not in config:
+        env_key = os.getenv("X_PENDO_INTEGRATION_KEY")
+        if env_key is not None:
+            config["x_pendo_integration_key"] = env_key
     check_config(config, required_config_keys) # Check config for missing fields
 
     if args.state:
