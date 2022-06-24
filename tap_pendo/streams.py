@@ -33,6 +33,9 @@ FACTOR = 2
 COUNT = 5
 
 def to_giveup(e):
+    """
+        Boolean function to return if we want to give up retrying based on error response
+    """
     return e.response is not None and 400 <= e.response.status_code < 500
 
 def get_abs_path(path):
