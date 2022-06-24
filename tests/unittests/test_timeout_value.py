@@ -47,7 +47,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass 'request_timeout' param in the config
         stream = streams.Stream({'x_pendo_integration_key': 'test', 'request_timeout': 100})
 
-        stream.send_request_get_results('test_req')
+        stream.send_request_get_results('test_req', None, {}, 1)
 
         # verify if the request was called with the desired timeout
         mocked_send.assert_called_with('test_req', timeout=100.0)
@@ -63,7 +63,7 @@ class TestTimeOutValue(unittest.TestCase):
         # not pass 'request_timeout' param in the config
         stream = streams.Stream({'x_pendo_integration_key': 'test'})
 
-        stream.send_request_get_results('test_req')
+        stream.send_request_get_results('test_req', None, {}, 1)
 
         # verify if the request was called with default timeout
         mocked_send.assert_called_with('test_req', timeout=300.0)
@@ -79,7 +79,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass string value of 'request_timeout' in the config
         stream = streams.Stream({'x_pendo_integration_key': 'test', 'request_timeout': "100"})
 
-        stream.send_request_get_results('test_req')
+        stream.send_request_get_results('test_req', None, {}, 1)
 
         # verify if the request was called with passed timeout param
         mocked_send.assert_called_with('test_req', timeout=100.0)
@@ -95,7 +95,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass empty string value of 'request_timeout' in the config
         stream = streams.Stream({'x_pendo_integration_key': 'test', 'request_timeout': ""})
 
-        stream.send_request_get_results('test_req')
+        stream.send_request_get_results('test_req', None, {}, 1)
 
         # verify if the request was called with passed timeout param
         mocked_send.assert_called_with('test_req', timeout=300.0)
@@ -111,7 +111,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass empty string value of 'request_timeout' in the config
         stream = streams.Stream({'x_pendo_integration_key': 'test', 'request_timeout': 0.0})
 
-        stream.send_request_get_results('test_req')
+        stream.send_request_get_results('test_req', None, {}, 1)
 
         # verify if the request was called with passed timeout param
         mocked_send.assert_called_with('test_req', timeout=300.0)
@@ -127,7 +127,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass empty string value of 'request_timeout' in the config
         stream = streams.Stream({'x_pendo_integration_key': 'test', 'request_timeout': "0.0"})
 
-        stream.send_request_get_results('test_req')
+        stream.send_request_get_results('test_req', None, {}, 1)
 
         # verify if the request was called with passed timeout param
         mocked_send.assert_called_with('test_req', timeout=300.0)
@@ -142,7 +142,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass 'request_timeout' param in the config
         stream = streams.LazyAggregationStream({'x_pendo_integration_key': 'test', 'request_timeout': 100})
 
-        stream.send_request_get_results('test_req')
+        list(stream.send_request_get_results('test_req', None, {}, 1))
 
         # verify if the request was called with the desired timeout
         mocked_send.assert_called_with('test_req', stream=True, timeout=100.0)
@@ -158,7 +158,7 @@ class TestTimeOutValue(unittest.TestCase):
         # not pass 'request_timeout' param in the config
         stream = streams.LazyAggregationStream({'x_pendo_integration_key': 'test'})
 
-        stream.send_request_get_results('test_req')
+        list(stream.send_request_get_results('test_req', None, {}, 1))
 
         # verify if the request was called with default timeout
         mocked_send.assert_called_with('test_req', stream=True, timeout=300.0)
@@ -174,7 +174,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass string value of 'request_timeout' in the config
         stream = streams.LazyAggregationStream({'x_pendo_integration_key': 'test', 'request_timeout': "100"})
 
-        stream.send_request_get_results('test_req')
+        list(stream.send_request_get_results('test_req', None, {}, 1))
 
         # verify if the request was called with passed timeout param
         mocked_send.assert_called_with('test_req', stream=True, timeout=100.0)
@@ -190,7 +190,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass string value of 'request_timeout' in the config
         stream = streams.LazyAggregationStream({'x_pendo_integration_key': 'test', 'request_timeout': ""})
 
-        stream.send_request_get_results('test_req')
+        list(stream.send_request_get_results('test_req', None, {}, 1))
 
         # verify if the request was called with passed timeout param
         mocked_send.assert_called_with('test_req', stream=True, timeout=300.0)
@@ -206,7 +206,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass string value of 'request_timeout' in the config
         stream = streams.LazyAggregationStream({'x_pendo_integration_key': 'test', 'request_timeout': 0.0})
 
-        stream.send_request_get_results('test_req')
+        list(stream.send_request_get_results('test_req', None, {}, 1))
 
         # verify if the request was called with passed timeout param
         mocked_send.assert_called_with('test_req', stream=True, timeout=300.0)
@@ -222,7 +222,7 @@ class TestTimeOutValue(unittest.TestCase):
         # pass string value of 'request_timeout' in the config
         stream = streams.LazyAggregationStream({'x_pendo_integration_key': 'test', 'request_timeout': "0.0"})
 
-        stream.send_request_get_results('test_req')
+        list(stream.send_request_get_results('test_req', None, {}, 1))
 
         # verify if the request was called with passed timeout param
         mocked_send.assert_called_with('test_req', stream=True, timeout=300.0)

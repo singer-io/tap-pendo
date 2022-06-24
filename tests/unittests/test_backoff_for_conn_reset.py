@@ -17,7 +17,7 @@ class TestConnectionResetError(unittest.TestCase):
         mocked_send.side_effect = socket.error(104, 'Connection reset by peer')
 
         with self.assertRaises(ConnectionResetError):
-            self.stream.request(endpoint=None)
+            list(self.stream.request(endpoint=None))
 
         # verify if the request was called 5 times
         self.assertEquals(mocked_send.call_count, 5)
@@ -28,7 +28,7 @@ class TestConnectionResetError(unittest.TestCase):
         mocked_request.side_effect = socket.error(104, 'Connection reset by peer')
 
         with self.assertRaises(ProtocolError):
-            self.stream.request(endpoint=None)
+            list(self.stream.request(endpoint=None))
 
         # verify if the request was called 5 times
         self.assertEquals(mocked_request.call_count, 5)
@@ -39,7 +39,7 @@ class TestConnectionResetError(unittest.TestCase):
         mocked_request.side_effect = socket.timeout('The read operation timed out')
 
         with self.assertRaises(ReadTimeoutError):
-            self.stream.request(endpoint=None)
+            list(self.stream.request(endpoint=None))
 
         # verify if the request was called 5 times
         self.assertEquals(mocked_request.call_count, 5)

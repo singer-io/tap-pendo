@@ -29,6 +29,12 @@ session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
 
+FACTOR = 2
+COUNT = 5
+
+def to_giveup(e):
+    return e.response is not None and 400 <= e.response.status_code < 500
+
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
 
@@ -122,7 +128,7 @@ class Stream():
     def __init__(self, config=None):
         self.config = config
 
-    def send_request_get_results(self, req):
+    def send_request_get_results(self, req, endpoint, params, count, **kwargs):
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
@@ -153,7 +159,7 @@ class Stream():
                           max_tries=5,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
-    def request(self, endpoint, params=None, **kwargs):
+    def request(self, endpoint, params=None, count=1, **kwargs):
         # Set requests headers, url, methods, params and extra provided arguments
         # params = params or {}
         headers = {
@@ -183,7 +189,7 @@ class Stream():
         LOGGER.info("%s %s %s", request_kwargs['method'],
                     request_kwargs['url'], request_kwargs['params'])
 
-        return self.send_request_get_results(req)
+        return self.send_request_get_results(req, endpoint, params, count, **kwargs)
 
     def get_bookmark(self, state, stream, default, key=None):
         # Return default value if no bookmark present in state for provided stream
@@ -417,33 +423,44 @@ class Stream():
         return int(lookback_window)
 
 class LazyAggregationStream(Stream):
-    def send_request_get_results(self, req):
+    def send_request_get_results(self, req, endpoint, params, count, **kwargs):
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
         request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
-        # Send request for stream data directly(without 'with' statement) so that
-        # exception handling and yielding can be utilized properly below
-        resp = session.send(req, stream=True, timeout=request_timeout)
+        try:
+            # Send request for stream data directly(without 'with' statement) so that
+            # exception handling and yielding can be utilized properly below
+            resp = session.send(req, stream=True, timeout=request_timeout)
 
-        if 'Too Many Requests' in resp.reason:
-            retry_after = 30
-            LOGGER.info("Rate limit reached. Sleeping for %s seconds",
-                        retry_after)
-            time.sleep(retry_after)
-            raise Server42xRateLimitError(resp.reason)
+            if 'Too Many Requests' in resp.reason:
+                retry_after = 30
+                LOGGER.info("Rate limit reached. Sleeping for %s seconds",
+                            retry_after)
+                time.sleep(retry_after)
+                raise Server42xRateLimitError(resp.reason)
 
-        resp.raise_for_status() # Check for requests status and raise exception in failure
+            resp.raise_for_status() # Check for requests status and raise exception in failure
 
-        # get records from raw response
-        records = ijson.items(resp.raw, 'results.item')
-        return self.send_records(records, resp)
+            # Get records from raw response
+            for item in ijson.items(resp.raw, 'results.item'):
+                yield humps.decamelize(item)
+            resp.close()
+        except (ConnectionError, ProtocolError, ReadTimeoutError, requests.exceptions.RequestException, Server42xRateLimitError) as e:
+            # Catch requestException and raise error if we have to giveup for certain condiitons
+            if isinstance(e, requests.exceptions.RequestException) and to_giveup(e):
+                raise e from None
+            # Raise error if we have retried for 5 times
+            if count == 5:
+                LOGGER.info("Giving up request(...) after 5 tries (%s: %s)", e.__class__.__name__, str(e))
+                raise e from None
 
-    def send_records(self, records, resp):
-        # Yielding records and close response
-        for item in records:
-            yield humps.decamelize(item)
-        resp.close()
+            LOGGER.info("Backing off request(...) for %ss (%s: %s)", FACTOR ** count, e.__class__.__name__, str(e))
+            # Sleep for (2 ^ count) seconds ie. 2, 4, 8, 16, 32
+            time.sleep(FACTOR ** count)
+            count += 1
+            # Request retry
+            yield from self.request(endpoint, params, count, **kwargs)
 
     def sync(self, state, start_date=None, key_id=None):
         stream_response = self.request(self.name, json=self.get_body()) or []

@@ -242,7 +242,7 @@ class TestTimeOut(unittest.TestCase):
         visitors = streams.Visitors({'x_pendo_integration_key': 'test'})
 
         try:
-            visitors.request('visitors')
+            list(visitors.request('visitors'))
         except requests.exceptions.Timeout:
             pass
 
@@ -257,7 +257,7 @@ class TestTimeOut(unittest.TestCase):
         events = streams.Events({'x_pendo_integration_key': 'test'})
 
         try:
-            events.request('events')
+            list(events.request('events'))
         except requests.exceptions.Timeout:
             pass
 
@@ -471,7 +471,7 @@ class TestConnectionResetError(unittest.TestCase):
         visitors = streams.Visitors({'x_pendo_integration_key': 'test'})
 
         try:
-            visitors.request('visitors')
+            list(visitors.request('visitors'))
         except ConnectionResetError:
             pass
 
@@ -486,7 +486,7 @@ class TestConnectionResetError(unittest.TestCase):
         events = streams.Events({'x_pendo_integration_key': 'test'})
 
         try:
-            events.request('events')
+            list(events.request('events'))
         except ConnectionResetError:
             pass
 
@@ -700,7 +700,7 @@ class TestProtocolError(unittest.TestCase):
         visitors = streams.Visitors({'x_pendo_integration_key': 'test'})
 
         try:
-            visitors.request('visitors')
+            list(visitors.request('visitors'))
         except ProtocolError:
             pass
 
@@ -715,7 +715,7 @@ class TestProtocolError(unittest.TestCase):
         events = streams.Events({'x_pendo_integration_key': 'test'})
 
         try:
-            events.request('events')
+            list(events.request('events'))
         except ProtocolError:
             pass
 
@@ -902,7 +902,7 @@ class Positive(unittest.TestCase):
         # initialize 'visitors' stream class
         visitors = streams.Visitors({'x_pendo_integration_key': 'test'})
 
-        resp = visitors.request('visitors')
+        resp = list(visitors.request('visitors'))
         
         # verify if the desired data was returned from the request
         self.assertEquals(list(resp), [json])
