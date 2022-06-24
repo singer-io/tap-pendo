@@ -29,14 +29,13 @@ session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
 
-FACTOR = 2
-COUNT = 5
+BACKOFF_FACTOR = 2
 
-def to_giveup(e):
+def to_giveup(error):
     """
         Boolean function to return if we want to give up retrying based on error response
     """
-    return e.response is not None and 400 <= e.response.status_code < 500
+    return error.response is not None and 400 <= error.response.status_code < 500
 
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
@@ -445,12 +444,12 @@ class LazyAggregationStream(Stream):
 
             resp.raise_for_status() # Check for requests status and raise exception in failure
 
-            # Get records from raw response
+            # Get records from the raw response
             for item in ijson.items(resp.raw, 'results.item'):
                 yield humps.decamelize(item)
             resp.close()
         except (ConnectionError, ProtocolError, ReadTimeoutError, requests.exceptions.RequestException, Server42xRateLimitError) as e:
-            # Catch requestException and raise error if we have to giveup for certain condiitons
+            # Catch requestException and raise errors if we have to give up for certain conditions
             if isinstance(e, requests.exceptions.RequestException) and to_giveup(e):
                 raise e from None
             # Raise error if we have retried for 5 times
@@ -458,9 +457,9 @@ class LazyAggregationStream(Stream):
                 LOGGER.info("Giving up request(...) after 5 tries (%s: %s)", e.__class__.__name__, str(e))
                 raise e from None
 
-            LOGGER.info("Backing off request(...) for %ss (%s: %s)", FACTOR ** count, e.__class__.__name__, str(e))
+            LOGGER.info("Backing off request(...) for %ss (%s: %s)", BACKOFF_FACTOR ** count, e.__class__.__name__, str(e))
             # Sleep for (2 ^ count) seconds ie. 2, 4, 8, 16, 32
-            time.sleep(FACTOR ** count)
+            time.sleep(BACKOFF_FACTOR ** count)
             count += 1
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)
