@@ -6,6 +6,7 @@ import json
 import os
 import time
 from datetime import datetime, timedelta, timezone
+from singer.transform import unix_milliseconds_to_datetime
 
 import backoff
 import humps
@@ -113,6 +114,7 @@ class Stream():
     replication_method = None
     replication_key = None
     key_properties = KEY_PROPERTIES
+    replication_key_path = None
     stream = None
     period = None
     # initialized the endpoint attribute which can be overriden by child streams based on
@@ -997,9 +999,10 @@ class Visitors(LazyAggregationStream):
     name = "visitors"
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
+    replication_key_path = "metadata.auto.lastupdated"
     key_properties = ["visitor_id"]
 
-    def get_body(self):
+    def get_body(self, start, end):
         include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
         return {
             "response": {
@@ -1014,6 +1017,8 @@ class Visitors(LazyAggregationStream):
                             "identified": not include_anonymous_visitors
                         }
                     }
+                }, {
+                    "filter": self.build_filter(start, end)
                 }],
                 "requestId": "all-visitors",
                 "sort": [
@@ -1021,6 +1026,84 @@ class Visitors(LazyAggregationStream):
                 ]
             }
         }
+    
+    def sync(self, state, start_date=None, key_id=None):
+
+        # Call get_records(), which yields records greater than bookmark using date_windows.
+        bookmark_date = self.get_bookmark(state, self.name,
+                                          self.config.get('start_date'),
+                                          self.replication_key)
+        bookmark_dttm = strptime_to_utc(bookmark_date)
+
+        # Get and intialize sub-stream for the current stream
+        if STREAMS.get(SUB_STREAMS.get(self.name)):
+            sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
+        else:
+            sub_stream = None
+
+        # Sync substream if the current stream has sub-stream and selected in the catalog
+        if sub_stream and sub_stream.is_selected():
+            # Sub streams are using lookback so use lookback for parents also while using it for sub stream
+            stream_response = self.get_records(state, bookmark_dttm - timedelta(days=self.lookback_window()))
+            self.sync_substream(state, self, sub_stream, stream_response)
+
+        # Collect data for stream even if it is already collected for a sub-stream above as stream_response is a generator
+        # which flush out during sync_substream call above
+        stream_response = self.get_records(state, bookmark_dttm)
+        
+        return (self.stream, stream_response)
+
+    def build_filter(self, start, end):
+        # Create filter with start_time and end_time to pass in request body
+        # Ex. of filter: "lastUpdatedAt > 1637905603845 && lastUpdatedAt <= 1637908104974"
+        return self.replication_key_path + " > " + str(start) + " && " + self.replication_key_path + " <= " + str(end)
+
+    def get_page_response(self, start_epoch, end_epoch):
+        # Returns stream response between provided start and end
+        return self.request(self.name, json=self.get_body(start_epoch, end_epoch)) or []
+
+    def get_records(self, state, bookmark):
+
+        # Get date window size
+        date_window_size = int(self.config.get('events_date_window', 30))
+
+        # Set start_time using bookmark/start_date to get parents for substreams
+        now_dttm = now()
+        start_dttm = bookmark
+        end_dttm = start_dttm + timedelta(days=date_window_size)
+
+        # If start_date is less than date_window_size away then consider current time as end_time
+        if end_dttm > now_dttm:
+            end_dttm = now_dttm
+
+        max_bookmark = bookmark
+
+        while start_dttm < now_dttm:
+            # Convert start_time and end_time of date window to epoch to pass into request body
+            start_epoch = int(start_dttm.timestamp()) * 1000
+            end_epoch = int(end_dttm.timestamp()) * 1000
+
+            # Get page records between start_epoch and end_epoch
+            records = self.get_page_response(start_epoch, end_epoch)
+            record = None
+
+            # Calculate maximum replication key from all records of current page and yield records
+            for record in records:
+                transformed_record = self.transform(record.copy())
+                replication_value = transformed_record.get(humps.decamelize(self.replication_key))
+                replication_value = strptime_to_utc(unix_milliseconds_to_datetime(replication_value))
+                max_bookmark = max(replication_value, max_bookmark)
+                yield record
+
+            # If data found in current date_window page then update_bookmark after yielding page of data.
+            if record:
+                self.update_bookmark(state, self.name, strftime(max_bookmark), self.replication_key)
+
+            # Set start_date and end_date of date window for next API call
+            start_dttm = end_dttm
+            end_dttm = start_dttm + timedelta(days=date_window_size)
+            if end_dttm > now_dttm:
+                end_dttm = now_dttm
 
     def transform(self, record):
         # Transform data of accounts into one level dictionary with following transformation

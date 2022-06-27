@@ -2,6 +2,7 @@ import unittest
 import requests
 from unittest import mock
 from tap_pendo.streams import Visitors
+from singer.utils import now, strftime
 
 class Mockresponse:
     def __init__(self, resp, status_code, headers=None, raise_error=False):
@@ -44,11 +45,17 @@ class TestLazyAggregationSync(unittest.TestCase):
             Verify that if sub stream is present then also all data should be return for super stream
             and sync_substream should be called
         '''
-        expected_data = [{"id":1}, {"id":2}, {"id":3}]
-        records = '{"results": [{"id":1}, {"id":2}, {"id":3}]}'
+        expected_data = [
+            {'id': 1, 'metadata': {'auto': {'lastupdated': 1631515992001}}},
+            {'id': 2, 'metadata': {'auto': {'lastupdated': 1631515992001}}},
+            {'id': 3, 'metadata': {'auto': {'lastupdated': 1631515992001}}}
+        ]
+        records = '{"results": [{"id":1, "metadata": {"auto": {"lastupdated": 1631515992001}}},\
+                                {"id":2, "metadata": {"auto": {"lastupdated": 1631515992001}}},\
+                                {"id":3, "metadata": {"auto": {"lastupdated": 1631515992001}}}]}'
         mocked_selected.return_value = True # Sub stream is selected
         mocked_request.return_value = Mockresponse(records, 200, raise_error=False)
-        config = {'start_date': '2021-01-01T00:00:00Z',
+        config = {'start_date': strftime(now()),
                   'x_pendo_integration_key': 'test'}
 
         lazzy_aggr = Visitors(config)
@@ -65,11 +72,17 @@ class TestLazyAggregationSync(unittest.TestCase):
             Verify that if sub stream is not selected then also all data should be return for super stream
             and sync_substream should not be called 
         '''
-        expected_data = [{"id":1}, {"id":2}, {"id":3}]
-        records = '{"results": [{"id":1}, {"id":2}, {"id":3}]}'
+        expected_data = [
+            {'id': 1, 'metadata': {'auto': {'lastupdated': 1631515992001}}},
+            {'id': 2, 'metadata': {'auto': {'lastupdated': 1631515992001}}},
+            {'id': 3, 'metadata': {'auto': {'lastupdated': 1631515992001}}}
+        ]
+        records = '{"results": [{"id":1, "metadata": {"auto": {"lastupdated": 1631515992001}}},\
+                                {"id":2, "metadata": {"auto": {"lastupdated": 1631515992001}}},\
+                                {"id":3, "metadata": {"auto": {"lastupdated": 1631515992001}}}]}'
         mocked_selected.return_value = False # Sub stream is not selected
         mocked_request.return_value = Mockresponse(records, 200, raise_error=False)
-        config = {'start_date': '2021-01-01T00:00:00Z',
+        config = {'start_date': strftime(now()),
                   'x_pendo_integration_key': 'test'}
 
         lazzy_aggr = Visitors(config)
