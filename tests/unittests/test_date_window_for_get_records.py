@@ -10,7 +10,7 @@ class TestDateWindowing(unittest.TestCase):
 
     def test_get_records_date_window(self, mocked_request, mocked_update_bookmark):
         """
-            Verify that get_records() function is writing bookmark after each date_window call.(30 day default window size)
+            Verify that the get_records() function is writing a bookmark after each date_window call.(30-day default window size)
             Verify that all data from each page are returned.
         """
         # Config and test_data for requests

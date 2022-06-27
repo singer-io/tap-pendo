@@ -1026,7 +1026,7 @@ class Visitors(LazyAggregationStream):
                 ]
             }
         }
-    
+
     def sync(self, state, start_date=None, key_id=None):
 
         # Call get_records(), which yields records greater than bookmark using date_windows.
@@ -1050,7 +1050,7 @@ class Visitors(LazyAggregationStream):
         # Collect data for stream even if it is already collected for a sub-stream above as stream_response is a generator
         # which flush out during sync_substream call above
         stream_response = self.get_records(state, bookmark_dttm)
-        
+
         return (self.stream, stream_response)
 
     def build_filter(self, start, end):
