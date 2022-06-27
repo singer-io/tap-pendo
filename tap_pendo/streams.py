@@ -1044,7 +1044,7 @@ class Visitors(LazyAggregationStream):
         # Sync substream if the current stream has sub-stream and selected in the catalog
         if sub_stream and sub_stream.is_selected():
             # Sub streams are using lookback so use lookback for parents also while using it for sub stream
-            stream_response = self.get_records(state, bookmark_dttm - timedelta(days=self.lookback_window()))
+            stream_response = self.get_records(state, bookmark_dttm - timedelta(days=self.lookback_window()), is_child=True)
             self.sync_substream(state, self, sub_stream, stream_response)
 
         # Collect data for stream even if it is already collected for a sub-stream above as stream_response is a generator
@@ -1062,7 +1062,7 @@ class Visitors(LazyAggregationStream):
         # Returns stream response between provided start and end
         return self.request(self.name, json=self.get_body(start_epoch, end_epoch)) or []
 
-    def get_records(self, state, bookmark):
+    def get_records(self, state, bookmark, is_child=False):
 
         # Get date window size
         date_window_size = int(self.config.get('events_date_window', 30))
@@ -1072,7 +1072,7 @@ class Visitors(LazyAggregationStream):
         start_dttm = bookmark
         end_dttm = start_dttm + timedelta(days=date_window_size)
 
-        # If start_date is less than date_window_size away then consider current time as end_time
+        # If start_date is less than date_window_size then consider current time as end_time
         if end_dttm > now_dttm:
             end_dttm = now_dttm
 
@@ -1089,14 +1089,16 @@ class Visitors(LazyAggregationStream):
 
             # Calculate maximum replication key from all records of current page and yield records
             for record in records:
-                transformed_record = self.transform(record.copy())
-                replication_value = transformed_record.get(humps.decamelize(self.replication_key))
-                replication_value = strptime_to_utc(unix_milliseconds_to_datetime(replication_value))
-                max_bookmark = max(replication_value, max_bookmark)
+                if not is_child:
+                    transformed_record = self.transform(record.copy())
+                    replication_value = transformed_record.get(humps.decamelize(self.replication_key))
+                    replication_value = strptime_to_utc(unix_milliseconds_to_datetime(replication_value))
+                    max_bookmark = max(replication_value, max_bookmark)
                 yield record
 
             # If data found in current date_window page then update_bookmark after yielding page of data.
-            if record:
+            if record and not is_child:
+                # Do not update the bookmark for the parent stream while syncing the child stream.
                 self.update_bookmark(state, self.name, strftime(max_bookmark), self.replication_key)
 
             # Set start_date and end_date of date window for next API call
