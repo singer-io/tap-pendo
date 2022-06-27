@@ -1101,7 +1101,7 @@ class Visitors(LazyAggregationStream):
 
             # Set start_date and end_date of date window for next API call
             start_dttm = end_dttm
-            end_dttm = start_dttm + timedelta(days=date_window_size)
+            end_dttm = end_dttm + timedelta(days=date_window_size)
             if end_dttm > now_dttm:
                 end_dttm = now_dttm
 

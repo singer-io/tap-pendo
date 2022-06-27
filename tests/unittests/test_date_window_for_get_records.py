@@ -28,7 +28,7 @@ class TestDateWindowing(unittest.TestCase):
             ]
         ]
 
-        # Configure STream object and call get_records() function
+        # Configure stream object and call get_records() function
         stream_instance = streams.Visitors(config)
         stream_instance.name = "test"
         stream_instance.replication_key = "lastupdated"

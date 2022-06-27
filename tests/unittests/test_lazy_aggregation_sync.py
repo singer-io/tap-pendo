@@ -42,9 +42,10 @@ class TestLazyAggregationSync(unittest.TestCase):
     @mock.patch("tap_pendo.streams.Stream.sync_substream", side_effect=mocked_substream)
     def test_lazzy_aggregation_with_sub_stream(self, mocked_substream, mocked_selected, mocked_request):
         '''
-            Verify that if sub stream is present then also all data should be return for super stream
+            Verify that if sub stream is present then also all data should be returned for a super stream
             and sync_substream should be called
         '''
+        # Set expectation data with primary key(id) and replication key(lastupdated) value.
         expected_data = [
             {'id': 1, 'metadata': {'auto': {'lastupdated': 1631515992001}}},
             {'id': 2, 'metadata': {'auto': {'lastupdated': 1631515992001}}},
@@ -69,9 +70,10 @@ class TestLazyAggregationSync(unittest.TestCase):
     @mock.patch("tap_pendo.streams.Stream.sync_substream", side_effect=mocked_substream)
     def test_lazzy_aggregation_without_sub_stream(self, mocked_substream, mocked_selected, mocked_request):
         '''
-            Verify that if sub stream is not selected then also all data should be return for super stream
+            Verify that if sub stream is not selected then also all data should be returned for a super stream
             and sync_substream should not be called 
         '''
+        # Set expectation data with primary key(id) and replication key(lastupdated) value.
         expected_data = [
             {'id': 1, 'metadata': {'auto': {'lastupdated': 1631515992001}}},
             {'id': 2, 'metadata': {'auto': {'lastupdated': 1631515992001}}},
