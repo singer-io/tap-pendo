@@ -454,7 +454,7 @@ class LazyAggregationStream(Stream):
                 raise e from None
             # Raise error if we have retried for 5 times
             if count == 5:
-                LOGGER.info("Giving up request(...) after 5 tries (%s: %s)", e.__class__.__name__, str(e))
+                LOGGER.error("Giving up request(...) after 5 tries (%s: %s)", e.__class__.__name__, str(e))
                 raise e from None
 
             LOGGER.info("Backing off request(...) for %ss (%s: %s)", BACKOFF_FACTOR ** count, e.__class__.__name__, str(e))
