@@ -34,7 +34,7 @@ class TestDateWindowing(unittest.TestCase):
         stream_instance.replication_key = "lastupdated"
         stream_instance.get_body = mock.Mock()
         # Call get_records with `test` stream and bookmark of 50 days ago
-        records = list(stream_instance.get_records({}, current_time - timedelta(days=50)))
+        records = list(stream_instance.get_records({}, current_time - timedelta(days=50), now()))
 
 
         expected_records = [

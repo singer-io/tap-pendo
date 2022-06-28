@@ -1035,6 +1035,8 @@ class Visitors(LazyAggregationStream):
                                           self.replication_key)
         bookmark_dttm = strptime_to_utc(bookmark_date)
 
+        now_dttm = now()
+
         # Get and intialize sub-stream for the current stream
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
@@ -1044,12 +1046,12 @@ class Visitors(LazyAggregationStream):
         # Sync substream if the current stream has sub-stream and selected in the catalog
         if sub_stream and sub_stream.is_selected():
             # Sub streams are using lookback so use lookback for parents also while using it for sub stream
-            stream_response = self.get_records(state, bookmark_dttm - timedelta(days=self.lookback_window()), is_child=True)
+            stream_response = self.get_records(state, bookmark_dttm - timedelta(days=self.lookback_window()), now_dttm, is_child=True)
             self.sync_substream(state, self, sub_stream, stream_response)
 
         # Collect data for stream even if it is already collected for a sub-stream above as stream_response is a generator
         # which flush out during sync_substream call above
-        stream_response = self.get_records(state, bookmark_dttm)
+        stream_response = self.get_records(state, bookmark_dttm, now_dttm)
 
         return (self.stream, stream_response)
 
@@ -1062,13 +1064,12 @@ class Visitors(LazyAggregationStream):
         # Returns stream response between provided start and end
         return self.request(self.name, json=self.get_body(start_epoch, end_epoch)) or []
 
-    def get_records(self, state, bookmark, is_child=False):
+    def get_records(self, state, bookmark, now_dttm, is_child=False):
 
         # Get date window size
         date_window_size = int(self.config.get('events_date_window', 30))
 
         # Set start_time using bookmark/start_date to get parents for substreams
-        now_dttm = now()
         start_dttm = bookmark
         end_dttm = start_dttm + timedelta(days=date_window_size)
 
