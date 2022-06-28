@@ -17,7 +17,8 @@ class PendoStartDateTest(TestPendoBase):
         return "pendo_start_date_test"
 
     def test_run(self):
-        self.run_test("2021-09-09T00:00:00Z", "2022-05-01T00:00:00Z", {"accounts", "visitors", "metadata_visitors", "metadata_accounts"})
+        self.run_test("2021-09-09T00:00:00Z", "2022-06-20T00:00:00Z", {"accounts"})
+        self.run_test("2021-09-09T00:00:00Z", "2022-05-01T00:00:00Z", {"visitors", "metadata_visitors", "metadata_accounts"})
         self.run_test("2020-09-01T00:00:00Z", "2021-03-01T00:00:00Z", {"features", "feature_events", "pages", "page_events", "events"})
         self.run_test("2021-09-09T00:00:00Z", "2021-09-16T00:00:00Z", {"guides", "guide_events"})
         self.run_test("2021-09-13T00:00:00Z", "2021-09-15T00:00:00Z", {"track_types", "track_events"})
