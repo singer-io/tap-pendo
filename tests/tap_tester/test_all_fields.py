@@ -81,10 +81,6 @@ class PendoAllFieldsTest(TestPendoBase):
                     expected_all_keys = expected_all_keys - {'hour', "properties"}
                 elif stream == "guide_events":
                     expected_all_keys = expected_all_keys - {'poll_response', "poll_id"}
-                elif stream == "features":
-                    expected_all_keys = expected_all_keys - {'page_id'}
-                elif stream == "guides":
-                    expected_all_keys = expected_all_keys - {'audience'}
                     
                 # verify all fields for each stream are replicated
                 self.assertSetEqual(expected_all_keys, actual_all_keys)

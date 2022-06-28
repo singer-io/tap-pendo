@@ -391,7 +391,8 @@ class Stream():
             self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
 
         # After processing for all parent ids we can remove our resumption state
-        state.get('bookmarks').get(sub_stream.name).pop('last_processed')
+        # Return None if `last_processed` is not available in the bookmark
+        state.get('bookmarks', {}).get(sub_stream.name, {}).pop('last_processed', None)
         update_currently_syncing(state, None)
 
 
@@ -1003,6 +1004,11 @@ class Visitors(LazyAggregationStream):
     key_properties = ["visitor_id"]
 
     def get_body(self, start, end):
+        """
+        Add the "filter" parameter in the body to make a POST call within a specific date window(start, end).
+        For example,
+        "filter": "metadata.auto.lastupdated > start && metadata.auto.lastupdated <= end"
+        """
         include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
         return {
             "response": {
@@ -1028,7 +1034,11 @@ class Visitors(LazyAggregationStream):
         }
 
     def sync(self, state, start_date=None, key_id=None):
-
+        """
+        Sync function for visitors and visitor_history stream.
+        Fetch data from the last saved bookmark value to the current time by making a POST call in a specific date window.
+        Update the bookmark for a parent after sync completion.
+        """
         # Call get_records(), which yields records greater than bookmark using date_windows.
         bookmark_date = self.get_bookmark(state, self.name,
                                           self.config.get('start_date'),
@@ -1093,8 +1103,8 @@ class Visitors(LazyAggregationStream):
                 if not is_child:
                     transformed_record = self.transform(record.copy())
                     replication_value = transformed_record.get(humps.decamelize(self.replication_key))
-                    replication_value = strptime_to_utc(unix_milliseconds_to_datetime(replication_value))
-                    max_bookmark = max(replication_value, max_bookmark)
+                    replication_value_str = strptime_to_utc(unix_milliseconds_to_datetime(replication_value))
+                    max_bookmark = max(replication_value_str, max_bookmark)
                 yield record
 
             # If data found in current date_window page then update_bookmark after yielding page of data.
