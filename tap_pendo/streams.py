@@ -1,13 +1,11 @@
 # pylint: disable=E1101,R0201,W0613
 
 #!/usr/bin/env python3
-from asyncio import events
 import itertools
 import json
 import os
 import time
-from datetime import date, datetime, timedelta, timezone
-from tracemalloc import start
+from datetime import datetime, timedelta, timezone
 
 import backoff
 import humps
@@ -508,7 +506,7 @@ class EventsBase(Stream):
                         "sort": [sort]
                     },
                     {
-                        "limit": self.config.get('record_limit', API_RECORD_LIMIT)
+                        "limit": self.record_limit
                     },
                     {
                         "filter": ""
@@ -534,7 +532,7 @@ class EventsBase(Stream):
 
         return body
 
-    def set_request_body_filters(self, body, start_time, records=[]):
+    def set_request_body_filters(self, body, start_time, records=None):
         """Sets the filter parameter in the request body"""
         # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
         # so we need to provide record filter to avoid any duplicate replications
@@ -542,7 +540,7 @@ class EventsBase(Stream):
         # Considering this we may need to increase record limit in case record limit has reached in last response
         camalized_replication_key = humps.camelize(self.replication_key)
         body['request']['pipeline'][2]['limit'] = self.record_limit
-        if len(records) > 0:
+        if records and len(records) > 0:
             # If there are 5 times records of record limits, in that case limit parameter will be increased acordiingly
             body['request']['pipeline'][3]['filter'] = f'{camalized_replication_key}>={records[-1].get(self.replication_key)}'
         else:
@@ -583,9 +581,9 @@ class EventsBase(Stream):
         self.set_time_series_first(body, [], first)
         self.set_request_body_filters(body, first, [])
 
-        now = int(datetime.now().timestamp() * 1000)
+        ts_now = int(datetime.now().timestamp() * 1000)
         events, last_processed = [], None
-        while self.get_first_parameter_value(body) <= now:
+        while self.get_first_parameter_value(body) <= ts_now:
             records = self.request(self.name, json=body).get('results') or []
             self.set_time_series_first(body, records)
 
@@ -608,7 +606,7 @@ class EventsBase(Stream):
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
         self.record_limit = self.config.get('record_limit', API_RECORD_LIMIT)
 
-        LOGGER.info("Key id: {}, Total Records: {}".format(key_id, len(events)))
+        LOGGER.info("Key id: %s, Total Records: %d", key_id, len(events))
         update_currently_syncing(state, None)
         return events
 
