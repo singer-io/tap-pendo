@@ -1,11 +1,13 @@
 # pylint: disable=E1101,R0201,W0613
 
 #!/usr/bin/env python3
+from asyncio import events
 import itertools
 import json
 import os
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
+from tracemalloc import start
 
 import backoff
 import humps
@@ -20,12 +22,15 @@ from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
+
 KEY_PROPERTIES = ['id']
 US_BASE_URL = "https://app.pendo.io"
 EU_BASE_URL = "https://app.eu.pendo.io"
+API_RECORD_LIMIT = 100_000
 
 LOGGER = singer.get_logger()
 session = requests.Session()
+
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
 
@@ -474,6 +479,93 @@ class EventsBase(Stream):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
+        self.window_size = 30
+
+        # Record limit will throttle the number of records getting replicated
+        # This limit will resolve request timeouts and will reduce the peak memory consumption
+        self.record_limit = self.config.get('record_limit', API_RECORD_LIMIT)
+
+    def get_body(self, key_id, period, first):
+        """This method returns generic request body of events steams"""
+
+        sort = humps.camelize(self.replication_key)
+        return {
+            "response": {
+                "mimeType": "application/json"
+            },
+            "request": {
+                "pipeline": [
+                    {
+                        "source": {
+                            "timeSeries": {
+                                "period": period,
+                                "first": first,
+                                "last": "now()"
+                            }
+                        }
+                    },
+                    {
+                        "sort": [sort]
+                    },
+                    {
+                        "limit": self.config.get('record_limit', API_RECORD_LIMIT)
+                    },
+                    {
+                        "filter": ""
+                    }
+                ]
+            }
+        }
+
+    def get_first_parameter_value(self, body):
+        return body['request']['pipeline'][0]['source']['timeSeries'].get('first', 0)
+
+    def set_time_series_first(self, body, records, first=None):
+        """Sets the timeSeries 'first' parameter in request body"""
+        if len(records) > 1:
+            # This condition considers that within current time window there could be some more records
+            # So we will set last record timestamp as first of time series
+            # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = records[-1].get(self.replication_key)
+        elif first:
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = self.get_first_parameter_value(body)
+        else:
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = int(datetime.now().timestamp() * 1000)
+
+        return body
+
+    def set_request_body_filters(self, body, start_time, records=[]):
+        """Sets the filter parameter in the request body"""
+        # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
+        # so we need to provide record filter to avoid any duplicate replications
+        # Also we are using limit parameter as well which takes first N records for processing, rest records get discarded
+        # Considering this we may need to increase record limit in case record limit has reached in last response
+        camalized_replication_key = humps.camelize(self.replication_key)
+        body['request']['pipeline'][2]['limit'] = self.record_limit
+        if len(records) > 0:
+            # If there are 5 times records of record limits, in that case limit parameter will be increased acordiingly
+            body['request']['pipeline'][3]['filter'] = f'{camalized_replication_key}>={records[-1].get(self.replication_key)}'
+        else:
+            body['request']['pipeline'][3]['filter'] = f'{camalized_replication_key}>={start_time}'
+
+        return body
+
+    def remove_last_timestamp_records(self, records):
+        """Removes the overlapping records with last timestamp value. This avoids possibilty of duplicates"""
+        last_processed = []
+        if len(records) > 0:
+            timestamp = records[-1].get(self.replication_key)
+            while records and timestamp == records[-1].get(self.replication_key):
+                last_processed.append(records.pop())
+
+        # This is a corner cases where all records in the set have same timestamp
+        # This can occur if record limit is set very smaller complared to the max record limit
+        # In this case we will try to set record liit to max limit to make it harder to run into this issue
+        # But still can't completely dismiss the minor possibility of this issue occurring
+        if len(records) == 0 or not last_processed:
+            self.record_limit = API_RECORD_LIMIT
+
+        return last_processed
 
     def sync(self, state, start_date=None, key_id=None):
         update_currently_syncing(state, self.name)
@@ -481,12 +573,42 @@ class EventsBase(Stream):
         # Calculate lookback window
         lookback = start_date - timedelta(
             days=self.lookback_window())
-        ts = int(lookback.timestamp()) * 1000
+        first = int(lookback.timestamp()) * 1000
 
         # Period always amounts to a day either aggegated by day or hours in a day
         period = self.config.get('period')
-        body = self.get_body(key_id, period, ts)
-        events = self.request(self.name, json=body).get('results') or []
+
+        # Setup body for first request
+        body = self.get_body(key_id, period, first)
+        self.set_time_series_first(body, [], first)
+        self.set_request_body_filters(body, first, [])
+
+        now = int(datetime.now().timestamp() * 1000)
+        events, last_processed = [], None
+        while self.get_first_parameter_value(body) <= now:
+            records = self.request(self.name, json=body).get('results') or []
+            self.set_time_series_first(body, records)
+
+            # Set first and filters for next request
+            self.set_request_body_filters(
+                body,
+                self.get_first_parameter_value(body),
+                records)
+
+            if records:
+                removed_records = self.remove_last_timestamp_records(records)
+                events += records
+
+                if last_processed == removed_records:
+                    events += removed_records
+                    break
+
+                last_processed = removed_records
+
+        # These is a corner cases where this limit may get changed so reseeting it before next iteration
+        self.record_limit = self.config.get('record_limit', API_RECORD_LIMIT)
+
+        LOGGER.info("Key id: {}, Total Records: {}".format(key_id, len(events)))
         update_currently_syncing(state, None)
         return events
 
@@ -559,27 +681,9 @@ class FeatureEvents(EventsBase):
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
 
     def get_body(self, key_id, period, first):
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "featureEvents": {
-                            "featureId": key_id
-                        },
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
-                        }
-                    }
-                }, {
-                    "sort": [self.replication_key]
-                }]
-            }
-        }
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"featureEvents": {"featureId": key_id,}})
+        return body
 
 
 class Events(LazyAggregationStream):
@@ -694,6 +798,7 @@ class Events(LazyAggregationStream):
             }
         }
 
+
 class PollEvents(Stream):
     replication_method = "INCREMENTAL"
     name = "poll_events"
@@ -752,29 +857,10 @@ class TrackEvents(EventsBase):
     name = "track_events"
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
 
-
     def get_body(self, key_id, period, first):
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "trackEvents": {
-                            "trackTypeId": key_id
-                        },
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
-                        }
-                    }
-                }, {
-                    "sort": [self.replication_key]
-                }]
-            }
-        }
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"trackEvents": {"trackTypeId": key_id,}})
+        return body
 
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
@@ -783,36 +869,12 @@ class GuideEvents(EventsBase):
 
     def __init__(self, config):
         super().__init__(config=config)
-        self.config = config
-        self.period = config.get('period')
         self.replication_key = 'browser_time'
 
     def get_body(self, key_id, period, first):
-        sort = humps.camelize(self.replication_key)
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [
-                    {
-                        "source": {
-                            "guideEvents": {
-                                "guideId": key_id
-                            },
-                            "timeSeries": {
-                                "period": period,
-                                "first": first,
-                                "last": "now()"
-                            }
-                        }
-                    },
-                    {
-                        "sort": [sort]
-                    }
-                ]
-            }
-        }
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"guideEvents": {"guideId": key_id,}})
+        return body
 
 
 class TrackTypes(Stream):
@@ -897,27 +959,9 @@ class PageEvents(EventsBase):
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
 
     def get_body(self, key_id, period, first):
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "pageEvents": {
-                            "pageId": key_id
-                        },
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
-                        }
-                    }
-                }, {
-                    "sort": [self.replication_key]
-                }]
-            }
-        }
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"pageEvents": {"pageId": key_id,}})
+        return body
 
 
 class Reports(Stream):
