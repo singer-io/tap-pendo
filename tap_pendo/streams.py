@@ -20,6 +20,7 @@ from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
+
 KEY_PROPERTIES = ['id']
 US_BASE_URL = "https://app.pendo.io"
 EU_BASE_URL = "https://app.eu.pendo.io"
@@ -608,7 +609,7 @@ class EventsBase(Stream):
                 self.get_first_parameter_value(body),
                 records)
 
-            if records:
+            if len(records) > 1:
                 removed_records = self.remove_last_timestamp_records(records)
                 events += records
 
@@ -617,6 +618,10 @@ class EventsBase(Stream):
                     break
 
                 last_processed = removed_records
+
+            elif len(records) == 1:
+                events += records
+                break
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
         self.record_limit = self.config.get('record_limit', API_RECORD_LIMIT)
