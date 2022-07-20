@@ -28,6 +28,7 @@ API_RECORD_LIMIT = 100_000
 
 LOGGER = singer.get_logger()
 session = requests.Session()
+
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
 
@@ -155,10 +156,11 @@ class Stream():
     # backoff for Timeout error is already included in "requests.exceptions.RequestException"
     # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
-                          max_tries=5,
+                          max_tries=7,
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
-                          factor=2)
+                          factor=30,
+                          jitter=None)
     @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError, ReadTimeoutError), # backoff error
                           max_tries=5,
                           factor=2)
