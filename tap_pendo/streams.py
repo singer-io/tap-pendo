@@ -31,7 +31,7 @@ session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
 
-BACKOFF_FACTOR = 2
+BACKOFF_FACTOR = 30
 
 def to_giveup(error):
     """
@@ -155,12 +155,13 @@ class Stream():
     # backoff for Timeout error is already included in "requests.exceptions.RequestException"
     # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
-                          max_tries=5,
+                          max_tries=7,
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
-                          factor=2)
+                          factor=BACKOFF_FACTOR,
+                          jitter=None)
     @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError, ReadTimeoutError), # backoff error
-                          max_tries=5,
+                          max_tries=7,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
     def request(self, endpoint, params=None, count=1, **kwargs):
@@ -454,14 +455,16 @@ class LazyAggregationStream(Stream):
             # Catch requestException and raise errors if we have to give up for certain conditions
             if isinstance(e, requests.exceptions.RequestException) and to_giveup(e):
                 raise e from None
-            # Raise error if we have retried for 5 times
-            if count == 5:
-                LOGGER.error("Giving up request(...) after 5 tries (%s: %s)", e.__class__.__name__, str(e))
+            # Raise error if we have retried for 7 times
+            if count == 7:
+                LOGGER.error("Giving up request(...) after 7 tries (%s: %s)", e.__class__.__name__, str(e))
                 raise e from None
 
-            LOGGER.info("Backing off request(...) for %ss (%s: %s)", BACKOFF_FACTOR ** count, e.__class__.__name__, str(e))
-            # Sleep for (2 ^ count) seconds ie. 2, 4, 8, 16, 32
-            time.sleep(BACKOFF_FACTOR ** count)
+            # Sleep for [0.5, 1, 2, 4, 8, 16] minutes
+            backoff_time = 2 ** (count - 1) * BACKOFF_FACTOR
+            LOGGER.info("Backing off request(...) for %ss (%s: %s)", backoff_time, e.__class__.__name__, str(e))
+
+            time.sleep(backoff_time)
             count += 1
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)
@@ -574,8 +577,8 @@ class EventsBase(Stream):
                 last_processed.append(records.pop())
 
         # This is a corner cases where all records in the set have same timestamp
-        # This can occur if record limit is set very smaller complared to the max record limit
-        # In this case we will try to set record liit to max limit to make it harder to run into this issue
+        # This can occur if record limit is set very smaller compared to the max record limit
+        # In this case we will try to set record limit to max limit to make it harder to run into this issue
         # But still can't completely dismiss the minor possibility of this issue occurring
         if len(records) == 0 or not last_processed:
             self.record_limit = API_RECORD_LIMIT
