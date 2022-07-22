@@ -3,6 +3,7 @@ import tap_tester.runner as runner
 import tap_tester.menagerie as menagerie
 from base import TestPendoBase
 
+
 class PendoAllFieldsTest(TestPendoBase):
     def name(self):
         return "pendo_all_fields_test"
@@ -62,7 +63,8 @@ class PendoAllFieldsTest(TestPendoBase):
                 # collect actual values
                 messages = synced_records.get(stream)
                 actual_all_keys = [set(message['data'].keys()) for message in messages['messages']
-                                   if message['action'] == 'upsert'][0]
+                                   if message['action'] == 'upsert']
+                actual_all_keys = set().union(*actual_all_keys)
 
                 # Verify that more than just the automatic fields are replicated for each stream.
                 self.assertTrue(expected_automatic_keys.issubset(
@@ -78,10 +80,10 @@ class PendoAllFieldsTest(TestPendoBase):
                     expected_all_keys = expected_all_keys - {'hour', "properties"}
                 elif stream == "guide_events":
                     expected_all_keys = expected_all_keys - {'poll_response', "poll_id"}
-                elif stream == "features":
-                    expected_all_keys = expected_all_keys - {'page_id'}
-                elif stream == "guides":
-                    expected_all_keys = expected_all_keys - {'audience'}
+                # elif stream == "features":
+                #     expected_all_keys = expected_all_keys - {'page_id'}
+                # elif stream == "guides":
+                #     expected_all_keys = expected_all_keys - {'audience'}
                     
                 # verify all fields for each stream are replicated
                 self.assertSetEqual(expected_all_keys, actual_all_keys)

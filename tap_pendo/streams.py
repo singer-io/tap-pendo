@@ -347,48 +347,61 @@ class Stream():
         # Loop over records of parent stream
         for record in parent_response:
             try:
-                # Initialize counter and transformer with specific datetime format
-                with metrics.record_counter(
-                        sub_stream.name) as counter, Transformer(
-                            integer_datetime_fmt=
-                            "unix-milliseconds-integer-datetime-parsing"
-                        ) as transformer:
-                    # syncing child streams from start date or state file date
-                    stream_events = sub_stream.sync(state, bookmark_dttm,
-                                                    record.get(parent.key_properties[0]))
-                    # Loop over data of sub-stream
-                    for event in stream_events:
-                        counter.increment()
+                # filtering the visitors based on last updated to improve performance of visitor_history replication
+                if isinstance(parent, Visitors):
+                    parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'][self.replication_key]) / 1000.0, timezone.utc)
 
-                        # Get metadata for the stream to use in transform
-                        schema_dict = sub_stream.stream.schema.to_dict()
-                        stream_metadata = metadata.to_map(
-                            sub_stream.stream.metadata)
+                if isinstance(parent, Visitors) and bookmark_dttm > parent_last_updated + timedelta(days=1):
+                    LOGGER.info("No new updated records for visitor id: %s", record[parent.key_properties[0]])
+                else:
+                    # Initialize counter and transformer with specific datetime format
+                    with metrics.record_counter(
+                            sub_stream.name) as counter, Transformer(
+                                integer_datetime_fmt=
+                                "unix-milliseconds-integer-datetime-parsing"
+                            ) as transformer:
+                        # syncing child streams from start date or state file date
+                        if isinstance(parent, Visitors):
+                            stream_events = sub_stream.sync(state, bookmark_dttm,
+                                                            record.get(parent.key_properties[0]),
+                                                            parent_last_updated)
+                        else:
+                            stream_events = sub_stream.sync(state, bookmark_dttm,
+                                                            record.get(parent.key_properties[0]))
 
-                        transformed_event = sub_stream.transform(event)
+                        # Loop over data of sub-stream
+                        for event in stream_events:
+                            counter.increment()
 
-                        # Transform record as per field selection in metadata
-                        try:
-                            transformed_record = transformer.transform(
-                                transformed_event, schema_dict,
-                                stream_metadata)
-                        except Exception as err:
-                            LOGGER.error('Error: %s', err)
-                            LOGGER.error(
-                                ' for schema: %s',
-                                json.dumps(schema_dict,
-                                           sort_keys=True,
-                                           indent=2))
-                            raise err
+                            # Get metadata for the stream to use in transform
+                            schema_dict = sub_stream.stream.schema.to_dict()
+                            stream_metadata = metadata.to_map(
+                                sub_stream.stream.metadata)
 
-                        # Check for replication_value from record and if value found then use it for updating bookmark
-                        replication_value = transformed_record.get(sub_stream.replication_key)
-                        if replication_value:
-                            event_time = strptime_to_utc(replication_value)
-                            new_bookmark = max(new_bookmark, event_time)
+                            transformed_event = sub_stream.transform(event)
 
-                        singer.write_record(sub_stream.stream.tap_stream_id,
-                                            transformed_record)
+                            # Transform record as per field selection in metadata
+                            try:
+                                transformed_record = transformer.transform(
+                                    transformed_event, schema_dict,
+                                    stream_metadata)
+                            except Exception as err:
+                                LOGGER.error('Error: %s', err)
+                                LOGGER.error(
+                                    ' for schema: %s',
+                                    json.dumps( schema_dict,
+                                                sort_keys=True,
+                                                indent=2))
+                                raise err
+
+                            # Check for replication_value from record and if value found then use it for updating bookmark
+                            replication_value = transformed_record.get(sub_stream.replication_key)
+                            if replication_value:
+                                event_time = strptime_to_utc(replication_value)
+                                new_bookmark = max(new_bookmark, event_time)
+
+                            singer.write_record(sub_stream.stream.tap_stream_id,
+                                                transformed_record)
 
             except HTTPError:
                 LOGGER.warning(
@@ -404,7 +417,7 @@ class Stream():
         update_currently_syncing(state, None)
 
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body())['results'] or []
 
         # Get and intialize sub-stream for the current stream
@@ -469,7 +482,7 @@ class LazyAggregationStream(Stream):
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
 
         # Get and intialize sub-stream for the current stream
@@ -585,7 +598,7 @@ class EventsBase(Stream):
 
         return last_processed
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
         # Calculate lookback window
@@ -718,7 +731,7 @@ class Events(LazyAggregationStream):
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
         bookmark_date = self.get_bookmark(state, self.name,
@@ -851,7 +864,7 @@ class PollEvents(Stream):
             }
         }
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
         # Get bookmark from state or start date for the stream
@@ -991,7 +1004,7 @@ class Reports(Stream):
     # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/report", "GET")
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         reports = self.request(self.name)
         for report in reports:
             yield (self.stream, report)
@@ -1003,7 +1016,7 @@ class MetadataVisitor(Stream):
     # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         reports = self.request(self.name)
         for report in reports:
             yield (self.stream, report)
@@ -1029,7 +1042,7 @@ class VisitorHistory(Stream):
     def get_params(self, start_time):
         return {"starttime": start_time}
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
         # using "start_date" that is passed and not using the bookmark
@@ -1040,7 +1053,8 @@ class VisitorHistory(Stream):
         window_next = lookback
 
         # Get data with sliding window upto abs_end
-        while window_next <= abs_end:
+        # After parent last updated there won't be new records
+        while window_next <= abs_end+timedelta(days=1) and window_next <= parent_last_updated+timedelta(days=1):
             ts = int(window_next.timestamp()) * 1000
             params = self.get_params(start_time=ts)
             visitor_history = self.request(endpoint=self.name,
@@ -1109,7 +1123,7 @@ class MetadataAccounts(Stream):
     def get_body(self):
         return None
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body())
 
         # Get and intialize sub-stream for the current stream
@@ -1139,7 +1153,7 @@ class MetadataVisitors(Stream):
     def get_body(self):
         return None
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body())
 
         # Get and intialize sub-stream for the current stream

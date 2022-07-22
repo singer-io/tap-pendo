@@ -60,9 +60,11 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'last_updated_at'}
             },
-            # Add back when visitor_history stream causing this test to take
-            # 4+ hours is solved, tracked in this JIRA:
-            # https://stitchdata.atlassian.net/browse/SRCE-4755
+            # Add back when visitor_history stream causing this test to take 4+ hours is solved,
+            # tracked in this JIRA: https://stitchdata.atlassian.net/browse/SRCE-4755
+            # Improvised the execution
+            #   - Added filtering visitors based on last updated which will reduce the execution time
+            #   - Testing visitors streams separately with latest start time
             # "visitor_history": {
             #     self.PRIMARY_KEYS: {'visitor_id'},
             #     self.REPLICATION_METHOD: self.INCREMENTAL,
