@@ -20,6 +20,13 @@ from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
+from debugpy import listen, wait_for_client
+listen(8000)
+print('...')
+wait_for_client()
+debug_retry = 0
+threshould = 10
+
 
 KEY_PROPERTIES = ['id']
 US_BASE_URL = "https://app.pendo.io"
@@ -31,7 +38,7 @@ session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
 
-BACKOFF_FACTOR = 30
+BACKOFF_FACTOR = 5
 
 def to_giveup(error):
     """
@@ -314,16 +321,19 @@ class Stream():
     def transform(self, record):
         return humps.decamelize(record)
 
+    def get_last_processed(self, state, sub_stream):
+        return self.get_bookmark(state,
+                                 sub_stream.name,
+                                 None,
+                                 key="last_processed")
+
     def sync_substream(self, state, parent, sub_stream, parent_response):
         # Get bookmark from state or start date for the stream
         bookmark_date = self.get_bookmark(state, sub_stream.name,
                                           self.config.get('start_date'),
                                           sub_stream.replication_key)
         # If last sync was interrupted, get last processed parent record
-        last_processed = self.get_bookmark(state,
-                                           sub_stream.name,
-                                           None,
-                                           key="last_processed")
+        last_processed = self.get_last_processed(state, sub_stream)
         bookmark_dttm = strptime_to_utc(bookmark_date)
         new_bookmark = bookmark_dttm
 
@@ -331,24 +341,16 @@ class Stream():
                             sub_stream.stream.schema.to_dict(),
                             sub_stream.key_properties)
 
-        # Slice response for >= last processed
-        if last_processed:
-            i = 0
-            for response in parent_response:
-                if response.get(parent.key_properties[0]) == last_processed:
-                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, response.get(parent.key_properties[0]))
-                    if isinstance(parent_response, list):
-                        parent_response = parent_response[i:]
-                    else:
-                        parent_response = itertools.chain([response], parent_response)
-                    break
-                i += 1
-
         # Loop over records of parent stream
         for record in parent_response:
             try:
+                # Skipping last synced parent ids
+                if last_processed and record.get(parent.key_properties[0]) < last_processed:
+                    continue
+
                 # filtering the visitors based on last updated to improve performance of visitor_history replication
                 if isinstance(parent, Visitors):
+                    last_processed = self.get_last_processed(state, sub_stream)
                     parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'][self.replication_key]) / 1000.0, timezone.utc)
 
                 if isinstance(parent, Visitors) and bookmark_dttm > parent_last_updated + timedelta(days=1):
@@ -458,26 +460,34 @@ class LazyAggregationStream(Stream):
                 time.sleep(retry_after)
                 raise Server42xRateLimitError(resp.reason)
 
-            resp.raise_for_status() # Check for requests status and raise exception in failure
-
+            resp.raise_for_status() # Check for requests status and raise exception in failure]
+            
             # Get records from the raw response
             for item in ijson.items(resp.raw, 'results.item'):
+                global debug_retry, threshould
+                debug_retry +=1
+                if debug_retry%threshould == 0:
+                    threshould += 10
+                    debug_retry = 0
+                    raise ProtocolError("Debug exception...")
                 yield humps.decamelize(item)
             resp.close()
         except (ConnectionError, ProtocolError, ReadTimeoutError, requests.exceptions.RequestException, Server42xRateLimitError) as e:
             # Catch requestException and raise errors if we have to give up for certain conditions
             if isinstance(e, requests.exceptions.RequestException) and to_giveup(e):
                 raise e from None
-            # Raise error if we have retried for 7 times
-            if count == 7:
-                LOGGER.error("Giving up request(...) after 7 tries (%s: %s)", e.__class__.__name__, str(e))
+            # Raise error if we have retried for 15 times
+            # We have observed that tap-pendo, generally throws exception after arond 30-45 mins
+            # So considering historical sync duration, retry count has been set to 2 times of possible connection failures
+            if count == 15:
+                LOGGER.error("Giving up request(...) after 15 tries (%s: %s)", e.__class__.__name__, str(e))
                 raise e from None
 
             # Sleep for [0.5, 1, 2, 4, 8, 16] minutes
-            backoff_time = 2 ** (count - 1) * BACKOFF_FACTOR
+            backoff_time = min(2 ** (count - 1) * BACKOFF_FACTOR, 600)
             LOGGER.info("Backing off request(...) for %ss (%s: %s)", backoff_time, e.__class__.__name__, str(e))
 
-            time.sleep(backoff_time)
+            # time.sleep(backoff_time)
             count += 1
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)
