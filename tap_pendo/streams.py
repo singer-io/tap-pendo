@@ -20,13 +20,6 @@ from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
-from debugpy import listen, wait_for_client
-listen(8000)
-print('...')
-wait_for_client()
-debug_retry = 0
-threshould = 10
-
 
 KEY_PROPERTIES = ['id']
 US_BASE_URL = "https://app.pendo.io"
@@ -38,7 +31,7 @@ session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
 
-BACKOFF_FACTOR = 5
+BACKOFF_FACTOR = 30
 
 def to_giveup(error):
     """
@@ -461,15 +454,9 @@ class LazyAggregationStream(Stream):
                 raise Server42xRateLimitError(resp.reason)
 
             resp.raise_for_status() # Check for requests status and raise exception in failure]
-            
+
             # Get records from the raw response
             for item in ijson.items(resp.raw, 'results.item'):
-                global debug_retry, threshould
-                debug_retry +=1
-                if debug_retry%threshould == 0:
-                    threshould += 10
-                    debug_retry = 0
-                    raise ProtocolError("Debug exception...")
                 yield humps.decamelize(item)
             resp.close()
         except (ConnectionError, ProtocolError, ReadTimeoutError, requests.exceptions.RequestException, Server42xRateLimitError) as e:
@@ -483,11 +470,11 @@ class LazyAggregationStream(Stream):
                 LOGGER.error("Giving up request(...) after 15 tries (%s: %s)", e.__class__.__name__, str(e))
                 raise e from None
 
-            # Sleep for [0.5, 1, 2, 4, 8, 16] minutes
+            # Sleep for [0.5, 1, 2, 4, 10, 10, ... ] minutes
             backoff_time = min(2 ** (count - 1) * BACKOFF_FACTOR, 600)
             LOGGER.info("Backing off request(...) for %ss (%s: %s)", backoff_time, e.__class__.__name__, str(e))
 
-            # time.sleep(backoff_time)
+            time.sleep(backoff_time)
             count += 1
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)

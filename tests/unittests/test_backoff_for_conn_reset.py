@@ -52,8 +52,8 @@ class TestConnectionResetError(unittest.TestCase):
         with self.assertRaises(ConnectionResetError):
             list(self.stream.request(endpoint=None))
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 7)
+        # verify if the request was called 15 times
+        self.assertEquals(mocked_send.call_count, 15)
 
     @mock.patch('http.client.HTTPResponse.readinto')
     def test_connection_reset_error__from_ijson(self, mocked_request, mocked_sleep):
@@ -63,8 +63,8 @@ class TestConnectionResetError(unittest.TestCase):
         with self.assertRaises(ProtocolError):
             list(self.stream.request(endpoint=None))
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_request.call_count, 7)
+        # verify if the request was called 15 times
+        self.assertEquals(mocked_request.call_count, 15)
 
     @mock.patch('http.client.HTTPResponse.readinto')
     def test_timeout_error__from_ijson(self, mocked_request, mocked_sleep):
@@ -74,8 +74,8 @@ class TestConnectionResetError(unittest.TestCase):
         with self.assertRaises(ReadTimeoutError):
             list(self.stream.request(endpoint=None))
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_request.call_count, 7)
+        # verify if the request was called 15 times
+        self.assertEquals(mocked_request.call_count, 15)
 
     @mock.patch('requests.Session.send')
     @mock.patch('ijson.items')
@@ -91,8 +91,8 @@ class TestConnectionResetError(unittest.TestCase):
         with self.assertRaises(ConnectionError):
             list(self.stream.request(endpoint=None))
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 7)
+        # verify if the request was called 15 times
+        self.assertEquals(mocked_send.call_count, 15)
 
     @mock.patch('requests.Session.send')
     @mock.patch('tap_pendo.streams.LOGGER.info')
@@ -106,8 +106,8 @@ class TestConnectionResetError(unittest.TestCase):
         with self.assertRaises(Server42xRateLimitError):
             list(self.stream.request(endpoint=None))
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 7)
+        # verify if the request was called 15 times
+        self.assertEquals(mocked_send.call_count, 15)
         mocked_logger_info.assert_called_with("Rate limit reached. Sleeping for %s seconds", 30)
 
     @mock.patch('requests.Session.send')
