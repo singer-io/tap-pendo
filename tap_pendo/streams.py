@@ -465,7 +465,7 @@ class LazyAggregationStream(Stream):
                 raise e from None
             # Raise error if we have retried for 7 times
             if count == 7:
-                LOGGER.error("Giving up request(...) after 15 tries (%s: %s)", e.__class__.__name__, str(e))
+                LOGGER.error("Giving up request(...) after 7 tries (%s: %s)", e.__class__.__name__, str(e))
                 raise e from None
 
             # Sleep for [0.5, 1, 2, 4, 10, 10, ... ] minutes
