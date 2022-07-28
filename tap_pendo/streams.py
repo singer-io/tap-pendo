@@ -446,6 +446,9 @@ class LazyAggregationStream(Stream):
             # exception handling and yielding can be utilized properly below
             resp = session.send(req, stream=True, timeout=request_timeout)
 
+            # Since request succeeded resetting the retry count to 0
+            count = 0
+
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
                 LOGGER.info("Rate limit reached. Sleeping for %s seconds",
@@ -463,10 +466,8 @@ class LazyAggregationStream(Stream):
             # Catch requestException and raise errors if we have to give up for certain conditions
             if isinstance(e, requests.exceptions.RequestException) and to_giveup(e):
                 raise e from None
-            # Raise error if we have retried for 15 times
-            # We have observed that tap-pendo, generally throws exception after arond 30-45 mins
-            # So considering historical sync duration, retry count has been set to 2 times of possible connection failures
-            if count == 15:
+            # Raise error if we have retried for 7 times
+            if count == 7:
                 LOGGER.error("Giving up request(...) after 15 tries (%s: %s)", e.__class__.__name__, str(e))
                 raise e from None
 
