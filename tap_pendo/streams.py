@@ -1,7 +1,6 @@
 # pylint: disable=E1101,R0201,W0613
 
 #!/usr/bin/env python3
-import itertools
 import json
 import os
 import time
