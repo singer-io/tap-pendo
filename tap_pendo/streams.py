@@ -445,9 +445,6 @@ class LazyAggregationStream(Stream):
             # exception handling and yielding can be utilized properly below
             resp = session.send(req, stream=True, timeout=request_timeout)
 
-            # Since request succeeded resetting the retry count to 0
-            count = 0
-
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
                 LOGGER.info("Rate limit reached. Sleeping for %s seconds",
@@ -459,6 +456,7 @@ class LazyAggregationStream(Stream):
 
             # Get records from the raw response
             for item in ijson.items(resp.raw, 'results.item'):
+                count = 1   # request succeeded resetting the retry count to 0
                 yield humps.decamelize(item)
             resp.close()
         except (ConnectionError, ProtocolError, ReadTimeoutError, requests.exceptions.RequestException, Server42xRateLimitError) as e:
