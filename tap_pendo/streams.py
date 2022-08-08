@@ -28,6 +28,7 @@ LOGGER = singer.get_logger()
 session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
+RECORD_LIMIT = 100_000
 
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
