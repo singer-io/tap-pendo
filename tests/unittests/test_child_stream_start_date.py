@@ -40,7 +40,7 @@ class ChildStream:
         TEST.append(args)
         # return dummy data
         return [{"id": 1, "date": "2021-02-01T00:00:00Z"},
-                {"id": 2, "date": "2021-03-01T00:00:00Z"}]
+                {"id": 2, "date": "2021-03-01T00:00:00Z"}], False
 
     def __init__(self, config):
         self.config = config

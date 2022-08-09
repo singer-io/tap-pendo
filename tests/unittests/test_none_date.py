@@ -103,7 +103,7 @@ class TestNoneReplicatioKeysInSubStreams(unittest.TestCase):
         mock_parent_data = [{"id": 1}]
         mock_records = [{"id":1, "lastupdated": "2021-09-01T00:00:00Z"},
                         {"id":2, "lastupdated": "2021-09-02T00:00:00Z"}]
-        mocked_sync.return_value = mock_records
+        mocked_sync.return_value = mock_records, False
 
         parent_instance = streams.Stream(mock_config)
         sub_stream = streams.Stream(mock_config)
@@ -131,7 +131,7 @@ class TestNoneReplicatioKeysInSubStreams(unittest.TestCase):
         mock_records = [{"id":1},# No replication key present
                         {"id":2, "lastupdated": "2021-09-01T00:00:00Z"},
                         {"id":3, "lastupdated": None}] # Replication key with None value
-        mocked_sync.return_value = mock_records
+        mocked_sync.return_value = mock_records, False
 
         parent_instance = streams.Stream(mock_config)
         sub_stream = streams.Stream(mock_config)
