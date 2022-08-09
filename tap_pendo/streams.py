@@ -368,7 +368,7 @@ class Stream():
                                 loop_for_records = False
                             else:
                                 stream_events, loop_for_records = sub_stream.sync(state, bookmark_dttm,
-                                                                record.get(parent.key_properties[0]))
+                                                                                record.get(parent.key_properties[0]))
 
                             # Loop over data of sub-stream
                             for event in stream_events:
