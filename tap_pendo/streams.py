@@ -354,48 +354,55 @@ class Stream():
                                 integer_datetime_fmt=
                                 "unix-milliseconds-integer-datetime-parsing"
                             ) as transformer:
-                        # syncing child streams from start date or state file date
-                        if isinstance(parent, Visitors):
-                            stream_events = sub_stream.sync(state, bookmark_dttm,
-                                                            record.get(parent.key_properties[0]),
-                                                            parent_last_updated)
-                        else:
-                            stream_events = sub_stream.sync(state, bookmark_dttm,
-                                                            record.get(parent.key_properties[0]))
 
-                        # Loop over data of sub-stream
-                        for event in stream_events:
-                            counter.increment()
+                        # During historical syncs, child streams may have large amount of records which may lead to OOM issues
+                        # To avoid that we will spit-out records in batches into the target
+                        loop_for_records = True
+                        while loop_for_records:
+                            # syncing child streams from start date or state file date
+                            if isinstance(parent, Visitors):
+                                stream_events = sub_stream.sync(state, bookmark_dttm,
+                                                                record.get(parent.key_properties[0]),
+                                                                parent_last_updated)
+                                # Visitor_history API extracts records per day so we will extract all the records at once
+                                loop_for_records = False
+                            else:
+                                stream_events, loop_for_records = sub_stream.sync(state, bookmark_dttm,
+                                                                record.get(parent.key_properties[0]))
 
-                            # Get metadata for the stream to use in transform
-                            schema_dict = sub_stream.stream.schema.to_dict()
-                            stream_metadata = metadata.to_map(
-                                sub_stream.stream.metadata)
+                            # Loop over data of sub-stream
+                            for event in stream_events:
+                                counter.increment()
 
-                            transformed_event = sub_stream.transform(event)
+                                # Get metadata for the stream to use in transform
+                                schema_dict = sub_stream.stream.schema.to_dict()
+                                stream_metadata = metadata.to_map(
+                                    sub_stream.stream.metadata)
 
-                            # Transform record as per field selection in metadata
-                            try:
-                                transformed_record = transformer.transform(
-                                    transformed_event, schema_dict,
-                                    stream_metadata)
-                            except Exception as err:
-                                LOGGER.error('Error: %s', err)
-                                LOGGER.error(
-                                    ' for schema: %s',
-                                    json.dumps( schema_dict,
-                                                sort_keys=True,
-                                                indent=2))
-                                raise err
+                                transformed_event = sub_stream.transform(event)
 
-                            # Check for replication_value from record and if value found then use it for updating bookmark
-                            replication_value = transformed_record.get(sub_stream.replication_key)
-                            if replication_value:
-                                event_time = strptime_to_utc(replication_value)
-                                new_bookmark = max(new_bookmark, event_time)
+                                # Transform record as per field selection in metadata
+                                try:
+                                    transformed_record = transformer.transform(
+                                        transformed_event, schema_dict,
+                                        stream_metadata)
+                                except Exception as err:
+                                    LOGGER.error('Error: %s', err)
+                                    LOGGER.error(
+                                        ' for schema: %s',
+                                        json.dumps( schema_dict,
+                                                    sort_keys=True,
+                                                    indent=2))
+                                    raise err
 
-                            singer.write_record(sub_stream.stream.tap_stream_id,
-                                                transformed_record)
+                                # Check for replication_value from record and if value found then use it for updating bookmark
+                                replication_value = transformed_record.get(sub_stream.replication_key)
+                                if replication_value:
+                                    event_time = strptime_to_utc(replication_value)
+                                    new_bookmark = max(new_bookmark, event_time)
+
+                                singer.write_record(sub_stream.stream.tap_stream_id,
+                                                    transformed_record)
 
             except HTTPError:
                 LOGGER.warning(
@@ -506,10 +513,11 @@ class EventsBase(Stream):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
+        self.last_processed = None
 
         # Record limit will throttle the number of records getting replicated
         # This limit will resolve request timeouts and will reduce the peak memory consumption
-        self.record_limit = self.config.get('record_limit', API_RECORD_LIMIT)
+        self.record_limit = int(self.config.get('record_limit', API_RECORD_LIMIT))
 
     def get_body(self, key_id, period, first):
         """This method returns generic request body of events steams"""
@@ -599,17 +607,24 @@ class EventsBase(Stream):
         # Calculate lookback window
         lookback = start_date - timedelta(
             days=self.lookback_window())
-        first = int(lookback.timestamp()) * 1000
 
         # Period always amounts to a day either aggegated by day or hours in a day
         period = self.config.get('period')
+
+        # If last processed records exists, then set first to timestamp of first record
+        try:
+            first = self.last_processed[0][self.replication_key] if self.last_processed else int(lookback.timestamp()) * 1000
+        except Exception as e:
+            LOGGER.info(str(e))
+
+
         # Setup body for first request
         body = self.get_body(key_id, period, first)
         self.set_time_series_first(body, [], first)
         self.set_request_body_filters(body, first, [])
 
         ts_now = int(datetime.now().timestamp() * 1000)
-        events, last_processed = [], None
+        events = []
         while self.get_first_parameter_value(body) <= ts_now:
             records = self.request(self.name, json=body).get('results') or []
             self.set_time_series_first(body, records)
@@ -624,21 +639,28 @@ class EventsBase(Stream):
                 removed_records = self.remove_last_timestamp_records(records)
                 events += records
 
-                if last_processed == removed_records:
+                if self.last_processed == removed_records:
                     events += removed_records
+                    self.last_processed = None
                     break
 
-                last_processed = removed_records
+                self.last_processed = removed_records
 
             elif len(records) == 1:
                 events += records
+                self.last_processed = None
                 break
 
+            # If record limit set is reached, then return the extracted records
+            # Set the last processed records to ressume the extraction
+            if len(events) >= self.record_limit:
+                return events, True
+
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
-        self.record_limit = self.config.get('record_limit', API_RECORD_LIMIT)
+        self.record_limit = int(self.config.get('record_limit', API_RECORD_LIMIT))
 
         update_currently_syncing(state, None)
-        return events
+        return events, False
 
 
 class Accounts(Stream):

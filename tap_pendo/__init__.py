@@ -113,12 +113,15 @@ def sync(config, state, catalog):
         LOGGER.info('START Syncing: %s', stream_id)
         update_currently_syncing(state, stream_id)
 
+        # parent stream will sync sub stream
+        if stream_id in all_sub_stream_ids:
+            continue
         # Write schema of streams to STDOUT
         key_properties = metadata.get(mdata, (), 'table-key-properties')
         singer.write_schema(
             stream_id, stream.schema.to_dict(), key_properties)
 
-        sub_stream_ids = SUB_STREAMS.get(stream_id)
+        sub_stream_ids = [SUB_STREAMS.get(stream_id)]
 
         # Populate class schemas and write a schema for the selected substreams of the stream
         if sub_stream_ids:
@@ -133,9 +136,6 @@ def sync(config, state, catalog):
                 singer.write_schema(
                     sub_stream.tap_stream_id, sub_stream.schema.to_dict(), sub_key_properties)
 
-        # parent stream will sync sub stream
-        if stream_id in all_sub_stream_ids:
-            continue
 
         LOGGER.info("Stream %s: Starting sync", stream_id)
         instance = STREAMS[stream_id](config) # Intialize class for selected stream
