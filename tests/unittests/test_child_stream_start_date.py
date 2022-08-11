@@ -1,8 +1,9 @@
 import unittest
 import tap_pendo.streams as streams
 from unittest import mock
-from singer.utils import strftime
+from singer.utils import now, strftime, strptime_to_utc
 from dateutil.parser import parse
+from datetime import timedelta
 
 # stores the arguments that are passed in the 'sync'
 # function of child stream for assertion
@@ -67,6 +68,36 @@ def transform(*args, **kwargs):
     return args[0]
 
 class TestStartDateOfChildStream(unittest.TestCase):
+
+    def test_visitor_history_start_date_greater_than_180_days(self):
+        """
+        Verify that if visitor history start date is older than 179 days then it is set (now - 179 days)
+        """
+        start_date = strptime_to_utc("2021-01-01T00:00:00Z")
+        expected_start_date = streams.round_times(now(), now())[0] - timedelta(179)
+        self.assertEquals(streams.get_absolute_start_end_time(start_date)[0],
+                          expected_start_date,
+                          msg="Older than 179 days visitor history start date is resetting to (now - 179 days)")
+
+    def test_visitor_history_start_date_equals_180_days(self):
+        """
+        Verify that if visitor history start date is set properly if it is exactly 179 days older
+        """
+        start_date = now() - timedelta(179)
+        expected_start_date = streams.round_times(start_date, start_date)[0]
+        self.assertEquals(streams.get_absolute_start_end_time(start_date)[0],
+                          expected_start_date,
+                          msg="Exactly 179 days older visitor history start date is not getting set properly")
+
+    def test_visitor_history_start_date_lesser_than_180_days(self):
+        """
+        Verify that if visitor history start date is set properly if it is lesser than 179 days older
+        """
+        start_date = now() - timedelta(50)
+        expected_start_date = streams.round_times(start_date, start_date)[0]
+        self.assertEquals(streams.get_absolute_start_end_time(start_date)[0],
+                          expected_start_date,
+                          msg="Lesser than 179 days older visitor history start date is not getting set properly")
 
     @mock.patch("singer.write_schema")
     @mock.patch("tap_pendo.streams.Stream.update_bookmark")

@@ -319,15 +319,39 @@ class Stream():
                                  None,
                                  key="last_processed")
 
+    def update_child_stream_bookmarks(self, state, sub_stream, last_processed_value, new_bookmark, last_bookmark_dttm):
+        """Updates the bookmark keys for the child streams"""
+
+        # last processed is none when all events/history of all parents is processed
+        if last_processed_value:
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=last_processed_value, bookmark_key="last_processed")
+
+        # This bookmark handles the intermmediate bookmarking of child streams
+        self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=new_bookmark, bookmark_key=sub_stream.replication_key)
+
+        # On ressuming, once replication of bookmarked parent_id is done, for next parent_id replication should start from original bookmark
+        self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=last_bookmark_dttm, bookmark_key="last_bookmark_dttm")
+
+
     def sync_substream(self, state, parent, sub_stream, parent_response):
-        # Get bookmark from state or start date for the stream
-        bookmark_date = self.get_bookmark(state, sub_stream.name,
-                                          self.config.get('start_date'),
-                                          sub_stream.replication_key)
         # If last sync was interrupted, get last processed parent record
         last_processed = self.get_last_processed(state, sub_stream)
-        bookmark_dttm = strptime_to_utc(bookmark_date)
-        new_bookmark = bookmark_dttm
+
+        # If last replication was interrupted, interrupted parent_id replication resumes from this bookmark
+        last_replication_date = self.get_bookmark(state,
+                                                  sub_stream.name,
+                                                  self.config.get('start_date'),
+                                                  key=sub_stream.replication_key)
+
+        # If last replication was interrupted, next parent_id replication resumes from this bookmark
+        last_bookmark_dttm = self.get_bookmark(state,
+                                               sub_stream.name,
+                                               None,
+                                               key="last_bookmark_dttm")
+        last_bookmark_dttm = last_bookmark_dttm if last_bookmark_dttm else last_replication_date
+
+        # Set latest value of this bookmark on successful replication of stream
+        final_bookmark = strptime_to_utc(last_bookmark_dttm)
 
         singer.write_schema(sub_stream.name,
                             sub_stream.stream.schema.to_dict(),
@@ -336,9 +360,19 @@ class Stream():
         # Loop over records of parent stream
         for record in parent_response:
             try:
-                # Skipping last synced parent ids
                 if last_processed and record.get(parent.key_properties[0]) < last_processed:
+                    # Skipping last synced parent ids
                     continue
+
+                if record.get(parent.key_properties[0]) == last_processed:
+                    # Set bookmark to ressume last processed parent id replication
+                    bookmark_dttm = strptime_to_utc(last_replication_date)
+                else:
+                    # Reset bookmark of next parent id to original bookmark
+                    bookmark_dttm = strptime_to_utc(last_bookmark_dttm)
+
+                # It will be used while setting up
+                new_bookmark = bookmark_dttm
 
                 # filtering the visitors based on last updated to improve performance of visitor_history replication
                 if isinstance(parent, Visitors):
@@ -376,8 +410,7 @@ class Stream():
 
                                 # Get metadata for the stream to use in transform
                                 schema_dict = sub_stream.stream.schema.to_dict()
-                                stream_metadata = metadata.to_map(
-                                    sub_stream.stream.metadata)
+                                stream_metadata = metadata.to_map(sub_stream.stream.metadata)
 
                                 transformed_event = sub_stream.transform(event)
 
@@ -404,17 +437,28 @@ class Stream():
                                 singer.write_record(sub_stream.stream.tap_stream_id,
                                                     transformed_record)
 
+                            self.update_child_stream_bookmarks(state=state,
+                                                               sub_stream=sub_stream,
+                                                               last_processed_value=record.get(parent.key_properties[0]),
+                                                               new_bookmark=strftime(new_bookmark),
+                                                               last_bookmark_dttm=last_bookmark_dttm)
+
+                            # When all sync completes, set this as new bookmark
+                            final_bookmark = max(final_bookmark, new_bookmark)
+
             except HTTPError:
                 LOGGER.warning(
                     "Unable to retrieve %s Event for Stream (ID: %s)",
                     sub_stream.name, record[parent.key_properties[0]])
 
-            # All events for all parents processed; can removed last processed
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=record.get(parent.key_properties[0]), bookmark_key="last_processed")
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
-
         # After processing for all parent ids we can remove our resumption state
         state.get('bookmarks').get(sub_stream.name).pop('last_processed')
+
+        self.update_child_stream_bookmarks(state=state,
+                                           sub_stream=sub_stream,
+                                           last_processed_value=None,
+                                           new_bookmark=strftime(new_bookmark),
+                                           last_bookmark_dttm=last_bookmark_dttm)
         update_currently_syncing(state, None)
 
 
