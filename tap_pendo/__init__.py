@@ -103,7 +103,7 @@ def sync(config, state, catalog):
     all_sub_stream_ids = get_sub_stream_ids()
 
     # Loop over streams in catalog
-    for stream in catalog.streams:
+    for stream in catalog.get_selected_streams(state):
         stream_id = stream.tap_stream_id
         mdata = metadata.to_map(stream.metadata)
         if stream_id not in selected_stream_ids:
