@@ -5,6 +5,7 @@ import json
 import os
 import time
 from datetime import datetime, timedelta, timezone
+from ast import literal_eval
 
 import backoff
 import humps
@@ -319,7 +320,7 @@ class Stream():
                                  None,
                                  key="last_processed")
 
-    def update_child_stream_bookmarks(self, state, sub_stream, last_processed_value, new_bookmark, last_bookmark_dttm):
+    def update_child_stream_bookmarks(self, state, sub_stream, last_processed_value, new_bookmark, previous_sync_completed_ts):
         """Updates the bookmark keys for the child streams"""
 
         # last processed is none when all events/history of all parents is processed
@@ -330,7 +331,7 @@ class Stream():
         self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=new_bookmark, bookmark_key=sub_stream.replication_key)
 
         # On ressuming, once replication of bookmarked parent_id is done, for next parent_id replication should start from original bookmark
-        self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=last_bookmark_dttm, bookmark_key="last_bookmark_dttm")
+        self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=previous_sync_completed_ts, bookmark_key="previous_sync_completed_ts")
 
 
     def sync_substream(self, state, parent, sub_stream, parent_response):
@@ -344,14 +345,14 @@ class Stream():
                                                   key=sub_stream.replication_key)
 
         # If last replication was interrupted, next parent_id replication resumes from this bookmark
-        last_bookmark_dttm = self.get_bookmark(state,
+        previous_sync_completed_ts = self.get_bookmark(state,
                                                sub_stream.name,
                                                None,
-                                               key="last_bookmark_dttm")
-        last_bookmark_dttm = last_bookmark_dttm if last_bookmark_dttm else last_replication_date
+                                               key="previous_sync_completed_ts")
+        previous_sync_completed_ts = previous_sync_completed_ts if previous_sync_completed_ts else last_replication_date
 
         # Set latest value of this bookmark on successful replication of stream
-        final_bookmark = strptime_to_utc(last_bookmark_dttm)
+        final_bookmark = strptime_to_utc(previous_sync_completed_ts)
 
         singer.write_schema(sub_stream.name,
                             sub_stream.stream.schema.to_dict(),
@@ -369,7 +370,7 @@ class Stream():
                     bookmark_dttm = strptime_to_utc(last_replication_date)
                 else:
                     # Reset bookmark of next parent id to original bookmark
-                    bookmark_dttm = strptime_to_utc(last_bookmark_dttm)
+                    bookmark_dttm = strptime_to_utc(previous_sync_completed_ts)
 
                 # It will be used while setting up
                 new_bookmark = bookmark_dttm
@@ -441,7 +442,7 @@ class Stream():
                                                                sub_stream=sub_stream,
                                                                last_processed_value=record.get(parent.key_properties[0]),
                                                                new_bookmark=strftime(new_bookmark),
-                                                               last_bookmark_dttm=last_bookmark_dttm)
+                                                               previous_sync_completed_ts=previous_sync_completed_ts)
 
                             # When all sync completes, set this as new bookmark
                             final_bookmark = max(final_bookmark, new_bookmark)
@@ -458,7 +459,7 @@ class Stream():
                                            sub_stream=sub_stream,
                                            last_processed_value=None,
                                            new_bookmark=strftime(new_bookmark),
-                                           last_bookmark_dttm=last_bookmark_dttm)
+                                           previous_sync_completed_ts=strftime(final_bookmark))
         update_currently_syncing(state, None)
 
 
@@ -561,7 +562,13 @@ class EventsBase(Stream):
 
         # Record limit will throttle the number of records getting replicated
         # This limit will resolve request timeouts and will reduce the peak memory consumption
-        self.record_limit = int(self.config.get('record_limit', API_RECORD_LIMIT))
+        record_limit = str(self.config.get('record_limit', API_RECORD_LIMIT)).strip()
+        try:
+            # Defualt record limit will be set for None and Whitespaces
+            # Whitespaces before and after will be trimmed around valid numeric strings
+            self.record_limit = int(literal_eval(record_limit) if record_limit.strip() else API_RECORD_LIMIT)
+        except (NameError, SyntaxError, ValueError) as e:
+            raise ValueError("Invalid numeric value: " + str(self.config.get('record_limit'))) from e
 
     def get_body(self, key_id, period, first):
         """This method returns generic request body of events steams"""
