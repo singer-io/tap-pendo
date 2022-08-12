@@ -346,9 +346,9 @@ class Stream():
 
         # If last replication was interrupted, next parent_id replication resumes from this bookmark
         previous_sync_completed_ts = self.get_bookmark(state,
-                                               sub_stream.name,
-                                               None,
-                                               key="previous_sync_completed_ts")
+                                                       sub_stream.name,
+                                                       None,
+                                                       key="previous_sync_completed_ts")
         previous_sync_completed_ts = previous_sync_completed_ts if previous_sync_completed_ts else last_replication_date
 
         # Set latest value of this bookmark on successful replication of stream
