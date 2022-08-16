@@ -323,7 +323,7 @@ class Stream():
     def update_child_stream_bookmarks(self, state, sub_stream, last_processed_value, new_bookmark, previous_sync_completed_ts):
         """Updates the bookmark keys for the child streams"""
 
-        # last processed is none when all events/history of all parents is processed
+        # Last processed is none when all events/history of all parents is processed
         if last_processed_value:
             self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=last_processed_value, bookmark_key="last_processed")
 
@@ -375,7 +375,7 @@ class Stream():
                 # It will be used while setting up
                 new_bookmark = bookmark_dttm
 
-                # filtering the visitors based on last updated to improve performance of visitor_history replication
+                # Filtering the visitors based on last updated to improve performance of visitor_history replication
                 if isinstance(parent, Visitors):
                     last_processed = self.get_last_processed(state, sub_stream)
                     parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'][self.replication_key]) / 1000.0, timezone.utc)
@@ -458,7 +458,7 @@ class Stream():
         self.update_child_stream_bookmarks(state=state,
                                            sub_stream=sub_stream,
                                            last_processed_value=None,
-                                           new_bookmark=strftime(new_bookmark),
+                                           new_bookmark=strftime(final_bookmark),
                                            previous_sync_completed_ts=strftime(final_bookmark))
         update_currently_syncing(state, None)
 

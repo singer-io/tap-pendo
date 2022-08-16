@@ -110,12 +110,13 @@ def sync(config, state, catalog):
             LOGGER.info("%s: Skipping - not selected", stream_id)
             continue            # TODO: sync code for stream goes here...
 
+        # Parent stream will sync sub stream
+        if stream_id in all_sub_stream_ids:
+            continue
+
         LOGGER.info('START Syncing: %s', stream_id)
         update_currently_syncing(state, stream_id)
 
-        # parent stream will sync sub stream
-        if stream_id in all_sub_stream_ids:
-            continue
         # Write schema of streams to STDOUT
         key_properties = metadata.get(mdata, (), 'table-key-properties')
         singer.write_schema(

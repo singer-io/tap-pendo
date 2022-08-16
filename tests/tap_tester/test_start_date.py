@@ -30,7 +30,7 @@ class PendoStartDateTest(TestPendoBase):
 
         # Visitors history can be retrieved only for 180 days so to reduce execution time setting first start time older than 180 days back
         self.run_test(
-            start_date_1=self.timedelta_formatted(dt.now().strftime("%Y-%m-%dT00:00:00Z") , -181),
+            start_date_1="2022-03-10T00:00:00Z",
             start_date_2="2022-06-20T00:00:00Z",
             streams={"visitors", "visitor_history"})
 
@@ -97,7 +97,7 @@ class PendoStartDateTest(TestPendoBase):
         # Update START DATE Between Syncs
         ##########################################################################
         
-        print("REPLICATION START DATE CHANGE: {} ===>>> {} ".format(
+        LOGGER.info("REPLICATION START DATE CHANGE: {} ===>>> {} ".format(
             self.start_date, self.start_date_2))
         self.start_date = self.start_date_2
 
@@ -106,8 +106,7 @@ class PendoStartDateTest(TestPendoBase):
         ##########################################################################
 
         # create a new connection with the new start_date
-        conn_id_2 = connections.ensure_connection(
-            self, original_properties=False)
+        conn_id_2 = connections.ensure_connection(self, original_properties=False)
 
         # run check mode
         found_catalogs_2 = self.run_and_verify_check_mode(conn_id_2)
@@ -127,10 +126,8 @@ class PendoStartDateTest(TestPendoBase):
 
                 # expected values
                 expected_primary_keys = self.expected_pks()[stream]
-                expected_start_date_1 = self.timedelta_formatted(
-                    self.start_date_1, -1)
-                expected_start_date_2 = self.timedelta_formatted(
-                    self.start_date_2, -1)
+                expected_start_date_1 = self.timedelta_formatted(self.start_date_1, -1)
+                expected_start_date_2 = self.timedelta_formatted(self.start_date_2, -1)
 
                 # collect information for assertions from syncs 1 & 2 base on expected values
                 record_count_sync_1 = record_count_by_stream_1.get(stream, 0)
@@ -180,8 +177,7 @@ class PendoStartDateTest(TestPendoBase):
 
                     # Verify the number of records replicated in sync 1 is greater than the number
                     # of records replicated in sync 2
-                    self.assertGreaterEqual(record_count_sync_1,
-                                       record_count_sync_2)
+                    self.assertGreaterEqual(record_count_sync_1, record_count_sync_2)
 
                     # Verify the records replicated in sync 2 were also replicated in sync 1
                     self.assertTrue(
@@ -194,5 +190,4 @@ class PendoStartDateTest(TestPendoBase):
                     self.assertEqual(record_count_sync_2, record_count_sync_1)
 
                     # Verify by primary key the same records are replicated in the 1st and 2nd syncs
-                    self.assertSetEqual(primary_keys_sync_1,
-                                        primary_keys_sync_2)
+                    self.assertSetEqual(primary_keys_sync_1, primary_keys_sync_2)

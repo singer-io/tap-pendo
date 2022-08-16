@@ -7,16 +7,58 @@ from base import TestPendoBase
 class PendoAllFieldsTest(TestPendoBase):
     def name(self):
         return "pendo_all_fields_test"
-    
+
     def test_run(self):
+        self.run_test({'accounts', 'events', 'feature_events', 'features', 'guide_events', 'guides', 'page_events', 'pages', 'poll_events', 'track_events', 'track_types'})
+        self.run_test({"visitors", "visitor_history"}, start_date="2022-06-20T00:00:00Z")
+
+    def expected_metadata(self):
+        visitor_history = {
+            # Add back when visitor_history stream causing this test to take 4+ hours is solved,
+            # tracked in this JIRA: https://stitchdata.atlassian.net/browse/SRCE-4755
+            # Improvised the execution
+            #   - Added filtering visitors based on last updated which will reduce the execution time
+            #   - Testing visitors streams separately with latest start time
+            "visitor_history": {
+                self.PRIMARY_KEYS: {'visitor_id'},
+                self.REPLICATION_METHOD: self.INCREMENTAL,
+                self.REPLICATION_KEYS: {'modified_ts'}
+            }
+        }
+
+        metadata = super().expected_metadata()
+        if self.streams == {"visitors", "visitor_history"}:
+            metadata.update(visitor_history)
+        else:
+            metadata = super().expected_metadata()
+
+        return metadata
+
+    def get_properties(self, original: bool = True):
+        """Configuration properties required for the tap."""
+        return_value = {
+            "start_date": "2019-09-10T00:00:00Z",
+            "lookback_window": "1",
+            "period": "dayRange",
+        }
+
+        if self.streams == {"visitors", "visitor_history"}:
+            return_value["start_date"] = self.start_date
+
+        if original:
+            return return_value
+
+        return return_value
+
+    def run_test(self, expected_streams, start_date=None):
         """
         • Verify no unexpected streams were replicated
         • Verify that more than just the automatic fields are replicated for each stream. 
         • verify all fields for each stream are replicated
         """
         
-        # Streams to verify all fields tests
-        expected_streams = self.expected_streams()
+        self.start_date = start_date
+        self.streams = expected_streams
         
         expected_automatic_fields = self.expected_automatic_fields()
         conn_id = connections.ensure_connection(self)
@@ -52,14 +94,10 @@ class PendoAllFieldsTest(TestPendoBase):
         synced_stream_names = set(synced_records.keys())
 
         # Skipping below streams due to zero records for given start date
-        zero_records_streams = {"guides", "features", "feature_events", "pages", "poll_events", "track_events", "track_types"}
-        self.assertSetEqual(expected_streams - zero_records_streams, synced_stream_names)
+        self.assertSetEqual(expected_streams, synced_stream_names)
         
         for stream in expected_streams:
             with self.subTest(stream=stream):
-                if stream in zero_records_streams:
-                    continue
-                
                 # expected values
                 expected_all_keys = stream_to_all_catalog_fields[stream]
                 expected_automatic_keys = expected_automatic_fields.get(
