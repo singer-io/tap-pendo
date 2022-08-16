@@ -1242,22 +1242,23 @@ class MetadataVisitors(Stream):
 
 
 
+# This dict should be ordered so that child stream(s) are occuring just above parent stream.
 STREAMS = {
     "accounts": Accounts,
-    "features": Features,
-    "guides": Guides,
-    "pages": Pages,
-    "visitor_history": VisitorHistory,
-    "visitors": Visitors,
-    "feature_events": FeatureEvents,
     "events": Events,
-    "page_events": PageEvents,
+    "feature_events": FeatureEvents,
+    "features": Features,
     "guide_events": GuideEvents,
+    "guides": Guides,
+    "metadata_accounts": MetadataAccounts,
+    "metadata_visitors": MetadataVisitors,
+    "page_events": PageEvents,
+    "pages": Pages,
     "poll_events": PollEvents,
     "track_types": TrackTypes,
     "track_events": TrackEvents,
-    "metadata_accounts": MetadataAccounts,
-    "metadata_visitors": MetadataVisitors
+    "visitor_history": VisitorHistory,
+    "visitors": Visitors
 }
 
 SUB_STREAMS = {
