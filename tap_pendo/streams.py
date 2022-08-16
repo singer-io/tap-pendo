@@ -1242,7 +1242,7 @@ class MetadataVisitors(Stream):
 
 
 
-# This dict should be ordered so that child stream(s) are occuring just above parent stream.
+# This dict is ordered so that child stream(s) are occurring just above parent stream.
 STREAMS = {
     "accounts": Accounts,
     "events": Events,
@@ -1255,8 +1255,8 @@ STREAMS = {
     "page_events": PageEvents,
     "pages": Pages,
     "poll_events": PollEvents,
-    "track_types": TrackTypes,
     "track_events": TrackEvents,
+    "track_types": TrackTypes,
     "visitor_history": VisitorHistory,
     "visitors": Visitors
 }
