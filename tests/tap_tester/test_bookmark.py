@@ -26,8 +26,9 @@ class PendoBookMarkTest(TestPendoBase):
         For EACH stream that is incrementally replicated there are multiple rows of data with
             different values for the replication key
         """
-        
-        expected_streams = self.expected_streams()
+        # All these streams have similar implementation like features and feature_events so removing this test to limit the execution time
+        SKIP_STREAMS = {"guides", "guide_events", "pages", "page_events"}
+        expected_streams = self.expected_streams() - SKIP_STREAMS
         expected_replication_keys = self.expected_replication_keys()
         expected_replication_methods = self.expected_replication_method()
         expected_lookback_window = -1 * int(self.get_properties()['lookback_window'])  # lookback window

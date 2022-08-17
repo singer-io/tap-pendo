@@ -9,8 +9,11 @@ class PendoAllFieldsTest(TestPendoBase):
         return "pendo_all_fields_test"
 
     def test_run(self):
-        self.run_test({'accounts', 'events', 'feature_events', 'features', 'guide_events', 'guides', 'page_events', 'pages', 'poll_events', 'track_events', 'track_types'})
+        self.run_test({'accounts', 'events', 'page_events', 'pages', 'poll_events', 'track_events', 'track_types'})
         self.run_test({"visitors", "visitor_history"}, start_date="2022-06-20T00:00:00Z")
+
+        # All these streams have similar implementation like pages and page_events so removing this test to limit the execution time
+        # self.run_test({'feature_events', 'features', 'guide_events', 'guides'})
 
     def expected_metadata(self):
         visitor_history = {
