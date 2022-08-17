@@ -4,7 +4,7 @@ from datetime import datetime as dt
 import tap_tester.connections as connections
 import tap_tester.runner as runner
 from base import TestPendoBase
-
+from tap_tester.logger import LOGGER
 
 class PendoStartDateTest(TestPendoBase):
     """Instantiate start date according to the desired data set and run the test"""

@@ -138,7 +138,7 @@ class TestPendoBase(unittest.TestCase):
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         return_value = {
-            "start_date": "2022-06-20T00:00:00Z",
+            "start_date": "2019-09-10T00:00:00Z",
             "lookback_window": "1",
             "period": "dayRange",
         }
