@@ -96,6 +96,22 @@ class TestConfigParsing(unittest.TestCase):
 
         self.assertEqual(expected_value, actual_value)
 
+    def test_reading_include_anonymous_visitors_provided_valid_input_TRUE(self):
+        config = {
+            'include_anonymous_visitors': 'TRUE'
+        }
+
+        my_visitor = Visitors(config)
+
+
+        return_value = my_visitor.get_body()
+        expected_value = True
+
+        # This is the value that matches the config
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+
+        self.assertEqual(expected_value, actual_value)
+
     def test_reading_include_anonymous_visitors_provided_valid_input_false(self):
         config = {
             'include_anonymous_visitors': 'false'
@@ -138,6 +154,30 @@ class TestConfigParsing(unittest.TestCase):
 
     def test_reading_include_anonymous_visitors_no_provided_input(self):
         config = {}
+
+        my_visitor = Visitors(config)
+
+        return_value = my_visitor.get_body()
+        expected_value = False
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_provided_boolean_true(self):
+        config = {
+            'include_anonymous_visitors': True
+        }
+
+        my_visitor = Visitors(config)
+
+        return_value = my_visitor.get_body()
+        expected_value = True
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_provided_boolean_false(self):
+        config = {
+            'include_anonymous_visitors': False
+        }
 
         my_visitor = Visitors(config)
 
