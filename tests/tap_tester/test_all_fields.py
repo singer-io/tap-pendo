@@ -9,49 +9,30 @@ class PendoAllFieldsTest(TestPendoBase):
         return "pendo_all_fields_test"
 
     def test_run(self):
-        self.run_test({'accounts', 'events', 'page_events', 'pages', 'poll_events', 'track_events', 'track_types'})
-        self.run_test({"visitors", "visitor_history"}, start_date="2022-06-20T00:00:00Z")
+        # To limit the execution time skipping following streams:
+        #   - 'features', 'feature_events'
+        #   - 'guides', 'guide_events'
+        #   - 'pages', 'page_events'
+        # All above streams have similar impletementation like track_types and track_events streams
 
-        # All these streams have similar implementation like pages and page_events so removing this test to limit the execution time
-        # self.run_test({'feature_events', 'features', 'guide_events', 'guides'})
-
-    def expected_metadata(self):
-        visitor_history = {
-            # Add back when visitor_history stream causing this test to take 4+ hours is solved,
-            # tracked in this JIRA: https://stitchdata.atlassian.net/browse/SRCE-4755
-            # Improvised the execution
-            #   - Added filtering visitors based on last updated which will reduce the execution time
-            #   - Testing visitors streams separately with latest start time
-            "visitor_history": {
-                self.PRIMARY_KEYS: {'visitor_id'},
-                self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'modified_ts'}
-            }
-        }
-
-        metadata = super().expected_metadata()
-        if self.streams == {"visitors", "visitor_history"}:
-            metadata.update(visitor_history)
-        else:
-            metadata = super().expected_metadata()
-
-        return metadata
+        self.run_test({'accounts', 'events', 'poll_events', 'track_events', 'track_types'})
+        self.run_test({"visitors", "visitor_history"})
 
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
-        return_value = {
-            "start_date": "2019-09-10T00:00:00Z",
-            "lookback_window": "1",
-            "period": "dayRange",
-        }
+        if self.streams_to_test == {"visitors", "visitor_history"}:
+            return_value = {
+                # To reduce the execution time to test this stream taking recently start_date
+                "start_date": "2022-07-20T00:00:00Z",
+                "lookback_window": "1",
+                "period": "dayRange",
+            }
+            if original:
+                return return_value
 
-        if self.streams == {"visitors", "visitor_history"}:
-            return_value["start_date"] = self.start_date
-
-        if original:
             return return_value
-
-        return return_value
+        else:
+            return super().get_properties()
 
     def run_test(self, expected_streams, start_date=None):
         """
@@ -61,7 +42,7 @@ class PendoAllFieldsTest(TestPendoBase):
         """
         
         self.start_date = start_date
-        self.streams = expected_streams
+        self.streams_to_test = expected_streams
         
         expected_automatic_fields = self.expected_automatic_fields()
         conn_id = connections.ensure_connection(self)
@@ -88,8 +69,6 @@ class PendoAllFieldsTest(TestPendoBase):
                 fields_from_field_level_md)
 
         self.run_and_verify_sync(conn_id)
-
-        actual_fields_by_stream = runner.examine_target_output_for_fields()
 
         synced_records = runner.get_records_from_target_output()
 

@@ -9,7 +9,32 @@ class PendoBookMarkTest(TestPendoBase):
     def name(self):
         return "pendo_bookmark_test"
 
+    def get_properties(self, original: bool = True):
+        """Configuration properties required for the tap."""
+        if self.streams_to_test == {"visitors", "visitor_history"}:
+            return_value = {
+                # To reduce the execution time to test this stream taking recently start_date
+                "start_date": "2022-07-20T00:00:00Z",
+                "lookback_window": "1",
+                "period": "dayRange",
+            }
+            if original:
+                return return_value
+
+            return return_value
+        else:
+            return super().get_properties()
+
     def test_run(self):
+        # # All these streams have similar implementation like features and feature_events so removing this test to limit the execution time
+        # # visitor_history stream takes long time to execute with default start date so it is handled separately
+        self.run_test(
+            self.expected_streams() - {"guides", "guide_events", "pages", "page_events", "visitor_history"})
+
+        # Test only visitors and visitor_history
+        self.run_test({"visitors", "visitor_history"})
+
+    def run_test(self, expected_streams):
         """
         Verify that for each stream you can do a sync which records bookmarks.
         That the bookmark is the maximum value sent to the target for the replication key.
@@ -27,8 +52,7 @@ class PendoBookMarkTest(TestPendoBase):
             different values for the replication key
         """
         # All these streams have similar implementation like features and feature_events so removing this test to limit the execution time
-        SKIP_STREAMS = {"guides", "guide_events", "pages", "page_events"}
-        expected_streams = self.expected_streams() - SKIP_STREAMS
+        self.streams_to_test = expected_streams
         expected_replication_keys = self.expected_replication_keys()
         expected_replication_methods = self.expected_replication_method()
         expected_lookback_window = -1 * int(self.get_properties()['lookback_window'])  # lookback window
