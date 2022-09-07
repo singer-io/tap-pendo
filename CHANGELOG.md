@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.3
+  * Handle empty `include_anonymous_visitors` properties from config [#111](https://github.com/singer-io/tap-pendo/pull/111)
+
 ## 0.4.2
   * Retry when the connection snaps [#98](https://github.com/singer-io/tap-pendo/pull/98)
 
