@@ -63,7 +63,7 @@ class TestLazyAggregationSync(unittest.TestCase):
     def test_lazzy_aggregation_without_sub_stream(self, mocked_substream, mocked_selected, mocked_request):
         '''
             Verify that if sub stream is not selected then also all data should be return for super stream
-            and sync_substream should not be called 
+            and sync_substream should not be called
         '''
         expected_data = [{"id":1}, {"id":2}, {"id":3}]
         records = '{"results": [{"id":1}, {"id":2}, {"id":3}]}'
@@ -77,3 +77,111 @@ class TestLazyAggregationSync(unittest.TestCase):
 
         self.assertEqual(list(stream_response), expected_data)
         self.assertEqual(mocked_substream.call_count, 0)
+
+class TestConfigParsing(unittest.TestCase):
+
+    def test_reading_include_anonymous_visitors_provided_valid_input_true(self):
+        config = {
+            'include_anonymous_visitors': 'true'
+        }
+
+        my_visitor = Visitors(config)
+
+
+        return_value = my_visitor.get_body()
+        expected_value = True
+
+        # This is the value that matches the config
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_provided_valid_input_TRUE(self):
+        config = {
+            'include_anonymous_visitors': 'TRUE'
+        }
+
+        my_visitor = Visitors(config)
+
+
+        return_value = my_visitor.get_body()
+        expected_value = True
+
+        # This is the value that matches the config
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_provided_valid_input_false(self):
+        config = {
+            'include_anonymous_visitors': 'false'
+        }
+
+        my_visitor = Visitors(config)
+
+
+        return_value = my_visitor.get_body()
+        expected_value = False
+
+        # This is the value that matches the config
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_provided_invalid_input(self):
+        config = {
+            'include_anonymous_visitors': 'bad input'
+        }
+
+        my_visitor = Visitors(config)
+
+        return_value = my_visitor.get_body()
+        expected_value = False
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_provided_none(self):
+        config = {
+            'include_anonymous_visitors': None
+        }
+
+        my_visitor = Visitors(config)
+
+        return_value = my_visitor.get_body()
+        expected_value = False
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_no_provided_input(self):
+        config = {}
+
+        my_visitor = Visitors(config)
+
+        return_value = my_visitor.get_body()
+        expected_value = False
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_provided_boolean_true(self):
+        config = {
+            'include_anonymous_visitors': True
+        }
+
+        my_visitor = Visitors(config)
+
+        return_value = my_visitor.get_body()
+        expected_value = True
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+        self.assertEqual(expected_value, actual_value)
+
+    def test_reading_include_anonymous_visitors_provided_boolean_false(self):
+        config = {
+            'include_anonymous_visitors': False
+        }
+
+        my_visitor = Visitors(config)
+
+        return_value = my_visitor.get_body()
+        expected_value = False
+        actual_value = not return_value['request']['pipeline'][0]['source']['visitors']['identified']
+        self.assertEqual(expected_value, actual_value)
