@@ -30,6 +30,7 @@ LOGGER = singer.get_logger()
 session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
+DEFAULT_INCLUDE_ANONYMOUS_VISITORS = 'false'
 
 BACKOFF_FACTOR = 30
 
@@ -1146,7 +1147,8 @@ class Visitors(LazyAggregationStream):
     key_properties = ["visitor_id"]
 
     def get_body(self):
-        include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
+        include_anonymous_visitors = self.config.get('include_anonymous_visitors') or DEFAULT_INCLUDE_ANONYMOUS_VISITORS
+        anons = str(include_anonymous_visitors).lower() == 'true'
         return {
             "response": {
                 "mimeType": "application/json"
@@ -1157,7 +1159,7 @@ class Visitors(LazyAggregationStream):
                 "pipeline": [{
                     "source": {
                         "visitors": {
-                            "identified": not include_anonymous_visitors
+                            "identified": not anons
                         }
                     }
                 }],
