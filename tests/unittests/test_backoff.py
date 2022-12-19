@@ -51,8 +51,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__features(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -66,8 +66,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__guides(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -81,8 +81,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__pages(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -96,8 +96,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__feature_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -111,8 +111,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__page_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -126,8 +126,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__guide_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -141,8 +141,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__poll_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -156,8 +156,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__track_types(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -171,8 +171,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__track_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -186,8 +186,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__metadata_accounts(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -201,8 +201,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__metadata_visitors(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -216,8 +216,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__visitor_history(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -231,8 +231,8 @@ class TestTimeOut(unittest.TestCase):
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__visitors(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -242,12 +242,12 @@ class TestTimeOut(unittest.TestCase):
         visitors = streams.Visitors({'x_pendo_integration_key': 'test'})
 
         try:
-            visitors.request('visitors')
+            list(visitors.request('visitors'))
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_timeout__events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -257,12 +257,12 @@ class TestTimeOut(unittest.TestCase):
         events = streams.Events({'x_pendo_integration_key': 'test'})
 
         try:
-            events.request('events')
+            list(events.request('events'))
         except requests.exceptions.Timeout:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
 @mock.patch("time.sleep")
 @mock.patch('requests.Session.send')
@@ -280,8 +280,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__features(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -295,8 +295,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__guides(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -310,8 +310,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__pages(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -325,8 +325,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__feature_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -340,8 +340,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__page_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -355,8 +355,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__guide_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -370,8 +370,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__poll_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -385,8 +385,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__track_types(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -400,8 +400,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__track_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -415,8 +415,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__metadata_accounts(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -430,8 +430,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__metadata_visitors(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -445,8 +445,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__visitor_history(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -460,8 +460,8 @@ class TestConnectionResetError(unittest.TestCase):
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__visitors(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -471,12 +471,12 @@ class TestConnectionResetError(unittest.TestCase):
         visitors = streams.Visitors({'x_pendo_integration_key': 'test'})
 
         try:
-            visitors.request('visitors')
+            list(visitors.request('visitors'))
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_connection_reset_error__events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -486,12 +486,12 @@ class TestConnectionResetError(unittest.TestCase):
         events = streams.Events({'x_pendo_integration_key': 'test'})
 
         try:
-            events.request('events')
+            list(events.request('events'))
         except ConnectionResetError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
 @mock.patch("time.sleep")
 @mock.patch('requests.Session.send')
@@ -509,8 +509,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__features(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -524,8 +524,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__guides(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -539,8 +539,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__pages(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -554,8 +554,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__feature_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -569,8 +569,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__page_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -584,8 +584,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__guide_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -599,8 +599,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__poll_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -614,8 +614,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__track_types(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -629,8 +629,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__track_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -644,8 +644,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__metadata_accounts(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -659,8 +659,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__metadata_visitors(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -674,8 +674,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__visitor_history(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -689,8 +689,8 @@ class TestProtocolError(unittest.TestCase):
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__visitors(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -700,12 +700,12 @@ class TestProtocolError(unittest.TestCase):
         visitors = streams.Visitors({'x_pendo_integration_key': 'test'})
 
         try:
-            visitors.request('visitors')
+            list(visitors.request('visitors'))
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
     def test_protocol_error__events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -715,12 +715,12 @@ class TestProtocolError(unittest.TestCase):
         events = streams.Events({'x_pendo_integration_key': 'test'})
 
         try:
-            events.request('events')
+            list(events.request('events'))
         except ProtocolError:
             pass
 
-        # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 5)
+        # verify if the request was called 7 times
+        self.assertEquals(mocked_send.call_count, 7)
 
 @mock.patch('requests.Session.send')
 class Positive(unittest.TestCase):
@@ -902,7 +902,7 @@ class Positive(unittest.TestCase):
         # initialize 'visitors' stream class
         visitors = streams.Visitors({'x_pendo_integration_key': 'test'})
 
-        resp = visitors.request('visitors')
+        resp = list(visitors.request('visitors'))
         
         # verify if the desired data was returned from the request
         self.assertEquals(list(resp), [json])

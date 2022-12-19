@@ -19,8 +19,10 @@ class PendoAutomaticFieldsTest(TestPendoBase):
         """
         
         streams_to_test = self.expected_streams()
-        streams_to_test = streams_to_test - {'features', 'guides', 'pages', 'track_types', 'feature_events', 
-                                             'page_events', 'guide_events', 'track_events', 'poll_events', 'events'}
+        streams_to_test = streams_to_test - {
+            'events', 'feature_events', 'guide_events',
+            'page_events', 'poll_events', 'track_events',
+            'visitor_history'}
         conn_id = connections.ensure_connection(self)
 
         found_catalogs = self.run_and_verify_check_mode(conn_id)
