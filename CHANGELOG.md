@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+  * Fixed connection reset and read timeout errors (https://github.com/singer-io/tap-pendo/pull/102)
+  * Implemented new bookmark strategy for child streams to boost the extracation performance
+  * Added custom pagination mechanism to fix out-of-memory issues
+  * Fixed interrupted sync
+
 ## 0.4.3
   * Handle empty `include_anonymous_visitors` properties from config [#111](https://github.com/singer-io/tap-pendo/pull/111)
 
