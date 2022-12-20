@@ -379,7 +379,12 @@ class Stream():
                 # Filtering the visitors based on last updated to improve performance of visitor_history replication
                 if isinstance(parent, Visitors):
                     last_processed = self.get_last_processed(state, sub_stream)
-                    parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'][self.replication_key]) / 1000.0, timezone.utc)
+
+                    # date window after parent last updated will be skipped
+                    if record['metadata']['auto'].get(self.replication_key):
+                        parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'][self.replication_key]) / 1000.0, timezone.utc)
+                    else:
+                        parent_last_updated = now()
 
                 if isinstance(parent, Visitors) and bookmark_dttm > parent_last_updated + timedelta(days=1):
                     LOGGER.info("No new updated records for visitor id: %s", record[parent.key_properties[0]])
