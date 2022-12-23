@@ -383,7 +383,14 @@ class Stream():
                     # date window after parent last updated will be skipped
                     if record['metadata']['auto'].get(self.replication_key):
                         parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'][self.replication_key]) / 1000.0, timezone.utc)
+                    elif record['metadata'].get('pendo', {'donotprocess': False}).get('donotprocess'):
+                        # If any visitor is set the Do Not Process flag then Pendo will stop collecting events
+                        # from that visitor and will stop displaying guides to that visitor
+                        LOGGER.info("Record marked as 'Do Not Process': %s", record[parent.key_properties[0]])
+                        continue
                     else:
+                        # If both conditions are unsatisfied then as fallback we will set last updated
+                        # to latest timestamp and fetch records from recent bookmark
                         parent_last_updated = now()
 
                 if isinstance(parent, Visitors) and bookmark_dttm > parent_last_updated + timedelta(days=1):
