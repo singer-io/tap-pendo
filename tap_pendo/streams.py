@@ -385,8 +385,8 @@ class Stream():
 
                     last_processed = self.get_last_processed(state, sub_stream)
                     # If there is no last_update key then set 'last_updated=now()' and fetch the records from recent bookmark
-                    parent_last_updated = datetime.fromtimestamp(float(
-                        record['metadata']['auto'][self.replication_key]) / 1000.0, timezone.utc) if record['metadata']['auto'].get(self.replication_key) else now()
+                    parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'].get(
+                        self.replication_key, now().timestamp() * 1000)) / 1000.0, timezone.utc)
 
                 if isinstance(parent, Visitors) and bookmark_dttm > parent_last_updated + timedelta(days=1):
                     LOGGER.info("No new updated records for visitor id: %s", record[parent.key_properties[0]])
