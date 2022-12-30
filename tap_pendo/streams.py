@@ -379,7 +379,7 @@ class Stream():
                 if isinstance(parent, Visitors):
                     if record['metadata'].get('pendo', {'donotprocess': False}).get('donotprocess'):
                         # If any visitor is set the Do Not Process flag then Pendo will stop collecting events
-                        # from that visitor and will stop displaying guides to that visitor
+                        # from that visitor and its records will be missing required keys, so we must skip it.
                         LOGGER.info("Record marked as 'Do Not Process': %s", record[parent.key_properties[0]])
                         continue
 
