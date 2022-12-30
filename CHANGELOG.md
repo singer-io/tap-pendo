@@ -1,7 +1,10 @@
 # Changelog
 
+## 0.5.1
+  * Skips visitor_history records for visitors with Do Not Process flag [#115](https://github.com/singer-io/tap-pendo/pull/115)
+
 ## 0.5.0
-  * Fixed connection reset and read timeout errors (https://github.com/singer-io/tap-pendo/pull/102)
+  * Fixed connection reset and read timeout errors [#102](https://github.com/singer-io/tap-pendo/pull/102)
   * Implemented new bookmark strategy for child streams to boost the extracation performance
   * Added custom pagination mechanism to fix out-of-memory issues
   * Fixed interrupted sync
@@ -53,8 +56,8 @@
 
 ## 0.0.11
   * Fix for discovering all custom fields in `visitors` and `accounts` [#27](https://github.com/singer-io/tap-pendo/pull/27)
-  * Add boolean type handling to custom field discovery [#27](https://github.com/singer-io/tap-pendo/pull/27)
-  * When matching custom field types, any unknown type will raise an exception where the error occurred, rather than generating an invalid schema [#27](https://github.com/singer-io/tap-pendo/pull/27)
+  * Add boolean type handling to custom field discovery
+  * When matching custom field types, any unknown type will raise an exception where the error occurred, rather than generating an invalid schema
 
 ## 0.0.10
   * Allow for Discovery to succeed when no custom metadata is found [#22](https://github.com/singer-io/tap-pendo/pull/22)
