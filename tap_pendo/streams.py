@@ -334,7 +334,6 @@ class Stream():
         # On ressuming, once replication of bookmarked parent_id is done, for next parent_id replication should start from original bookmark
         self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=previous_sync_completed_ts, bookmark_key="previous_sync_completed_ts")
 
-
     def sync_substream(self, state, parent, sub_stream, parent_response):
         # If last sync was interrupted, get last processed parent record
         last_processed = self.get_last_processed(state, sub_stream)
@@ -378,8 +377,16 @@ class Stream():
 
                 # Filtering the visitors based on last updated to improve performance of visitor_history replication
                 if isinstance(parent, Visitors):
+                    if record['metadata'].get('pendo', {'donotprocess': False}).get('donotprocess'):
+                        # If any visitor is set the Do Not Process flag then Pendo will stop collecting events
+                        # from that visitor and its records will be missing required keys, so we must skip it.
+                        LOGGER.info("Record marked as 'Do Not Process': %s", record[parent.key_properties[0]])
+                        continue
+
                     last_processed = self.get_last_processed(state, sub_stream)
-                    parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'][self.replication_key]) / 1000.0, timezone.utc)
+                    # If there is no last_update key then set 'last_updated=now()' and fetch the records from recent bookmark
+                    parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'].get(
+                        self.replication_key, now().timestamp() * 1000)) / 1000.0, timezone.utc)
 
                 if isinstance(parent, Visitors) and bookmark_dttm > parent_last_updated + timedelta(days=1):
                     LOGGER.info("No new updated records for visitor id: %s", record[parent.key_properties[0]])
