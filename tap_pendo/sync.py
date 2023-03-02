@@ -48,7 +48,7 @@ def sync_stream(state, start_date, instance):
                 record_timestamp = strptime_to_utc(replication_value)
                 new_bookmark = max(new_bookmark, record_timestamp)
 
-                if record_timestamp > bookmark_dttm:
+                if record_timestamp >= bookmark_dttm:
                     singer.write_record(stream.tap_stream_id, transformed_record)
                     counter.increment()
 

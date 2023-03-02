@@ -8,7 +8,9 @@ import pytz
 
 import tap_tester.connections as connections
 import tap_tester.runner as runner
+
 from tap_tester import menagerie
+from tap_tester.logger import LOGGER
 
 
 class TestPendoBase(unittest.TestCase):
@@ -37,7 +39,7 @@ class TestPendoBase(unittest.TestCase):
         """the expected url route ending"""
         return "platform.pendo"
     
-    def expected_metadata(self):
+    def expected_metadata(self, streams_to_test=[], excluded_streams=[]):
         """The expected streams and metadata about the streams"""
         return {
             "accounts": {
@@ -60,14 +62,11 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'last_updated_at'}
             },
-            # Add back when visitor_history stream causing this test to take
-            # 4+ hours is solved, tracked in this JIRA:
-            # https://stitchdata.atlassian.net/browse/SRCE-4755
-            # "visitor_history": {
-            #     self.PRIMARY_KEYS: {'visitor_id'},
-            #     self.REPLICATION_METHOD: self.INCREMENTAL,
-            #     self.REPLICATION_KEYS: {'modified_ts'}
-            # },
+            "visitor_history": {
+                self.PRIMARY_KEYS: {'visitor_id'},
+                self.REPLICATION_METHOD: self.INCREMENTAL,
+                self.REPLICATION_KEYS: {'modified_ts'}
+            },
             "visitors": {
                 self.PRIMARY_KEYS: {'visitor_id'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
@@ -134,7 +133,7 @@ class TestPendoBase(unittest.TestCase):
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         return_value = {
-            "start_date": "2020-09-10T00:00:00Z",
+            "start_date": "2019-09-10T00:00:00Z",
             "lookback_window": "1",
             "period": "dayRange",
         }
@@ -205,7 +204,7 @@ class TestPendoBase(unittest.TestCase):
         subset = self.expected_streams().issubset(found_catalog_names)
         self.assertTrue(
             subset, msg="Expected check streams are not subset of discovered catalog")
-        print("discovered schemas are OK")
+        LOGGER.info("discovered schemas are OK")
 
         return found_catalogs
     
@@ -230,7 +229,7 @@ class TestPendoBase(unittest.TestCase):
             sum(sync_record_count.values()), 0,
             msg="failed to replicate any data: {}".format(sync_record_count)
         )
-        print("total replicated row count: {}".format(
+        LOGGER.info("total replicated row count: {}".format(
             sum(sync_record_count.values())))
 
         return sync_record_count
@@ -258,7 +257,7 @@ class TestPendoBase(unittest.TestCase):
 
             # Verify all testable streams are selected
             selected = catalog_entry.get('annotated-schema').get('selected')
-            print("Validating selection on {}: {}".format(
+            LOGGER.info("Validating selection on {}: {}".format(
                 cat['stream_name'], selected))
             if cat['stream_name'] not in expected_selected:
                 self.assertFalse(
@@ -270,7 +269,7 @@ class TestPendoBase(unittest.TestCase):
                 # Verify all fields within each selected stream are selected
                 for field, field_props in catalog_entry.get('annotated-schema').get('properties').items():
                     field_selected = field_props.get('selected')
-                    print("\tValidating selection on {}.{}: {}".format(
+                    LOGGER.info("\tValidating selection on {}.{}: {}".format(
                         cat['stream_name'], field, field_selected))
                     self.assertTrue(field_selected, msg="Field not selected.")
             else:
