@@ -140,12 +140,23 @@ class Stream():
     stream = None
     period = None
     request_retry_count = 1
+    last_processed = None
+
     # initialized the endpoint attribute which can be overriden by child streams based on
     # the different parameters used by the stream.
     endpoint = Endpoints("/api/v1/aggregation", "POST")
 
     def __init__(self, config=None):
         self.config = config
+        # Record limit will throttle the number of records getting replicated
+        # This limit will resolve request timeouts and will reduce the peak memory consumption
+        record_limit = str(self.config.get('record_limit', API_RECORD_LIMIT)).strip()
+        try:
+            # Defualt record limit will be set for None and Whitespaces
+            # Whitespaces before and after will be trimmed around valid numeric strings
+            self.record_limit = int(literal_eval(record_limit) if record_limit.strip() else API_RECORD_LIMIT)
+        except (NameError, SyntaxError, ValueError) as e:
+            raise ValueError("Invalid numeric value: " + str(self.config.get('record_limit'))) from e
 
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
@@ -500,9 +511,126 @@ class Stream():
                                            new_bookmark=strftime(final_bookmark),
                                            previous_sync_completed_ts=strftime(final_bookmark))
         update_currently_syncing(state, None)
+    
+    def get_pipeline_key_index(self, body, search_key):
+        for index, param in enumerate(body['request']['pipeline']):
+            if list(param.keys())[0] == search_key:
+                return index
+        raise KeyError(f"{search_key}")
 
+
+    def set_request_body_filters(self, body, start_time, records=None):
+        """Sets the filter parameter in the request body"""
+        # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
+        # so we need to provide record filter to avoid any duplicate replications
+        # Also we are using limit parameter as well which takes first N records for processing, rest records get discarded
+        # Considering this we may need to increase record limit in case record limit has reached in last response
+        
+        limit_index = self.get_pipeline_key_index(body, 'limit')
+        filter_index = self.get_pipeline_key_index(body, 'filter')
+
+        body['request']['pipeline'][limit_index]['limit'] = self.record_limit
+        if isinstance(self, Accounts):
+            replication_key = 'metadata.auto.lastupdated'
+            replication_key_value = records[-1]['metadata']['auto']['lastupdated'] if records and len(records) > 0 else None
+        else:
+            replication_key = humps.camelize(self.replication_key)
+            replication_key_value = records[-1].get(humps.decamelize(self.replication_key)) if records and len(records) > 0 else None
+        
+        body['request']['pipeline'][filter_index]['filter'] = f'{replication_key}>={replication_key_value or start_time}'
+
+        return body
+    
+    def remove_last_timestamp_records(self, records):
+        """Removes the overlapping records with last timestamp value. This avoids possibilty of duplicates"""
+        last_processed = []
+        decamalized_replication_key = humps.decamelize(self.replication_key)
+        
+        if len(records) > 0:
+            if isinstance(self, Accounts):
+                timestamp = records[-1]['metadata']['auto']['lastupdated']
+                while records and timestamp == records[-1]['metadata']['auto']['lastupdated']:
+                    last_processed.append(records.pop())
+            else:
+                timestamp = records[-1].get(decamalized_replication_key)
+                while records and timestamp == records[-1].get(decamalized_replication_key):
+                    last_processed.append(records.pop())
+
+        # This is a corner cases where all records in the set have same timestamp
+        # This can occur if record limit is set very smaller compared to the max record limit
+        # In this case we will try to set record limit to max limit to make it harder to run into this issue
+        # But still can't completely dismiss the minor possibility of this issue occurring
+        if len(records) == 0 or not last_processed:
+            self.record_limit = API_RECORD_LIMIT
+
+        return last_processed
+
+    def get_body(self):
+        return {}
+    
 
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
+        update_currently_syncing(state, self.name)
+
+        if STREAMS.get(SUB_STREAMS.get(self.name)):
+            sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
+        else:
+            sub_stream = None
+
+        # If last processed records exists, then set first to timestamp of first record
+        first = self.last_processed[0][self.replication_key] if self.last_processed else int(start_date.timestamp()) * 1000
+
+        # Setup body for first request
+        body = self.get_body()
+        self.set_request_body_filters(body, first, [])
+
+        stream_records = []
+        is_incomplete_sync = False
+        while True:
+            # Loop breaks when paged response returns lesser records than set record limit
+            records = self.request(self.name, json=body).get('results') or []
+
+            # Set first and filters for next request
+            self.set_request_body_filters(
+                body,
+                first,
+                records)
+
+            if len(records) > 1:
+                removed_records = self.remove_last_timestamp_records(records)
+                stream_records += records
+
+                if self.last_processed == removed_records:
+                    stream_records += removed_records
+                    self.last_processed = None
+                    break
+
+                self.last_processed = removed_records
+
+            elif len(records) <= 1:
+                stream_records += records
+                self.last_processed = None
+                break
+
+            # If record limit set is reached, then return the extracted records
+            # Set the last processed records to ressume the extraction
+            if len(stream_records) >= self.record_limit:
+                is_incomplete_sync = True
+                break
+
+        # These is a corner cases where this limit may get changed so reseeting it before next iteration
+        self.record_limit = int(self.config.get('record_limit', API_RECORD_LIMIT))
+
+        # Sync substream if the current stream has sub-stream and selected in the catalog
+        if stream_records and sub_stream and sub_stream.is_selected():
+            self.sync_substream(state, self, sub_stream, stream_records)
+
+        update_currently_syncing(state, None)
+        return (self.stream, stream_records), is_incomplete_sync
+
+
+        
+    def sync_old(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body())['results'] or []
 
         # Get and intialize sub-stream for the current stream
@@ -524,6 +652,7 @@ class Stream():
         if not lookback_window.isdigit():
             raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
         return int(lookback_window)
+
 
 class LazyAggregationStream(Stream):
     def send_request_get_results(self, req, endpoint, params, count, **kwargs):
@@ -584,7 +713,7 @@ class LazyAggregationStream(Stream):
             # which flush out during sync_substream call above
             stream_response = self.request(self.name, json=self.get_body()) or []
 
-        return (self.stream, stream_response)
+        return (self.stream, stream_response), False
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
@@ -598,15 +727,6 @@ class EventsBase(Stream):
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
         self.last_processed = None
 
-        # Record limit will throttle the number of records getting replicated
-        # This limit will resolve request timeouts and will reduce the peak memory consumption
-        record_limit = str(self.config.get('record_limit', API_RECORD_LIMIT)).strip()
-        try:
-            # Defualt record limit will be set for None and Whitespaces
-            # Whitespaces before and after will be trimmed around valid numeric strings
-            self.record_limit = int(literal_eval(record_limit) if record_limit.strip() else API_RECORD_LIMIT)
-        except (NameError, SyntaxError, ValueError) as e:
-            raise ValueError("Invalid numeric value: " + str(self.config.get('record_limit'))) from e
 
     def get_body(self, key_id, period, first):
         """This method returns generic request body of events steams"""
@@ -626,14 +746,11 @@ class EventsBase(Stream):
                                 "last": "now()"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "sort": [sort]
-                    },
-                    {
+                    }, {
                         "limit": self.record_limit
-                    },
-                    {
+                    }, {
                         "filter": ""
                     }
                 ]
@@ -768,7 +885,13 @@ class Accounts(Stream):
                 "pipeline": [{
                     "source": {
                         "accounts": None
-                    }
+                    }, 
+                }, {
+                    "sort": ["metadata.auto.lastupdated"]
+                }, {
+                    "filter": "metadata.auto.lastupdated>=0"
+                }, {
+                    "limit": self.record_limit
                 }],
                 "requestId": "all-accounts",
                 "sort": ["accountId"]
@@ -806,7 +929,11 @@ class Features(Stream):
                         "features": None
                     }
                 }, {
-                    "sort": ["id"]
+                    "sort": [f"{self.replication_key}"]
+                }, {
+                    "filter": f"{self.replication_key}>=0"
+                }, {
+                    "limit": self.record_limit
                 }],
                 "requestId":
                 "all-features"
@@ -1033,7 +1160,11 @@ class TrackTypes(Stream):
                         "trackTypes": None
                     }
                 }, {
-                    "sort": ["id"]
+                    "sort": [f"{self.replication_key}"]
+                }, {
+                    "filter": f"{self.replication_key}>=0"
+                }, {
+                    "limit": self.record_limit
                 }],
                 "requestId": "all-track-types"
             }
@@ -1058,7 +1189,11 @@ class Guides(Stream):
                         "guides": None
                     }
                 }, {
-                    "sort": ["id"]
+                    "sort": [f"{self.replication_key}"]
+                }, {
+                    "filter": f"{self.replication_key}>=0"
+                }, {
+                    "limit": self.record_limit
                 }],
                 "requestId":
                 "all-guides"
@@ -1084,7 +1219,11 @@ class Pages(Stream):
                         "pages": None
                     }
                 }, {
-                    "sort": ["id"]
+                    "sort": [f"{self.replication_key}"]
+                }, {
+                    "filter": f"{self.replication_key}>=0"
+                }, {
+                    "limit": self.record_limit
                 }],
                 "requestId":
                 "all-pages"
