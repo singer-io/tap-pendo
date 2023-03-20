@@ -790,24 +790,29 @@ class EventsBase(Stream):
             self.set_time_series_first(body, records)
 
             if len(records) > 1:
-                removed_records = self.remove_last_timestamp_records(records)
-
-                if len(records):
+                if len(records) < self.record_limit:
+                    # If response returns less records than record limit means there are no more records to sync
                     events += records
-
-                    if self.last_processed == removed_records:
-                        events += removed_records
-                        self.last_processed = None
-                        break
-
-                    self.last_processed = removed_records
+                    self.last_processed = None
+                    break
                 else:
-                    # This block handles race condition where all records have same replication key value
-                    first = self.last_processed[0][humps.decamelize(
-                        self.replication_key)] if self.last_processed else int(lookback.timestamp()) * 1000
+                    removed_records = self.remove_last_timestamp_records(records)
+                    if len(records):
+                        events += records
 
-                    body = self.get_body(key_id, period, first)
-                    continue
+                        if self.last_processed == removed_records:
+                            events += removed_records
+                            self.last_processed = None
+                            break
+
+                        self.last_processed = removed_records
+                    else:
+                        # This block handles race condition where all records have same replication key value
+                        first = self.last_processed[0][humps.decamelize(
+                            self.replication_key)] if self.last_processed else int(lookback.timestamp()) * 1000
+
+                        body = self.get_body(key_id, period, first)
+                        continue
 
             elif len(records) == 1:
                 events += records
