@@ -443,8 +443,8 @@ class Stream():
                                 # Visitor_history API extracts records per day so we will extract all the records at once
                                 loop_for_records = False
                             else:
-                                stream_events, loop_for_records = sub_stream.sync(state, bookmark_dttm,
-                                                                                  record.get(parent.key_properties[0]))
+                                (_, stream_events), loop_for_records = sub_stream.sync(state, bookmark_dttm,
+                                                                                       record.get(parent.key_properties[0]))
 
                             # Loop over data of sub-stream
                             for event in stream_events:
@@ -518,6 +518,10 @@ class Stream():
                 return index
         raise KeyError(f"{search_key}")
 
+    def get_body(self):
+        """This method will be overriden in the child class"""
+        return None
+
 
     def set_request_body_filters(self, body, start_time, records=None):
         """Sets the filter parameter in the request body"""
@@ -565,8 +569,22 @@ class Stream():
 
         return last_processed
 
-    def get_body(self):
-        return {}
+    def get_first_parameter_value(self, body):
+        return body['request']['pipeline'][0]['source']['timeSeries'].get('first', 0)
+
+    def set_time_series_first(self, body, records, first=None):
+        """Sets the timeSeries 'first' parameter in request body"""
+        if len(records) > 1:
+            # This condition considers that within current time window there could be some more records
+            # So we will set last record timestamp as first of time series
+            # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = records[-1].get(self.replication_key)
+        elif first:
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = self.get_first_parameter_value(body)
+        else:
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = int(datetime.now().timestamp() * 1000)
+
+        return body
     
 
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
@@ -578,14 +596,15 @@ class Stream():
             sub_stream = None
 
         # If last processed records exists, then set first to timestamp of first record
-        first = self.last_processed[0][self.replication_key] if self.last_processed else int(start_date.timestamp()) * 1000
+        first = self.last_processed[0][humps.decamelize(
+            self.replication_key)] if self.last_processed else int(start_date.timestamp()) * 1000
 
         # Setup body for first request
         body = self.get_body()
         self.set_request_body_filters(body, first, [])
 
         stream_records = []
-        is_incomplete_sync = False
+        loop_for_records = False
         while True:
             # Loop breaks when paged response returns lesser records than set record limit
             records = self.request(self.name, json=body).get('results') or []
@@ -615,7 +634,7 @@ class Stream():
             # If record limit set is reached, then return the extracted records
             # Set the last processed records to ressume the extraction
             if len(stream_records) >= self.record_limit:
-                is_incomplete_sync = True
+                loop_for_records = True
                 break
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
@@ -626,25 +645,7 @@ class Stream():
             self.sync_substream(state, self, sub_stream, stream_records)
 
         update_currently_syncing(state, None)
-        return (self.stream, stream_records), is_incomplete_sync
-
-
-        
-    def sync_old(self, state, start_date=None, key_id=None, parent_last_updated=None):
-        stream_response = self.request(self.name, json=self.get_body())['results'] or []
-
-        # Get and intialize sub-stream for the current stream
-        if STREAMS.get(SUB_STREAMS.get(self.name)):
-            sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
-        else:
-            sub_stream = None
-
-        # Sync substream if the current stream has sub-stream and selected in the catalog
-        if stream_response and sub_stream and sub_stream.is_selected():
-            self.sync_substream(state, self, sub_stream, stream_response)
-
-        update_currently_syncing(state, None)
-        return (self.stream, stream_response)
+        return (self.stream, stream_records), loop_for_records
 
     def lookback_window(self):
         # Get lookback window from config and verify value
@@ -749,9 +750,9 @@ class EventsBase(Stream):
                     }, {
                         "sort": [sort]
                     }, {
-                        "limit": self.record_limit
+                        "filter": f"{self.replication_key}>=1"
                     }, {
-                        "filter": ""
+                        "limit": self.record_limit
                     }
                 ]
             }
@@ -759,53 +760,6 @@ class EventsBase(Stream):
 
     def get_first_parameter_value(self, body):
         return body['request']['pipeline'][0]['source']['timeSeries'].get('first', 0)
-
-    def set_time_series_first(self, body, records, first=None):
-        """Sets the timeSeries 'first' parameter in request body"""
-        if len(records) > 1:
-            # This condition considers that within current time window there could be some more records
-            # So we will set last record timestamp as first of time series
-            # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
-            body['request']['pipeline'][0]['source']['timeSeries']['first'] = records[-1].get(self.replication_key)
-        elif first:
-            body['request']['pipeline'][0]['source']['timeSeries']['first'] = self.get_first_parameter_value(body)
-        else:
-            body['request']['pipeline'][0]['source']['timeSeries']['first'] = int(datetime.now().timestamp() * 1000)
-
-        return body
-
-    def set_request_body_filters(self, body, start_time, records=None):
-        """Sets the filter parameter in the request body"""
-        # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
-        # so we need to provide record filter to avoid any duplicate replications
-        # Also we are using limit parameter as well which takes first N records for processing, rest records get discarded
-        # Considering this we may need to increase record limit in case record limit has reached in last response
-        camalized_replication_key = humps.camelize(self.replication_key)
-        body['request']['pipeline'][2]['limit'] = self.record_limit
-        if records and len(records) > 0:
-            # If there are 5 times records of record limits, in that case limit parameter will be increased acordiingly
-            body['request']['pipeline'][3]['filter'] = f'{camalized_replication_key}>={records[-1].get(self.replication_key)}'
-        else:
-            body['request']['pipeline'][3]['filter'] = f'{camalized_replication_key}>={start_time}'
-
-        return body
-
-    def remove_last_timestamp_records(self, records):
-        """Removes the overlapping records with last timestamp value. This avoids possibilty of duplicates"""
-        last_processed = []
-        if len(records) > 0:
-            timestamp = records[-1].get(self.replication_key)
-            while records and timestamp == records[-1].get(self.replication_key):
-                last_processed.append(records.pop())
-
-        # This is a corner cases where all records in the set have same timestamp
-        # This can occur if record limit is set very smaller compared to the max record limit
-        # In this case we will try to set record limit to max limit to make it harder to run into this issue
-        # But still can't completely dismiss the minor possibility of this issue occurring
-        if len(records) == 0 or not last_processed:
-            self.record_limit = API_RECORD_LIMIT
-
-        return last_processed
 
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
@@ -819,10 +773,10 @@ class EventsBase(Stream):
 
         # If last processed records exists, then set first to timestamp of first record
         try:
-            first = self.last_processed[0][self.replication_key] if self.last_processed else int(lookback.timestamp()) * 1000
+            first = self.last_processed[0][humps.decamelize(
+                self.replication_key)] if self.last_processed else int(lookback.timestamp()) * 1000
         except Exception as e:
             LOGGER.info(str(e))
-
 
         # Setup body for first request
         body = self.get_body(key_id, period, first)
@@ -835,38 +789,47 @@ class EventsBase(Stream):
             records = self.request(self.name, json=body).get('results') or []
             self.set_time_series_first(body, records)
 
-            # Set first and filters for next request
-            self.set_request_body_filters(
-                body,
-                self.get_first_parameter_value(body),
-                records)
-
             if len(records) > 1:
                 removed_records = self.remove_last_timestamp_records(records)
-                events += records
 
-                if self.last_processed == removed_records:
-                    events += removed_records
-                    self.last_processed = None
-                    break
+                if len(records):
+                    events += records
 
-                self.last_processed = removed_records
+                    if self.last_processed == removed_records:
+                        events += removed_records
+                        self.last_processed = None
+                        break
+
+                    self.last_processed = removed_records
+                else:
+                    # This block handles race condition where all records have same replication key value
+                    first = self.last_processed[0][humps.decamelize(
+                        self.replication_key)] if self.last_processed else int(lookback.timestamp()) * 1000
+
+                    body = self.get_body(key_id, period, first)
+                    continue
 
             elif len(records) == 1:
                 events += records
                 self.last_processed = None
                 break
 
+            # Set first and filters for next request
+            self.set_request_body_filters(
+                body,
+                self.get_first_parameter_value(body),
+                records)
+
             # If record limit set is reached, then return the extracted records
             # Set the last processed records to ressume the extraction
             if len(events) >= self.record_limit:
-                return events, True
+                return (self.stream, events), True
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
         self.record_limit = int(self.config.get('record_limit', API_RECORD_LIMIT))
 
         update_currently_syncing(state, None)
-        return events, False
+        return (self.stream, events), False
 
 
 class Accounts(Stream):
@@ -889,7 +852,7 @@ class Accounts(Stream):
                 }, {
                     "sort": ["metadata.auto.lastupdated"]
                 }, {
-                    "filter": "metadata.auto.lastupdated>=0"
+                    "filter": "metadata.auto.lastupdated>=1"
                 }, {
                     "limit": self.record_limit
                 }],
@@ -931,7 +894,7 @@ class Features(Stream):
                 }, {
                     "sort": [f"{self.replication_key}"]
                 }, {
-                    "filter": f"{self.replication_key}>=0"
+                    "filter": f"{self.replication_key}>=1"
                 }, {
                     "limit": self.record_limit
                 }],
@@ -952,7 +915,7 @@ class FeatureEvents(EventsBase):
         return body
 
 
-class Events(LazyAggregationStream):
+class Events(EventsBase):
     name = "events"
     DATE_WINDOW_SIZE = 1
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
@@ -963,23 +926,6 @@ class Events(LazyAggregationStream):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
-
-    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
-        update_currently_syncing(state, self.name)
-
-        bookmark_date = self.get_bookmark(state, self.name,
-                                          self.config.get('start_date'),
-                                          self.replication_key)
-        bookmark_dttm = strptime_to_utc(bookmark_date)
-
-        # Set lookback window
-        lookback = bookmark_dttm - timedelta(
-            days=self.lookback_window())
-
-        # get events data
-        events = self.get_events(lookback, state, bookmark_dttm)
-        update_currently_syncing(state, None)
-        return (self.stream, events)
 
     def get_events(self, window_start_date, state, bookmark_dttm):
         # initialize start date as max bookmark
@@ -1043,28 +989,14 @@ class Events(LazyAggregationStream):
     def transform(self, record):
         return humps.decamelize(record)
 
-    def get_body(self, period, first, end):
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "events": None,
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": end
-                        }
-                    }
-                }, {
-                    "sort": [self.replication_key]
-                }]
-            }
-        }
+    def get_body(self, key_id, period, first):
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"events": None})
+        return body
 
-class PollEvents(Stream):
+
+
+class PollEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "poll_events"
     key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
@@ -1075,47 +1007,11 @@ class PollEvents(Stream):
         self.period = config.get('period')
         self.replication_key = 'browser_time'
 
-    def get_body(self, period, first):
-        sort = humps.camelize(self.replication_key)
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "pollEvents": None,
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
-                        }
-                    }
-                }, {
-                    "sort": [sort]
-                }]
-            }
-        }
+    def get_body(self, key_id, period, first):
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"pollEvents": None})
+        return body
 
-    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
-        update_currently_syncing(state, self.name)
-
-        # Get bookmark from state or start date for the stream
-        bookmark_date = self.get_bookmark(state, self.name,
-                                          self.config.get('start_date'),
-                                          self.replication_key)
-        bookmark_dttm = strptime_to_utc(bookmark_date)
-
-        # Set lookback window
-        lookback = bookmark_dttm - timedelta(
-            days=self.lookback_window())
-        ts = int(lookback.timestamp()) * 1000
-
-        # Get period type from config and make request for event's data
-        period = self.config.get('period')
-        body = self.get_body(period, ts)
-        events = self.request(self.name, json=body).get('results') or []
-        return self.stream, events
 
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
@@ -1162,7 +1058,7 @@ class TrackTypes(Stream):
                 }, {
                     "sort": [f"{self.replication_key}"]
                 }, {
-                    "filter": f"{self.replication_key}>=0"
+                    "filter": f"{self.replication_key}>=1"
                 }, {
                     "limit": self.record_limit
                 }],
@@ -1191,7 +1087,7 @@ class Guides(Stream):
                 }, {
                     "sort": [f"{self.replication_key}"]
                 }, {
-                    "filter": f"{self.replication_key}>=0"
+                    "filter": f"{self.replication_key}>=1"
                 }, {
                     "limit": self.record_limit
                 }],
@@ -1221,7 +1117,7 @@ class Pages(Stream):
                 }, {
                     "sort": [f"{self.replication_key}"]
                 }, {
-                    "filter": f"{self.replication_key}>=0"
+                    "filter": f"{self.replication_key}>=1"
                 }, {
                     "limit": self.record_limit
                 }],

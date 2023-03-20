@@ -22,10 +22,10 @@ def sync_stream(state, start_date, instance):
     with metrics.record_counter(stream.tap_stream_id) as counter, Transformer(
             integer_datetime_fmt="unix-milliseconds-integer-datetime-parsing"
     ) as transformer:
-        incomplete_sync = True
-        while incomplete_sync:
+        loop_for_records = True
+        while loop_for_records:
             # Get records for the stream
-            (stream, records), incomplete_sync = instance.sync(state, new_bookmark)
+            (stream, records), loop_for_records = instance.sync(state, new_bookmark)
             for record in records:
                 schema_dict = stream.schema.to_dict()
                 stream_metadata = metadata.to_map(stream.metadata)
