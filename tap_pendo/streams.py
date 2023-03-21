@@ -148,13 +148,16 @@ class Stream():
 
     def __init__(self, config=None):
         self.config = config
+        self.record_limit = self.get_default_record_limit()
+
+    def get_default_record_limit(self):
         # Record limit will throttle the number of records getting replicated
         # This limit will resolve request timeouts and will reduce the peak memory consumption
         record_limit = str(self.config.get('record_limit', API_RECORD_LIMIT)).strip()
         try:
             # Defualt record limit will be set for None and Whitespaces
             # Whitespaces before and after will be trimmed around valid numeric strings
-            self.record_limit = int(literal_eval(record_limit) if record_limit.strip() else API_RECORD_LIMIT)
+            return int(literal_eval(record_limit) if record_limit.strip() else API_RECORD_LIMIT)
         except (NameError, SyntaxError, ValueError) as e:
             raise ValueError("Invalid numeric value: " + str(self.config.get('record_limit'))) from e
 
@@ -525,8 +528,8 @@ class Stream():
 
     def set_request_body_filters(self, body, start_time, records=None):
         """Sets the filter parameter in the request body"""
-        # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
-        # so we need to provide record filter to avoid any duplicate replications
+        # Note: even after we set filter value as first, while processing it will be set to the nearest day/hour range slot
+        # so we need to provide record filter to avoid any duplicate record
         # Also we are using limit parameter as well which takes first N records for processing, rest records get discarded
         # Considering this we may need to increase record limit in case record limit has reached in last response
         
@@ -638,7 +641,7 @@ class Stream():
                 break
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
-        self.record_limit = int(self.config.get('record_limit', API_RECORD_LIMIT))
+        self.record_limit = self.get_default_record_limit()
 
         # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_records and sub_stream and sub_stream.is_selected():
@@ -732,7 +735,7 @@ class EventsBase(Stream):
     def get_body(self, key_id, period, first):
         """This method returns generic request body of events steams"""
 
-        sort = humps.camelize(self.replication_key)
+        sort_key = humps.camelize(self.replication_key)
         return {
             "response": {
                 "mimeType": "application/json"
@@ -748,9 +751,9 @@ class EventsBase(Stream):
                             }
                         }
                     }, {
-                        "sort": [sort]
+                        "sort": [sort_key]
                     }, {
-                        "filter": f"{self.replication_key}>=1"
+                        "filter": f"{sort_key}>=1"
                     }, {
                         "limit": self.record_limit
                     }
@@ -831,7 +834,7 @@ class EventsBase(Stream):
                 return (self.stream, events), True
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
-        self.record_limit = int(self.config.get('record_limit', API_RECORD_LIMIT))
+        self.record_limit = self.get_default_record_limit()
 
         update_currently_syncing(state, None)
         return (self.stream, events), False
@@ -853,7 +856,7 @@ class Accounts(Stream):
                 "pipeline": [{
                     "source": {
                         "accounts": None
-                    }, 
+                    },
                 }, {
                     "sort": ["metadata.auto.lastupdated"]
                 }, {
