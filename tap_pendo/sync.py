@@ -39,7 +39,7 @@ def sync_stream(state, start_date, instance):
                 except Exception as err:
                     LOGGER.error('Error: %s', err)
                     LOGGER.error(' for schema: %s',
-                                json.dumps(schema_dict, sort_keys=True, indent=2))
+                                 json.dumps(schema_dict, sort_keys=True, indent=2))
                     LOGGER.error('Transform failed for %s', record)
                     raise err
 
@@ -61,7 +61,7 @@ def sync_stream(state, start_date, instance):
 
             # Update bookmark and write state for the stream with new_bookmark
             instance.update_bookmark(state, instance.name, strftime(new_bookmark),
-                                    instance.replication_key)
+                                     instance.replication_key)
             singer.write_state(state)
 
         return counter.value

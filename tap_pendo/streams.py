@@ -1,4 +1,4 @@
-# pylint: disable=E1101,R0201,W0613
+# pylint: disable=E1101,R0201,R0904,W0222,W0613
 
 #!/usr/bin/env python3
 import json
@@ -293,7 +293,7 @@ class Stream():
     def load_schema(self):
         refs = self.load_shared_schema_refs() # Load references scheamas
 
-        schema_file = "schemas/{}.json".format(self.name)
+        schema_file = f"schemas/{self.name}.json"
         with open(get_abs_path(schema_file)) as f:
             schema = json.load(f)
         self.resolve_schema_references(schema, "$ref", refs)
@@ -514,17 +514,16 @@ class Stream():
                                            new_bookmark=strftime(final_bookmark),
                                            previous_sync_completed_ts=strftime(final_bookmark))
         update_currently_syncing(state, None)
-    
+
     def get_pipeline_key_index(self, body, search_key):
         for index, param in enumerate(body['request']['pipeline']):
             if list(param.keys())[0] == search_key:
                 return index
         raise KeyError(f"{search_key}")
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         """This method will be overriden in the child class"""
-        return None
-
+        return {}
 
     def set_request_body_filters(self, body, start_time, records=None):
         """Sets the filter parameter in the request body"""
@@ -532,7 +531,7 @@ class Stream():
         # so we need to provide record filter to avoid any duplicate record
         # Also we are using limit parameter as well which takes first N records for processing, rest records get discarded
         # Considering this we may need to increase record limit in case record limit has reached in last response
-        
+
         limit_index = self.get_pipeline_key_index(body, 'limit')
         filter_index = self.get_pipeline_key_index(body, 'filter')
 
@@ -543,16 +542,16 @@ class Stream():
         else:
             replication_key = humps.camelize(self.replication_key)
             replication_key_value = records[-1].get(humps.decamelize(self.replication_key)) if records and len(records) > 0 else None
-        
+
         body['request']['pipeline'][filter_index]['filter'] = f'{replication_key}>={replication_key_value or start_time}'
 
         return body
-    
+
     def remove_last_timestamp_records(self, records):
         """Removes the overlapping records with last timestamp value. This avoids possibilty of duplicates"""
         last_processed = []
         decamalized_replication_key = humps.decamelize(self.replication_key)
-        
+
         if len(records) > 0:
             if isinstance(self, Accounts):
                 timestamp = records[-1]['metadata']['auto']['lastupdated']
@@ -588,7 +587,6 @@ class Stream():
             body['request']['pipeline'][0]['source']['timeSeries']['first'] = int(datetime.now().timestamp() * 1000)
 
         return body
-    
 
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
@@ -654,7 +652,7 @@ class Stream():
         # Get lookback window from config and verify value
         lookback_window = self.config.get('lookback_window') or '0'
         if not lookback_window.isdigit():
-            raise TypeError("lookback_window '{}' is not numeric. Check your configuration".format(lookback_window))
+            raise TypeError(f"lookback_window '{lookback_window}' is not numeric. Check your configuration")
         return int(lookback_window)
 
 
@@ -798,24 +796,24 @@ class EventsBase(Stream):
                     events += records
                     self.last_processed = None
                     break
+
+                removed_records = self.remove_last_timestamp_records(records)
+                if len(records) > 0:
+                    events += records
+
+                    if self.last_processed == removed_records:
+                        events += removed_records
+                        self.last_processed = None
+                        break
+
+                    self.last_processed = removed_records
                 else:
-                    removed_records = self.remove_last_timestamp_records(records)
-                    if len(records):
-                        events += records
+                    # This block handles race condition where all records have same replication key value
+                    first = self.last_processed[0][humps.decamelize(
+                        self.replication_key)] if self.last_processed else int(lookback.timestamp()) * 1000
 
-                        if self.last_processed == removed_records:
-                            events += removed_records
-                            self.last_processed = None
-                            break
-
-                        self.last_processed = removed_records
-                    else:
-                        # This block handles race condition where all records have same replication key value
-                        first = self.last_processed[0][humps.decamelize(
-                            self.replication_key)] if self.last_processed else int(lookback.timestamp()) * 1000
-
-                        body = self.get_body(key_id, period, first)
-                        continue
+                    body = self.get_body(key_id, period, first)
+                    continue
 
             elif len(records) == 1:
                 events += records
@@ -846,7 +844,7 @@ class Accounts(Stream):
     replication_key = "lastupdated"
     key_properties = ["account_id"]
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -887,7 +885,7 @@ class Features(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -1052,7 +1050,7 @@ class TrackTypes(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -1080,7 +1078,7 @@ class Guides(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -1110,7 +1108,7 @@ class Pages(Stream):
     replication_method = "INCREMENTAL"
     replication_key = "lastUpdatedAt"
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         return {
             "response": {
                 "mimeType": "application/json"
@@ -1226,7 +1224,7 @@ class Visitors(LazyAggregationStream):
     replication_key = "lastupdated"
     key_properties = ["visitor_id"]
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         include_anonymous_visitors = self.config.get('include_anonymous_visitors') or DEFAULT_INCLUDE_ANONYMOUS_VISITORS
         anons = str(include_anonymous_visitors).lower() == 'true'
         return {
@@ -1270,7 +1268,7 @@ class MetadataAccounts(Stream):
     # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/account", "GET")
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         return None
 
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
@@ -1300,7 +1298,7 @@ class MetadataVisitors(Stream):
     # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
-    def get_body(self):
+    def get_body(self, key_id=None, period=None, first=None):
         return None
 
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
