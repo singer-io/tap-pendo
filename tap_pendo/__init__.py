@@ -152,31 +152,34 @@ def sync(config, state, catalog):
     LOGGER.info("Finished sync")
 
 # To check that given number is numeric or not
-def isInteger(n):
-    try:
-        int(n)
-        return False
-    except Exception:
-        return True
+def filter_app_ids(config):
+    # reason to use expandAppIds
+    # https://support.pendo.io/hc/en-us/community/posts/360078029732-How-to-retrieve-all-application-data-using-Pendo-API-through-Python
+    app_ids = config.get("app_ids", "expandAppIds(\"*\")").replace(" ", "") or "expandAppIds(\"*\")"
+    invalid_app_ids = []
+    if app_ids != "expandAppIds(\"*\")":
+        app_ids = app_ids.split(",")
+        for app_id in app_ids:
+            try:
+                int(app_id)
+            except ValueError:
+                invalid_app_ids.append(app_id)
+                break
+        if invalid_app_ids:
+            raise Exception(f"Invalid appIDs provided during the configuration:{invalid_app_ids}")
+        config["app_ids"] = app_ids
+    else:
+        config["app_ids"] = "expandAppIds(\"*\")"
+    return config
+
+
 
 @utils.handle_top_exception(LOGGER)
 def main():
 
     # Parse command line arguments
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
-
-    # If app_ids is not in configure file then get all apps data
-    app_ids = args.config.get("app_ids", "expandAppIds(\"*\")").replace(" ", "") or "expandAppIds(\"*\")"
-    # If app_ids is given in configure file then check all app_ids are numeric or not
-    invalid_app_ids = []
-    if app_ids != "expandAppIds(\"*\")":
-        app_ids = app_ids.split(",")
-        invalid_app_ids = list(filter(isInteger, app_ids))
-
-    # If non numeric app_ids are given in configure file then raise exception
-    if len(invalid_app_ids) > 0:
-        raise Exception('Invalid appIDs provided during the configuration:{}'.format(invalid_app_ids)) from None
-    args.config["app_ids"] = app_ids
+    args.config = filter_app_ids(args.config)
 
     if args.discover:
         do_discover(args.config)

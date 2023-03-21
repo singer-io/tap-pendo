@@ -246,7 +246,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
    - `lookback_window` (integer): 10 (For event objects. Default: 0)
    - `request_timeout` (integer): 300 (For passing timeout to the request. Default: 300)
-   - `app_ids` (string, `abcd123, Abcd567`): (comma seperated appIDs. If this parameter is not provided, then the data will be collected from all the apps.)
+   - `app_ids` (string, `8877665523, 1234545`): (comma seperated appIDs. If this parameter is not provided, then the data will be collected from all the apps.)
 
    ```json
    {
@@ -256,7 +256,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
      "lookback_window": 10,
      "request_timeout": 300,
      "include_anonymous_visitors": "true",
-     "app_ids": "abcd123, Abcd567"
+     "app_ids": "1234545, 8877665523"
    }
    ```
 
