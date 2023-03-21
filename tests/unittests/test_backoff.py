@@ -951,4 +951,4 @@ class Positive(unittest.TestCase):
         resp = events.request('events')
         
         # verify if the desired data was returned from the request
-        self.assertEquals(list(resp), [json])
+        self.assertEquals(resp, json)
