@@ -519,7 +519,7 @@ class Stream():
         for index, param in enumerate(body['request']['pipeline']):
             if list(param.keys())[0] == search_key:
                 return index
-        raise KeyError(f"{search_key}")
+        return None
 
     def get_body(self, key_id=None, period=None, first=None):
         """This method will be overriden in the child class"""
@@ -543,7 +543,9 @@ class Stream():
             replication_key = humps.camelize(self.replication_key)
             replication_key_value = records[-1].get(humps.decamelize(self.replication_key)) if records and len(records) > 0 else None
 
-        body['request']['pipeline'][filter_index]['filter'] = f'{replication_key}>={replication_key_value or start_time}'
+        # non-event based streams don't have filter parameter applied
+        if filter_index:
+            body['request']['pipeline'][filter_index]['filter'] = f'{replication_key}>={replication_key_value or start_time}'
 
         return body
 
@@ -617,6 +619,12 @@ class Stream():
                 records)
 
             if len(records) > 1:
+                # Previously removed records get duplicated in subsequent api response which needs to be removed
+                if self.last_processed:
+                    decamelized_replication_key = humps.decamelize(self.replication_key)
+                    records = [record for record in records if record.get(
+                        decamelized_replication_key) >= self.last_processed[0].get(decamelized_replication_key)]
+
                 removed_records = self.remove_last_timestamp_records(records)
                 stream_records += records
 
@@ -900,8 +908,6 @@ class Features(Stream):
                 }, {
                     "sort": [f"{self.replication_key}"]
                 }, {
-                    "filter": f"{self.replication_key}>=1"
-                }, {
                     "limit": self.record_limit
                 }],
                 "requestId":
@@ -1064,8 +1070,6 @@ class TrackTypes(Stream):
                 }, {
                     "sort": [f"{self.replication_key}"]
                 }, {
-                    "filter": f"{self.replication_key}>=1"
-                }, {
                     "limit": self.record_limit
                 }],
                 "requestId": "all-track-types"
@@ -1092,8 +1096,6 @@ class Guides(Stream):
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
-                }, {
-                    "filter": f"{self.replication_key}>=1"
                 }, {
                     "limit": self.record_limit
                 }],
@@ -1122,8 +1124,6 @@ class Pages(Stream):
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
-                }, {
-                    "filter": f"{self.replication_key}>=1"
                 }, {
                     "limit": self.record_limit
                 }],

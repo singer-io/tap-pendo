@@ -34,7 +34,7 @@ class TestPendoParentStreams(unittest.TestCase):
                 test_records.append({"id": 10000, replication_key: offset+num_records})
 
         return test_records
-    
+
     @parameterized.expand(
         [(Accounts, "accounts", None, "metadata.auto.lastupdated", None),
         (Features, "features", None, "lastUpdatedAt", None),
@@ -54,7 +54,7 @@ class TestPendoParentStreams(unittest.TestCase):
         sort_index = stream_obj.get_pipeline_key_index(body, "sort")
         filter_index = stream_obj.get_pipeline_key_index(body, "filter")
         limit_index = stream_obj.get_pipeline_key_index(body, "limit")
-        
+
         self.assertIn(exp_event_type, body["request"]["pipeline"][0]["source"])
 
         if kwargs:
@@ -62,8 +62,10 @@ class TestPendoParentStreams(unittest.TestCase):
 
         self.assertEqual(body["request"]["pipeline"][0]["source"][exp_event_type], exp_event_type_value)
         self.assertEqual(body["request"]["pipeline"][sort_index]["sort"], [humps.camelize(exp_filter_key)])
-        self.assertEqual(body["request"]["pipeline"][filter_index]["filter"], f"{humps.camelize(exp_filter_key)}>=1")
         self.assertEqual(body["request"]["pipeline"][limit_index]["limit"], stream_obj.record_limit)
+
+        if filter_index:
+            self.assertEqual(body["request"]["pipeline"][filter_index]["filter"], f"{humps.camelize(exp_filter_key)}>=1")
 
     @parameterized.expand(
         [(Accounts, "metadata.auto.lastupdated", None),
@@ -90,11 +92,12 @@ class TestPendoParentStreams(unittest.TestCase):
             replication_key_value = test_records[-1]["metadata"]["auto"]["lastupdated"]
         else:
             replication_key_value = test_records[-1][decamelized_replication_key]
-            
-        self.assertEqual(body["request"]["pipeline"][filter_index]["filter"],
-                        f"{camelized_replication_key}>={replication_key_value}")
 
-    
+        if filter_index:
+            self.assertEqual(body["request"]["pipeline"][filter_index]["filter"],
+                            f"{camelized_replication_key}>={replication_key_value}")
+
+
     @parameterized.expand(
         [(Accounts,),
         (Features,),
@@ -106,7 +109,7 @@ class TestPendoParentStreams(unittest.TestCase):
         """ Verify response records are manipulated/removed as expected """
         stream_obj = stream_class(default_config)
         record_limit = stream_obj.record_limit  # original record limit value
- 
+
         # Verify if records have distinct replication key value then only one record is removed
         test_records = self.generate_records(stream_obj, 10)
         self.assertEqual(len(stream_obj.remove_last_timestamp_records(test_records)), 1)
