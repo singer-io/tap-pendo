@@ -568,7 +568,7 @@ class LazyAggregationStream(Stream):
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'remote_ip']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -797,7 +797,7 @@ class Features(Stream):
 class FeatureEvents(EventsBase):
     name = "feature_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['feature_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
+    key_properties = ['feature_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent']
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -812,7 +812,7 @@ class FeatureEvents(EventsBase):
 class Events(LazyAggregationStream):
     name = "events"
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
+    key_properties = ['visitor_id', 'account_id', 'remote_ip', 'user_agent']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -978,7 +978,7 @@ class PollEvents(Stream):
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "track_events"
-    key_properties = ['track_type_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent']
+    key_properties = ['track_type_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent']
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -992,7 +992,7 @@ class TrackEvents(EventsBase):
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "guide_events"
-    key_properties = ['guide_id', 'guide_step_id', 'visitor_id', 'type', 'account_id', 'browser_time', 'server_name', 'url']
+    key_properties = ['guide_id', 'guide_step_id', 'visitor_id', 'type', 'account_id', 'browser_time', 'url']
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -1083,7 +1083,7 @@ class Pages(Stream):
 class PageEvents(EventsBase):
     name = "page_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['page_id', 'visitor_id', 'account_id', 'server', 'remote_ip', 'user_agent', '_sdc_parameters_hash']
+    key_properties = ['page_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent', '_sdc_parameters_hash']
 
     def __init__(self, config):
         super().__init__(config=config)
