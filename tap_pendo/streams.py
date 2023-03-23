@@ -1,17 +1,18 @@
 # pylint: disable=E1101,R0201,W0613
 
 #!/usr/bin/env python3
-import itertools
 import json
 import os
 import time
 from datetime import datetime, timedelta, timezone
+from ast import literal_eval
 
 import backoff
 import humps
 import ijson
 import requests
 import singer
+from urllib3.exceptions import ReadTimeoutError
 import singer.metrics as metrics
 from requests.exceptions import HTTPError
 from requests.models import ProtocolError
@@ -19,13 +20,25 @@ from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
+
 KEY_PROPERTIES = ['id']
-BASE_URL = "https://app.pendo.io"
+US_BASE_URL = "https://app.pendo.io"
+EU_BASE_URL = "https://app.eu.pendo.io"
+API_RECORD_LIMIT = 100_000
 
 LOGGER = singer.get_logger()
 session = requests.Session()
 # timeout request after 300 seconds
 REQUEST_TIMEOUT = 300
+DEFAULT_INCLUDE_ANONYMOUS_VISITORS = 'false'
+
+BACKOFF_FACTOR = 30
+
+def to_giveup(error):
+    """
+        Boolean function to return if we want to give up retrying based on error response
+    """
+    return error.response is not None and 400 <= error.response.status_code < 500
 
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
@@ -75,7 +88,6 @@ def update_currently_syncing(state, stream_name):
     singer.write_state(state)
 
 
-
 class Server42xRateLimitError(Exception):
     pass
 
@@ -92,11 +104,16 @@ class Endpoints():
         self.headers = headers
         self.params = params
 
-    def get_url(self, **kwargs):
+    def get_url(self, integration_key, **kwargs):
         """
         Concatenate  and format the dynamic values to the BASE_URL
         """
-        return BASE_URL + self.endpoint.format(**kwargs)
+        # Update url if integration_key ends with `.eu`.
+        if integration_key[-3:] == ".eu":
+            return EU_BASE_URL + self.endpoint.format(**kwargs)
+        else:
+            return US_BASE_URL + self.endpoint.format(**kwargs)
+
 
 
 class Stream():
@@ -116,7 +133,7 @@ class Stream():
     def __init__(self, config=None):
         self.config = config
 
-    def send_request_get_results(self, req):
+    def send_request_get_results(self, req, endpoint, params, count, **kwargs):
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
@@ -139,15 +156,16 @@ class Stream():
     # backoff for Timeout error is already included in "requests.exceptions.RequestException"
     # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
-                          max_tries=5,
+                          max_tries=7,
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
-                          factor=2)
-    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError), # backoff error
-                          max_tries=5,
+                          factor=BACKOFF_FACTOR,
+                          jitter=None)
+    @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError, ReadTimeoutError), # backoff error
+                          max_tries=7,
                           factor=2)
     @tap_pendo_utils.ratelimit(1, 2)
-    def request(self, endpoint, params=None, **kwargs):
+    def request(self, endpoint, params=None, count=1, **kwargs):
         # Set requests headers, url, methods, params and extra provided arguments
         # params = params or {}
         headers = {
@@ -156,7 +174,7 @@ class Stream():
         }
 
         request_kwargs = {
-            'url': self.endpoint.get_url(**kwargs),
+            'url': self.endpoint.get_url(self.config['x_pendo_integration_key'], **kwargs),
             'method': self.endpoint.method,
             'headers': headers,
             'params': params
@@ -177,7 +195,7 @@ class Stream():
         LOGGER.info("%s %s %s", request_kwargs['method'],
                     request_kwargs['url'], request_kwargs['params'])
 
-        return self.send_request_get_results(req)
+        return self.send_request_get_results(req, endpoint, params, count, **kwargs)
 
     def get_bookmark(self, state, stream, default, key=None):
         # Return default value if no bookmark present in state for provided stream
@@ -297,97 +315,163 @@ class Stream():
     def transform(self, record):
         return humps.decamelize(record)
 
+    def get_last_processed(self, state, sub_stream):
+        return self.get_bookmark(state,
+                                 sub_stream.name,
+                                 None,
+                                 key="last_processed")
+
+    def update_child_stream_bookmarks(self, state, sub_stream, last_processed_value, new_bookmark, previous_sync_completed_ts):
+        """Updates the bookmark keys for the child streams"""
+
+        # Last processed is none when all events/history of all parents is processed
+        if last_processed_value:
+            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=last_processed_value, bookmark_key="last_processed")
+
+        # This bookmark handles the intermmediate bookmarking of child streams
+        self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=new_bookmark, bookmark_key=sub_stream.replication_key)
+
+        # On ressuming, once replication of bookmarked parent_id is done, for next parent_id replication should start from original bookmark
+        self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=previous_sync_completed_ts, bookmark_key="previous_sync_completed_ts")
+
     def sync_substream(self, state, parent, sub_stream, parent_response):
-        # Get bookmark from state or start date for the stream
-        bookmark_date = self.get_bookmark(state, sub_stream.name,
-                                          self.config.get('start_date'),
-                                          sub_stream.replication_key)
         # If last sync was interrupted, get last processed parent record
-        last_processed = self.get_bookmark(state,
-                                           sub_stream.name,
-                                           None,
-                                           key="last_processed")
-        bookmark_dttm = strptime_to_utc(bookmark_date)
-        new_bookmark = bookmark_dttm
+        last_processed = self.get_last_processed(state, sub_stream)
+
+        # If last replication was interrupted, interrupted parent_id replication resumes from this bookmark
+        last_replication_date = self.get_bookmark(state,
+                                                  sub_stream.name,
+                                                  self.config.get('start_date'),
+                                                  key=sub_stream.replication_key)
+
+        # If last replication was interrupted, next parent_id replication resumes from this bookmark
+        previous_sync_completed_ts = self.get_bookmark(state,
+                                                       sub_stream.name,
+                                                       None,
+                                                       key="previous_sync_completed_ts")
+        previous_sync_completed_ts = previous_sync_completed_ts if previous_sync_completed_ts else last_replication_date
+
+        # Set latest value of this bookmark on successful replication of stream
+        final_bookmark = strptime_to_utc(previous_sync_completed_ts)
 
         singer.write_schema(sub_stream.name,
                             sub_stream.stream.schema.to_dict(),
                             sub_stream.key_properties)
 
-        # Slice response for >= last processed
-        if last_processed:
-            i = 0
-            for response in parent_response:
-                if response.get(parent.key_properties[0]) == last_processed:
-                    LOGGER.info("Resuming %s sync with %s", sub_stream.name, response.get(parent.key_properties[0]))
-                    if isinstance(parent_response, list):
-                        parent_response = parent_response[i:]
-                    else:
-                        parent_response = itertools.chain([response], parent_response)
-                    break
-                i += 1
-
         # Loop over records of parent stream
         for record in parent_response:
             try:
-                # Initialize counter and transformer with specific datetime format
-                with metrics.record_counter(
-                        sub_stream.name) as counter, Transformer(
-                            integer_datetime_fmt=
-                            "unix-milliseconds-integer-datetime-parsing"
-                        ) as transformer:
-                    # syncing child streams from start date or state file date
-                    stream_events = sub_stream.sync(state, bookmark_dttm,
-                                                    record.get(parent.key_properties[0]))
-                    # Loop over data of sub-stream
-                    for event in stream_events:
-                        counter.increment()
+                if last_processed and record.get(parent.key_properties[0]) < last_processed:
+                    # Skipping last synced parent ids
+                    continue
 
-                        # Get metadata for the stream to use in transform
-                        schema_dict = sub_stream.stream.schema.to_dict()
-                        stream_metadata = metadata.to_map(
-                            sub_stream.stream.metadata)
+                if record.get(parent.key_properties[0]) == last_processed:
+                    # Set bookmark to ressume last processed parent id replication
+                    bookmark_dttm = strptime_to_utc(last_replication_date)
+                else:
+                    # Reset bookmark of next parent id to original bookmark
+                    bookmark_dttm = strptime_to_utc(previous_sync_completed_ts)
 
-                        transformed_event = sub_stream.transform(event)
+                # It will be used while setting up
+                new_bookmark = bookmark_dttm
 
-                        # Transform record as per field selection in metadata
-                        try:
-                            transformed_record = transformer.transform(
-                                transformed_event, schema_dict,
-                                stream_metadata)
-                        except Exception as err:
-                            LOGGER.error('Error: %s', err)
-                            LOGGER.error(
-                                ' for schema: %s',
-                                json.dumps(schema_dict,
-                                           sort_keys=True,
-                                           indent=2))
-                            raise err
+                # Filtering the visitors based on last updated to improve performance of visitor_history replication
+                if isinstance(parent, Visitors):
+                    if record['metadata'].get('pendo', {'donotprocess': False}).get('donotprocess'):
+                        # If any visitor is set the Do Not Process flag then Pendo will stop collecting events
+                        # from that visitor and its records will be missing required keys, so we must skip it.
+                        LOGGER.info("Record marked as 'Do Not Process': %s", record[parent.key_properties[0]])
+                        continue
 
-                        # Check for replication_value from record and if value found then use it for updating bookmark
-                        replication_value = transformed_record.get(sub_stream.replication_key)
-                        if replication_value:
-                            event_time = strptime_to_utc(replication_value)
-                            new_bookmark = max(new_bookmark, event_time)
+                    last_processed = self.get_last_processed(state, sub_stream)
+                    # If there is no last_update key then set 'last_updated=now()' and fetch the records from recent bookmark
+                    parent_last_updated = datetime.fromtimestamp(float(record['metadata']['auto'].get(
+                        self.replication_key, now().timestamp() * 1000)) / 1000.0, timezone.utc)
 
-                        singer.write_record(sub_stream.stream.tap_stream_id,
-                                            transformed_record)
+                if isinstance(parent, Visitors) and bookmark_dttm > parent_last_updated + timedelta(days=1):
+                    LOGGER.info("No new updated records for visitor id: %s", record[parent.key_properties[0]])
+                else:
+                    # Initialize counter and transformer with specific datetime format
+                    with metrics.record_counter(
+                            sub_stream.name) as counter, Transformer(
+                                integer_datetime_fmt=
+                                "unix-milliseconds-integer-datetime-parsing"
+                            ) as transformer:
+
+                        # During historical syncs, child streams may have large amount of records which may lead to OOM issues
+                        # To avoid that we will spit-out records in batches into the target
+                        loop_for_records = True
+                        while loop_for_records:
+                            # syncing child streams from start date or state file date
+                            if isinstance(parent, Visitors):
+                                stream_events = sub_stream.sync(state, bookmark_dttm,
+                                                                record.get(parent.key_properties[0]),
+                                                                parent_last_updated)
+                                # Visitor_history API extracts records per day so we will extract all the records at once
+                                loop_for_records = False
+                            else:
+                                stream_events, loop_for_records = sub_stream.sync(state, bookmark_dttm,
+                                                                                  record.get(parent.key_properties[0]))
+
+                            # Loop over data of sub-stream
+                            for event in stream_events:
+                                counter.increment()
+
+                                # Get metadata for the stream to use in transform
+                                schema_dict = sub_stream.stream.schema.to_dict()
+                                stream_metadata = metadata.to_map(sub_stream.stream.metadata)
+
+                                transformed_event = sub_stream.transform(event)
+
+                                # Transform record as per field selection in metadata
+                                try:
+                                    transformed_record = transformer.transform(
+                                        transformed_event, schema_dict,
+                                        stream_metadata)
+                                except Exception as err:
+                                    LOGGER.error('Error: %s', err)
+                                    LOGGER.error(
+                                        ' for schema: %s',
+                                        json.dumps( schema_dict,
+                                                    sort_keys=True,
+                                                    indent=2))
+                                    raise err
+
+                                # Check for replication_value from record and if value found then use it for updating bookmark
+                                replication_value = transformed_record.get(sub_stream.replication_key)
+                                if replication_value:
+                                    event_time = strptime_to_utc(replication_value)
+                                    new_bookmark = max(new_bookmark, event_time)
+
+                                singer.write_record(sub_stream.stream.tap_stream_id,
+                                                    transformed_record)
+
+                            self.update_child_stream_bookmarks(state=state,
+                                                               sub_stream=sub_stream,
+                                                               last_processed_value=record.get(parent.key_properties[0]),
+                                                               new_bookmark=strftime(new_bookmark),
+                                                               previous_sync_completed_ts=previous_sync_completed_ts)
+
+                            # When all sync completes, set this as new bookmark
+                            final_bookmark = max(final_bookmark, new_bookmark)
 
             except HTTPError:
                 LOGGER.warning(
                     "Unable to retrieve %s Event for Stream (ID: %s)",
                     sub_stream.name, record[parent.key_properties[0]])
 
-            # All events for all parents processed; can removed last processed
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=record.get(parent.key_properties[0]), bookmark_key="last_processed")
-            self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=strftime(new_bookmark), bookmark_key=sub_stream.replication_key)
-
         # After processing for all parent ids we can remove our resumption state
         state.get('bookmarks').get(sub_stream.name).pop('last_processed')
+
+        self.update_child_stream_bookmarks(state=state,
+                                           sub_stream=sub_stream,
+                                           last_processed_value=None,
+                                           new_bookmark=strftime(final_bookmark),
+                                           previous_sync_completed_ts=strftime(final_bookmark))
         update_currently_syncing(state, None)
 
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body())['results'] or []
 
         # Get and intialize sub-stream for the current stream
@@ -411,36 +495,49 @@ class Stream():
         return int(lookback_window)
 
 class LazyAggregationStream(Stream):
-    def send_request_get_results(self, req):
+    def send_request_get_results(self, req, endpoint, params, count, **kwargs):
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
         request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
-        # Send request for stream data directly(without 'with' statement) so that
-        # exception handling and yielding can be utilized properly below
-        resp = session.send(req, stream=True, timeout=request_timeout)
+        try:
+            # Send request for stream data directly(without 'with' statement) so that
+            # exception handling and yielding can be utilized properly below
+            resp = session.send(req, stream=True, timeout=request_timeout)
 
-        if 'Too Many Requests' in resp.reason:
-            retry_after = 30
-            LOGGER.info("Rate limit reached. Sleeping for %s seconds",
-                        retry_after)
-            time.sleep(retry_after)
-            raise Server42xRateLimitError(resp.reason)
+            if 'Too Many Requests' in resp.reason:
+                retry_after = 30
+                LOGGER.info("Rate limit reached. Sleeping for %s seconds",
+                            retry_after)
+                time.sleep(retry_after)
+                raise Server42xRateLimitError(resp.reason)
 
-        resp.raise_for_status() # Check for requests status and raise exception in failure
+            resp.raise_for_status() # Check for requests status and raise exception in failure]
 
-        # Separated yielding of records into a new function and called that here
-        # so that any exception raised from the session.send can be thrown from here and
-        # handled properly using backoff on request function.
-        return self.send_records(resp)
+            # Get records from the raw response
+            for item in ijson.items(resp.raw, 'results.item'):
+                count = 1   # request succeeded resetting the retry count to 0
+                yield humps.decamelize(item)
+            resp.close()
+        except (ConnectionError, ProtocolError, ReadTimeoutError, requests.exceptions.RequestException, Server42xRateLimitError) as e:
+            # Catch requestException and raise errors if we have to give up for certain conditions
+            if isinstance(e, requests.exceptions.RequestException) and to_giveup(e):
+                raise e from None
+            # Raise error if we have retried for 7 times
+            if count == 7:
+                LOGGER.error("Giving up request(...) after 7 tries (%s: %s)", e.__class__.__name__, str(e))
+                raise e from None
 
-    def send_records(self, resp):
-        # Yielding records from results
-        for item in ijson.items(resp.raw, 'results.item'):
-            yield humps.decamelize(item)
-        resp.close()
+            # Sleep for [0.5, 1, 2, 4, 10, 10, ... ] minutes
+            backoff_time = min(2 ** (count - 1) * BACKOFF_FACTOR, 600)
+            LOGGER.info("Backing off request(...) for %ss (%s: %s)", backoff_time, e.__class__.__name__, str(e))
 
-    def sync(self, state, start_date=None, key_id=None):
+            time.sleep(backoff_time)
+            count += 1
+            # Request retry
+            yield from self.request(endpoint, params, count, **kwargs)
+
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body()) or []
 
         # Get and intialize sub-stream for the current stream
@@ -469,21 +566,160 @@ class EventsBase(Stream):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
+        self.last_processed = None
 
-    def sync(self, state, start_date=None, key_id=None):
+        # Record limit will throttle the number of records getting replicated
+        # This limit will resolve request timeouts and will reduce the peak memory consumption
+        record_limit = str(self.config.get('record_limit', API_RECORD_LIMIT)).strip()
+        try:
+            # Defualt record limit will be set for None and Whitespaces
+            # Whitespaces before and after will be trimmed around valid numeric strings
+            self.record_limit = int(literal_eval(record_limit) if record_limit.strip() else API_RECORD_LIMIT)
+        except (NameError, SyntaxError, ValueError) as e:
+            raise ValueError("Invalid numeric value: " + str(self.config.get('record_limit'))) from e
+
+    def get_body(self, key_id, period, first):
+        """This method returns generic request body of events steams"""
+
+        sort = humps.camelize(self.replication_key)
+        return {
+            "response": {
+                "mimeType": "application/json"
+            },
+            "request": {
+                "pipeline": [
+                    {
+                        "source": {
+                            "timeSeries": {
+                                "period": period,
+                                "first": first,
+                                "last": "now()"
+                            }
+                        }
+                    },
+                    {
+                        "sort": [sort]
+                    },
+                    {
+                        "limit": self.record_limit
+                    },
+                    {
+                        "filter": ""
+                    }
+                ]
+            }
+        }
+
+    def get_first_parameter_value(self, body):
+        return body['request']['pipeline'][0]['source']['timeSeries'].get('first', 0)
+
+    def set_time_series_first(self, body, records, first=None):
+        """Sets the timeSeries 'first' parameter in request body"""
+        if len(records) > 1:
+            # This condition considers that within current time window there could be some more records
+            # So we will set last record timestamp as first of time series
+            # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = records[-1].get(self.replication_key)
+        elif first:
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = self.get_first_parameter_value(body)
+        else:
+            body['request']['pipeline'][0]['source']['timeSeries']['first'] = int(datetime.now().timestamp() * 1000)
+
+        return body
+
+    def set_request_body_filters(self, body, start_time, records=None):
+        """Sets the filter parameter in the request body"""
+        # Note: even if we set browser time as first but while processing it will set to nearest day/hour range slot
+        # so we need to provide record filter to avoid any duplicate replications
+        # Also we are using limit parameter as well which takes first N records for processing, rest records get discarded
+        # Considering this we may need to increase record limit in case record limit has reached in last response
+        camalized_replication_key = humps.camelize(self.replication_key)
+        body['request']['pipeline'][2]['limit'] = self.record_limit
+        if records and len(records) > 0:
+            # If there are 5 times records of record limits, in that case limit parameter will be increased acordiingly
+            body['request']['pipeline'][3]['filter'] = f'{camalized_replication_key}>={records[-1].get(self.replication_key)}'
+        else:
+            body['request']['pipeline'][3]['filter'] = f'{camalized_replication_key}>={start_time}'
+
+        return body
+
+    def remove_last_timestamp_records(self, records):
+        """Removes the overlapping records with last timestamp value. This avoids possibilty of duplicates"""
+        last_processed = []
+        if len(records) > 0:
+            timestamp = records[-1].get(self.replication_key)
+            while records and timestamp == records[-1].get(self.replication_key):
+                last_processed.append(records.pop())
+
+        # This is a corner cases where all records in the set have same timestamp
+        # This can occur if record limit is set very smaller compared to the max record limit
+        # In this case we will try to set record limit to max limit to make it harder to run into this issue
+        # But still can't completely dismiss the minor possibility of this issue occurring
+        if len(records) == 0 or not last_processed:
+            self.record_limit = API_RECORD_LIMIT
+
+        return last_processed
+
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
         # Calculate lookback window
         lookback = start_date - timedelta(
             days=self.lookback_window())
-        ts = int(lookback.timestamp()) * 1000
 
         # Period always amounts to a day either aggegated by day or hours in a day
         period = self.config.get('period')
-        body = self.get_body(key_id, period, ts)
-        events = self.request(self.name, json=body).get('results') or []
+
+        # If last processed records exists, then set first to timestamp of first record
+        try:
+            first = self.last_processed[0][self.replication_key] if self.last_processed else int(lookback.timestamp()) * 1000
+        except Exception as e:
+            LOGGER.info(str(e))
+
+
+        # Setup body for first request
+        body = self.get_body(key_id, period, first)
+        self.set_time_series_first(body, [], first)
+        self.set_request_body_filters(body, first, [])
+
+        ts_now = int(datetime.now().timestamp() * 1000)
+        events = []
+        while self.get_first_parameter_value(body) <= ts_now:
+            records = self.request(self.name, json=body).get('results') or []
+            self.set_time_series_first(body, records)
+
+            # Set first and filters for next request
+            self.set_request_body_filters(
+                body,
+                self.get_first_parameter_value(body),
+                records)
+
+            if len(records) > 1:
+                removed_records = self.remove_last_timestamp_records(records)
+                events += records
+
+                if self.last_processed == removed_records:
+                    events += removed_records
+                    self.last_processed = None
+                    break
+
+                self.last_processed = removed_records
+
+            elif len(records) == 1:
+                events += records
+                self.last_processed = None
+                break
+
+            # If record limit set is reached, then return the extracted records
+            # Set the last processed records to ressume the extraction
+            if len(events) >= self.record_limit:
+                return events, True
+
+        # These is a corner cases where this limit may get changed so reseeting it before next iteration
+        self.record_limit = int(self.config.get('record_limit', API_RECORD_LIMIT))
+
         update_currently_syncing(state, None)
-        return events
+        return events, False
 
 
 class Accounts(Stream):
@@ -554,27 +790,9 @@ class FeatureEvents(EventsBase):
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
 
     def get_body(self, key_id, period, first):
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "featureEvents": {
-                            "featureId": key_id
-                        },
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
-                        }
-                    }
-                }, {
-                    "sort": [self.replication_key]
-                }]
-            }
-        }
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"featureEvents": {"featureId": key_id,}})
+        return body
 
 
 class Events(LazyAggregationStream):
@@ -589,7 +807,7 @@ class Events(LazyAggregationStream):
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
         bookmark_date = self.get_bookmark(state, self.name,
@@ -722,7 +940,7 @@ class PollEvents(Stream):
             }
         }
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
         # Get bookmark from state or start date for the stream
@@ -749,27 +967,9 @@ class TrackEvents(EventsBase):
 
 
     def get_body(self, key_id, period, first):
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "trackEvents": {
-                            "trackTypeId": key_id
-                        },
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
-                        }
-                    }
-                }, {
-                    "sort": [self.replication_key]
-                }]
-            }
-        }
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"trackEvents": {"trackTypeId": key_id,}})
+        return body
 
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
@@ -778,36 +978,12 @@ class GuideEvents(EventsBase):
 
     def __init__(self, config):
         super().__init__(config=config)
-        self.config = config
-        self.period = config.get('period')
         self.replication_key = 'browser_time'
 
     def get_body(self, key_id, period, first):
-        sort = humps.camelize(self.replication_key)
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [
-                    {
-                        "source": {
-                            "guideEvents": {
-                                "guideId": key_id
-                            },
-                            "timeSeries": {
-                                "period": period,
-                                "first": first,
-                                "last": "now()"
-                            }
-                        }
-                    },
-                    {
-                        "sort": [sort]
-                    }
-                ]
-            }
-        }
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"guideEvents": {"guideId": key_id,}})
+        return body
 
 
 class TrackTypes(Stream):
@@ -892,27 +1068,9 @@ class PageEvents(EventsBase):
     key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
 
     def get_body(self, key_id, period, first):
-        return {
-            "response": {
-                "mimeType": "application/json"
-            },
-            "request": {
-                "pipeline": [{
-                    "source": {
-                        "pageEvents": {
-                            "pageId": key_id
-                        },
-                        "timeSeries": {
-                            "period": period,
-                            "first": first,
-                            "last": "now()"
-                        }
-                    }
-                }, {
-                    "sort": [self.replication_key]
-                }]
-            }
-        }
+        body = super().get_body(key_id, period, first)
+        body['request']['pipeline'][0]['source'].update({"pageEvents": {"pageId": key_id,}})
+        return body
 
 
 class Reports(Stream):
@@ -922,7 +1080,7 @@ class Reports(Stream):
     # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/report", "GET")
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         reports = self.request(self.name)
         for report in reports:
             yield (self.stream, report)
@@ -934,7 +1092,7 @@ class MetadataVisitor(Stream):
     # the endpoint attribute overriden and re-initialized with different endpoint URL and method
     endpoint = Endpoints("/api/v1/metadata/schema/visitor", "GET")
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         reports = self.request(self.name)
         for report in reports:
             yield (self.stream, report)
@@ -960,7 +1118,7 @@ class VisitorHistory(Stream):
     def get_params(self, start_time):
         return {"starttime": start_time}
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
         # using "start_date" that is passed and not using the bookmark
@@ -971,7 +1129,8 @@ class VisitorHistory(Stream):
         window_next = lookback
 
         # Get data with sliding window upto abs_end
-        while window_next <= abs_end:
+        # After parent last updated there won't be new records
+        while window_next <= abs_end+timedelta(days=1) and window_next <= parent_last_updated+timedelta(days=1):
             ts = int(window_next.timestamp()) * 1000
             params = self.get_params(start_time=ts)
             visitor_history = self.request(endpoint=self.name,
@@ -995,7 +1154,8 @@ class Visitors(LazyAggregationStream):
     key_properties = ["visitor_id"]
 
     def get_body(self):
-        include_anonymous_visitors = bool(self.config.get('include_anonymous_visitors', 'false').lower() == 'true')
+        include_anonymous_visitors = self.config.get('include_anonymous_visitors') or DEFAULT_INCLUDE_ANONYMOUS_VISITORS
+        anons = str(include_anonymous_visitors).lower() == 'true'
         return {
             "response": {
                 "mimeType": "application/json"
@@ -1006,7 +1166,7 @@ class Visitors(LazyAggregationStream):
                 "pipeline": [{
                     "source": {
                         "visitors": {
-                            "identified": not include_anonymous_visitors
+                            "identified": not anons
                         }
                     }
                 }],
@@ -1040,7 +1200,7 @@ class MetadataAccounts(Stream):
     def get_body(self):
         return None
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body())
 
         # Get and intialize sub-stream for the current stream
@@ -1070,7 +1230,7 @@ class MetadataVisitors(Stream):
     def get_body(self):
         return None
 
-    def sync(self, state, start_date=None, key_id=None):
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         stream_response = self.request(self.name, json=self.get_body())
 
         # Get and intialize sub-stream for the current stream
@@ -1091,22 +1251,23 @@ class MetadataVisitors(Stream):
 
 
 
+# This dict is ordered so that child stream(s) are occurring just above parent stream.
 STREAMS = {
     "accounts": Accounts,
-    "features": Features,
-    "guides": Guides,
-    "pages": Pages,
-    "visitor_history": VisitorHistory,
-    "visitors": Visitors,
-    "feature_events": FeatureEvents,
     "events": Events,
-    "page_events": PageEvents,
+    "feature_events": FeatureEvents,
+    "features": Features,
     "guide_events": GuideEvents,
-    "poll_events": PollEvents,
-    "track_types": TrackTypes,
-    "track_events": TrackEvents,
+    "guides": Guides,
     "metadata_accounts": MetadataAccounts,
-    "metadata_visitors": MetadataVisitors
+    "metadata_visitors": MetadataVisitors,
+    "page_events": PageEvents,
+    "pages": Pages,
+    "poll_events": PollEvents,
+    "track_events": TrackEvents,
+    "track_types": TrackTypes,
+    "visitor_history": VisitorHistory,
+    "visitors": Visitors
 }
 
 SUB_STREAMS = {

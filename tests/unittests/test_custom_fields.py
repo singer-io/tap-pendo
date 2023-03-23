@@ -2,7 +2,7 @@ import unittest
 from unittest import mock
 from singer import utils, metadata
 from singer.utils import strptime_to_utc, strftime
-from tap_pendo.discover import LOGGER, build_metadata_metadata, discover_streams
+from tap_pendo.discover import LOGGER, build_metadata_metadata, discover_streams, get_schema_property_type
 from tap_pendo.streams import Stream
 
 
@@ -35,7 +35,7 @@ class TestCustomFields(unittest.TestCase):
                 "is_deleted": False,
                 "is_calculated": False,
                 "is_per_app": False,
-                "never_index": False
+                "never_index": False,
             }
         }
         # the expected schema contains all the custom fields
@@ -301,3 +301,15 @@ class TestCustomFields(unittest.TestCase):
         schema = {'properties': {}}
         build_metadata_metadata(mdata, schema, custom_visitor_fields)
         self.assertEqual(schema, expected_schema)
+
+
+    def test_get_schema_property_type(self):
+        schema_types = ['string', 'time', 'boolean', 'integer', 'float']
+
+        expected_property_types = {'boolean': {'type': ['null', 'boolean']},
+                                   'float': {'type': ['null', 'number']},
+                                   'integer': {'type': ['null', 'integer', 'number', 'string']},
+                                   'string': {'type': ['null', 'string']},
+                                   'time': {'format': 'date-time', 'type': ['null', 'string']}}
+        actual_property_types = {schema_type: get_schema_property_type(schema_type) for schema_type in schema_types}
+        self.assertEqual(actual_property_types, expected_property_types)
