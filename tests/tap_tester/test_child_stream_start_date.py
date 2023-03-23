@@ -48,23 +48,26 @@ class PendoChildStreamStartDateTest(TestPendoBase):
         guide_events = synced_records.get("guide_events")
 
         # find the first guide's id
-        first_guide_id = guides.get("messages")[0].get("data").get("id")
+        for guide in guides.get("messages"):
+            guide_id = guide.get("data").get("id")
+            guide_id_events = []
+            rest_guide_events = []
 
-        first_guide_ids_events = []
-        rest_guide_events = []
+            # seperate guide events based on guide id
+            for guide_event in guide_events.get("messages"):
+                if guide_event.get("data").get("guide_id") == guide_id:
+                    guide_id_events.append(guide_event.get("data"))
+                else:
+                    rest_guide_events.append(guide_event.get("data"))
 
-        # seperate guide events based on guide id
-        for guide_event in guide_events.get("messages"):
-            if guide_event.get("data").get("guide_id") == first_guide_id:
-                first_guide_ids_events.append(guide_event.get("data"))
-            else:
-                rest_guide_events.append(guide_event.get("data"))
+            if len(guide_id_events) > 0:
+                break
 
         replication_key_for_guide_events = next(iter(self.expected_replication_keys().get("guide_events")))
 
         # find the maximun bookmark date for first guide's events
-        sorted_first_guide_ids_events = sorted(first_guide_ids_events, key=lambda i: i[replication_key_for_guide_events], reverse=True)
-        max_bookmark = sorted_first_guide_ids_events[0].get(replication_key_for_guide_events)
+        sorted_guide_ids_events = sorted(guide_id_events, key=lambda i: i[replication_key_for_guide_events], reverse=True)
+        max_bookmark = sorted_guide_ids_events[0].get(replication_key_for_guide_events)
 
         # used for verifying if we synced guide events before
         # than the maximum bookmark of first guide's events
