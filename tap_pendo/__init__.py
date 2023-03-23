@@ -165,7 +165,6 @@ def filter_app_ids(config):
                 int(app_id)
             except ValueError:
                 invalid_app_ids.append(app_id)
-                break
         if invalid_app_ids:
             raise Exception(f"Invalid appIDs provided during the configuration:{invalid_app_ids}")
         config["app_ids"] = app_ids
