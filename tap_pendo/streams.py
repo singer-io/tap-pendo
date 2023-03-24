@@ -3,6 +3,7 @@
 #!/usr/bin/env python3
 import json
 import os
+import sys
 import time
 from datetime import datetime, timedelta, timezone
 from ast import literal_eval
@@ -32,7 +33,7 @@ session = requests.Session()
 REQUEST_TIMEOUT = 300
 DEFAULT_INCLUDE_ANONYMOUS_VISITORS = 'false'
 
-BACKOFF_FACTOR = 30
+BACKOFF_FACTOR = 5
 
 def to_giveup(error):
     """
@@ -126,6 +127,7 @@ class Stream():
     key_properties = KEY_PROPERTIES
     stream = None
     period = None
+    request_retry_count = 1
     # initialized the endpoint attribute which can be overriden by child streams based on
     # the different parameters used by the stream.
     endpoint = Endpoints("/api/v1/aggregation", "POST")
@@ -133,12 +135,12 @@ class Stream():
     def __init__(self, config=None):
         self.config = config
 
-    def send_request_get_results(self, req, endpoint, params, count, **kwargs):
-        # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
-        config_request_timeout = self.config.get('request_timeout')
-        request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
-        resp = session.send(req, timeout=request_timeout)
+        self.request_timeout = self.config.get('request_timeout') or REQUEST_TIMEOUT
+
+    def send_request_get_results(self, req, endpoint, params, count, **kwargs):
+        # Increament timeout duration based on retry attempt
+        resp = session.send(req, timeout=Stream.request_retry_count*self.request_timeout)
 
         # Sleep for provided time and retry if rate limit exceeded
         if 'Too Many Requests' in resp.reason:
@@ -149,9 +151,16 @@ class Stream():
             raise Server42xRateLimitError(resp.reason)
 
         resp.raise_for_status() # Check for requests status and raise exception in failure
+        Stream.request_retry_count = 1    # Reset retry count after success
 
         dec = humps.decamelize(resp.json())
         return dec
+
+    def retry_handler(details):
+        """Sets request retry count which is used to set request timeout in subsequent request"""
+        _, exception, _ = sys.exc_info()
+        if isinstance(exception, (ReadTimeoutError, requests.exceptions.RequestException)):
+            Stream.request_retry_count = details['tries'] + 1
 
     # backoff for Timeout error is already included in "requests.exceptions.RequestException"
     # as it is the parent class of "Timeout" error
@@ -160,10 +169,12 @@ class Stream():
                           giveup=lambda e: e.response is not None and 400 <= e.
                           response.status_code < 500,
                           factor=BACKOFF_FACTOR,
-                          jitter=None)
+                          jitter=None,
+                          on_backoff=retry_handler)
     @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError, ReadTimeoutError), # backoff error
                           max_tries=7,
-                          factor=2)
+                          factor=2,
+                          jitter=None)
     @tap_pendo_utils.ratelimit(1, 2)
     def request(self, endpoint, params=None, count=1, **kwargs):
         # Set requests headers, url, methods, params and extra provided arguments
@@ -512,7 +523,8 @@ class LazyAggregationStream(Stream):
         try:
             # Send request for stream data directly(without 'with' statement) so that
             # exception handling and yielding can be utilized properly below
-            resp = session.send(req, stream=True, timeout=request_timeout)
+            # Increament timeout duration based on retry attempt
+            resp = session.send(req, stream=True, timeout=count*request_timeout)
 
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
