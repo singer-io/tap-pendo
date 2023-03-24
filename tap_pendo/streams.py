@@ -599,8 +599,10 @@ class Stream():
             sub_stream = None
 
         # If last processed records exists, then set first to timestamp of first record
-        first = self.last_processed[0][humps.decamelize(
-            self.replication_key)] if self.last_processed else int(start_date.timestamp()) * 1000
+        if self.last_processed:
+            first = self.last_processed[0][humps.decamelize(self.replication_key)]
+        else:
+            first = int(start_date.timestamp()) * 1000
 
         # Setup body for first request
         body = self.get_body()

@@ -49,7 +49,6 @@ class TestPendoParentStreams(unittest.TestCase):
     def test_get_body(self, stream_class, exp_event_type, exp_event_type_value, exp_filter_key, kwargs):
         """Verify get_body method returns an expected request body object"""
         stream_obj = stream_class(default_config)
-        # body = stream_obj.get_body()
         body = stream_obj.get_body(**kwargs) if kwargs else stream_obj.get_body()
         sort_index = stream_obj.get_pipeline_key_index(body, "sort")
         filter_index = stream_obj.get_pipeline_key_index(body, "filter")
