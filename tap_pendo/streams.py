@@ -33,7 +33,7 @@ session = requests.Session()
 REQUEST_TIMEOUT = 300
 DEFAULT_INCLUDE_ANONYMOUS_VISITORS = 'false'
 
-BACKOFF_FACTOR = 5
+BACKOFF_FACTOR = 10
 
 def to_giveup(error):
     """
@@ -89,6 +89,18 @@ def update_currently_syncing(state, stream_name):
     singer.write_state(state)
 
 
+def retry_handler(details):
+    """Sets request retry count which is used to set request timeout in subsequent request"""
+    _, exception, _ = sys.exc_info()
+    if isinstance(exception, (ReadTimeoutError, requests.exceptions.RequestException)):
+        Stream.request_retry_count = details['tries'] + 1
+
+
+def reset_request_retry_count(details):
+    """Rest the Stream retry count in case we continue execution even after max. retries"""
+    Stream.request_retry_count = 1
+
+
 class Server42xRateLimitError(Exception):
     pass
 
@@ -136,7 +148,11 @@ class Stream():
         self.config = config
 
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
-        self.request_timeout = self.config.get('request_timeout') or REQUEST_TIMEOUT
+        config_request_timeout = self.config.get('request_timeout')
+        if config_request_timeout and float(config_request_timeout) > 0:
+            self.request_timeout = float(config_request_timeout)
+        else:
+            self.request_timeout = REQUEST_TIMEOUT
 
     def send_request_get_results(self, req, endpoint, params, count, **kwargs):
         # Increament timeout duration based on retry attempt
@@ -156,12 +172,6 @@ class Stream():
         dec = humps.decamelize(resp.json())
         return dec
 
-    def retry_handler(details):
-        """Sets request retry count which is used to set request timeout in subsequent request"""
-        _, exception, _ = sys.exc_info()
-        if isinstance(exception, (ReadTimeoutError, requests.exceptions.RequestException)):
-            Stream.request_retry_count = details['tries'] + 1
-
     # backoff for Timeout error is already included in "requests.exceptions.RequestException"
     # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
@@ -170,7 +180,8 @@ class Stream():
                           response.status_code < 500,
                           factor=BACKOFF_FACTOR,
                           jitter=None,
-                          on_backoff=retry_handler)
+                          on_backoff=retry_handler,
+                          on_giveup=reset_request_retry_count)
     @backoff.on_exception(backoff.expo, (ConnectionError, ProtocolError, ReadTimeoutError), # backoff error
                           max_tries=7,
                           factor=2,
@@ -518,13 +529,11 @@ class LazyAggregationStream(Stream):
     def send_request_get_results(self, req, endpoint, params, count, **kwargs):
         # Set request timeout to config param `request_timeout` value.
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
-        config_request_timeout = self.config.get('request_timeout')
-        request_timeout = config_request_timeout and float(config_request_timeout) or REQUEST_TIMEOUT # pylint: disable=consider-using-ternary
         try:
             # Send request for stream data directly(without 'with' statement) so that
             # exception handling and yielding can be utilized properly below
             # Increament timeout duration based on retry attempt
-            resp = session.send(req, stream=True, timeout=count*request_timeout)
+            resp = session.send(req, stream=True, timeout=count*self.request_timeout)
 
             if 'Too Many Requests' in resp.reason:
                 retry_after = 30
