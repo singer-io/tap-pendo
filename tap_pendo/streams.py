@@ -97,7 +97,7 @@ def retry_handler(details):
 
 
 def reset_request_retry_count(details):
-    """Rest the Stream retry count in case we continue execution even after max. retries"""
+    """Reset the Stream retry count in case we continue execution even after max. retries"""
     Stream.request_retry_count = 1
 
 
