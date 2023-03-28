@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.2
+  * Fixes visitor_history duplicate record sync issue [#119](https://github.com/singer-io/tap-pendo/pull/119)
+
 ## 0.5.1
   * Skips visitor_history records for visitors with Do Not Process flag [#115](https://github.com/singer-io/tap-pendo/pull/115)
 
