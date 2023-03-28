@@ -10,7 +10,7 @@ class TestGuideEventsPrimaryKey(unittest.TestCase):
         # initialize config
         config = {}
         # expected primary key
-        expected_primary_keys = ['guide_id', 'guide_step_id', 'visitor_id', 'type', 'account_id', 'browser_time', 'server_name', 'url']
+        expected_primary_keys = ['guide_id', 'guide_step_id', 'visitor_id', 'type', 'account_id', 'browser_time', 'url']
 
         # Initialize GuideEvents object which sets primary keys
         guide_events = GuideEvents(config)
