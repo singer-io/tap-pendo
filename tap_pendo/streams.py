@@ -33,7 +33,7 @@ session = requests.Session()
 REQUEST_TIMEOUT = 300
 DEFAULT_INCLUDE_ANONYMOUS_VISITORS = 'false'
 
-BACKOFF_FACTOR = 10
+BACKOFF_FACTOR = 5
 
 def to_giveup(error):
     """
