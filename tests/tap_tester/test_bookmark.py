@@ -28,10 +28,12 @@ class PendoBookMarkTest(TestPendoBase):
     def test_run(self):
         # # All these streams have similar implementation like features and feature_events so removing this test to limit the execution time
         # # visitor_history stream takes long time to execute with default start date so it is handled separately
+        self.is_day_range = False
         self.run_test(
             self.expected_streams() - {"guides", "guide_events", "pages", "page_events", "visitor_history"})
 
         # Test only visitors and visitor_history
+        self.is_day_range = True
         self.run_test({"visitors", "visitor_history"})
 
     def run_test(self, expected_streams):
@@ -217,12 +219,3 @@ class PendoBookMarkTest(TestPendoBase):
                 # Verify at least 1 record was replicated in the second sync
                 self.assertGreater(
                     second_sync_count, 0, msg="We are not fully testing bookmarking for {}".format(stream))
-
-    def test_run(self):
-        # test for hourRange period
-        self.is_day_range = False
-        self.run_test()
-
-        # test for dayRange period
-        self.is_day_range = True
-        self.run_test()
