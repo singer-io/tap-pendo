@@ -1122,8 +1122,9 @@ class PageEvents(EventsBase):
         return events
 
     # extend 'sync' to add hash field in the records
-    def sync(self, state, start_date=None, key_id=None):
-        page_events = super().sync(state, start_date=start_date, key_id=key_id)
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
+        page_events = super().sync(state, start_date=start_date,
+                                   key_id=key_id, parent_last_updated=parent_last_updated)
         page_events_with_hash = self.generate_sdc_parameters_hash(page_events)
         return page_events_with_hash
 
