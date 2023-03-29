@@ -262,8 +262,13 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `start_date` - the default value to use if no bookmark exists for an endpoint (rfc3339 date string)
    - `x_pendo_integration_key` (string, `ABCdef123`): an integration key from Pendo.
    - `period` (string, `ABCdef123`): `dayRange` or `hourRange`
-   - `lookback_window` (integer): 10 (For event objects. Default: 0)
-   - `request_timeout` (integer): 300 (For passing timeout to the request. Default: 300)
+   - `lookback_window` (integer, 10): For event objects. Default: 0 days
+   - `request_timeout` (integer, 300) For passing timeout to the request. Default: 300 seconds
+   - `record_limit` (integer, 100000): maximum number of records Pendo API can retrieve in a single request. Default: 100000 records
+
+   ```
+   Note: It is important to set `record_limit` parameter to an appropriate value, as selecting a smaller value may have a negative effect on the Pendo API's performance, while a larger value may result in connection errors, request timeouts, or memory overflows.
+   ```
 
    ```json
    {
@@ -272,6 +277,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
      "period": "dayRange",
      "lookback_window": 10,
      "request_timeout": 300,
+     "record_limit": 100000,
      "include_anonymous_visitors": "true"
    }
    ```
