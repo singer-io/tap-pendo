@@ -39,6 +39,24 @@ def get_response(json={}):
 @mock.patch('requests.Session.send')
 class TestTimeOut(unittest.TestCase):
 
+    def get_expected_mock_calls(self, stream_name=None, timeout=300):
+        if stream_name and stream_name in ["events", "visitors"]:
+            return [mock.call(mock.ANY, stream=True,timeout=timeout),
+                    mock.call(mock.ANY, stream=True, timeout=2*timeout),
+                    mock.call(mock.ANY, stream=True, timeout=3*timeout),
+                    mock.call(mock.ANY, stream=True, timeout=4*timeout),
+                    mock.call(mock.ANY, stream=True, timeout=5*timeout),
+                    mock.call(mock.ANY, stream=True, timeout=6*timeout),
+                    mock.call(mock.ANY, stream=True, timeout=7*timeout)]
+        else:
+            return [mock.call(mock.ANY, timeout=timeout),
+                    mock.call(mock.ANY, timeout=2*timeout),
+                    mock.call(mock.ANY, timeout=3*timeout),
+                    mock.call(mock.ANY, timeout=4*timeout),
+                    mock.call(mock.ANY, timeout=5*timeout),
+                    mock.call(mock.ANY, timeout=6*timeout),
+                    mock.call(mock.ANY, timeout=7*timeout)]
+
     def test_timeout__accounts(self, mocked_send, mocked_sleep):
         # mock request and raise error
         mocked_send.side_effect = requests.exceptions.Timeout
@@ -53,6 +71,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__features(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -68,6 +87,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__guides(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -83,6 +103,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__pages(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -98,6 +119,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__feature_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -113,6 +135,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__page_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -128,6 +151,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__guide_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -143,6 +167,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__poll_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -158,6 +183,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__track_types(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -173,6 +199,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__track_events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -188,6 +215,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__metadata_accounts(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -203,6 +231,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__metadata_visitors(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -218,6 +247,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__visitor_history(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -233,6 +263,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(timeout=300))
 
     def test_timeout__visitors(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -248,6 +279,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(stream_name="visitors", timeout=300))
 
     def test_timeout__events(self, mocked_send, mocked_sleep):
         # mock request and raise error
@@ -263,6 +295,7 @@ class TestTimeOut(unittest.TestCase):
 
         # verify if the request was called 7 times
         self.assertEquals(mocked_send.call_count, 7)
+        mocked_send.assert_has_calls(self.get_expected_mock_calls(stream_name="events", timeout=300))
 
 @mock.patch("time.sleep")
 @mock.patch('requests.Session.send')
