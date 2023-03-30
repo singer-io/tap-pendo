@@ -415,7 +415,6 @@ class Stream():
 
                             # Loop over data of sub-stream
                             for event in stream_events:
-                                counter.increment()
 
                                 # Get metadata for the stream to use in transform
                                 schema_dict = sub_stream.stream.schema.to_dict()
@@ -441,8 +440,18 @@ class Stream():
                                 replication_value = transformed_record.get(sub_stream.replication_key)
                                 if replication_value:
                                     event_time = strptime_to_utc(replication_value)
+
+                                    # visitor_history stream replicates duplicate records older than bookmark value
+                                    # Skip older events than the previous sync
+                                    if isinstance(parent, Visitors):
+                                        previous_sync_completed_time = strptime_to_utc(
+                                            previous_sync_completed_ts) - timedelta(days=self.lookback_window())
+                                        if event_time < previous_sync_completed_time:
+                                            continue
+
                                     new_bookmark = max(new_bookmark, event_time)
 
+                                counter.increment()
                                 singer.write_record(sub_stream.stream.tap_stream_id,
                                                     transformed_record)
 
