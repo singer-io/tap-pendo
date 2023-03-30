@@ -150,6 +150,13 @@ class Stream():
         self.config = config
         self.record_limit = self.get_default_record_limit()
 
+        # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
+        config_request_timeout = self.config.get('request_timeout')
+        if config_request_timeout and float(config_request_timeout) > 0:
+            self.request_timeout = float(config_request_timeout)
+        else:
+            self.request_timeout = REQUEST_TIMEOUT
+
     def get_default_record_limit(self):
         # Record limit will throttle the number of records getting replicated
         # This limit will resolve request timeouts and will reduce the peak memory consumption
@@ -160,13 +167,6 @@ class Stream():
             return int(literal_eval(record_limit) if record_limit.strip() else API_RECORD_LIMIT)
         except (NameError, SyntaxError, ValueError) as e:
             raise ValueError("Invalid numeric value: " + str(self.config.get('record_limit'))) from e
-
-        # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
-        config_request_timeout = self.config.get('request_timeout')
-        if config_request_timeout and float(config_request_timeout) > 0:
-            self.request_timeout = float(config_request_timeout)
-        else:
-            self.request_timeout = REQUEST_TIMEOUT
 
     def send_request_get_results(self, req, endpoint, params, count, **kwargs):
         # Increament timeout duration based on retry attempt

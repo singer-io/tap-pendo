@@ -40,7 +40,7 @@ def get_response(json={}):
 class TestTimeOut(unittest.TestCase):
 
     def get_expected_mock_calls(self, stream_name=None, timeout=300):
-        if stream_name and stream_name in ["events", "visitors"]:
+        if stream_name and stream_name == "visitors":
             return [mock.call(mock.ANY, stream=True,timeout=timeout),
                     mock.call(mock.ANY, stream=True, timeout=2*timeout),
                     mock.call(mock.ANY, stream=True, timeout=3*timeout),
