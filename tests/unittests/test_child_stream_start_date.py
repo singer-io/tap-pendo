@@ -40,8 +40,8 @@ class ChildStream:
         # append 'args' in the TEST variable for assertion
         TEST.append(args)
         # return dummy data
-        return [{"id": 1, "date": "2021-02-01T00:00:00Z"},
-                {"id": 2, "date": "2021-03-01T00:00:00Z"}], False
+        return ("stream", [{"id": 1, "date": "2021-02-01T00:00:00Z"},
+                           {"id": 2, "date": "2021-03-01T00:00:00Z"}]), False
 
     def __init__(self, config):
         self.config = config

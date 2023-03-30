@@ -38,7 +38,7 @@ class TestIncremental(unittest.TestCase):
         mock_start_date = "2021-01-10T00:00:00Z"
         mock_records = [{"id":1, "lastupdated": "2021-01-12T00:00:00Z"},
                         {"id":2, "lastupdated": "2021-01-15T00:00:00Z"}]
-        mocked_sync.return_value = MockStream('test'), mock_records
+        mocked_sync.return_value = (MockStream('test'), mock_records), False
 
         stream_instance = streams.Stream(mock_config)
         stream_instance.replication_key = 'lastupdated'
@@ -57,7 +57,7 @@ class TestIncremental(unittest.TestCase):
         mock_start_date = "2021-01-10T00:00:00Z"
         mock_records = [{"id":1, "lastupdated": "2021-01-12T00:00:00Z"},
                         {"id":2, "lastupdated": "2021-01-08T00:00:00Z"}]
-        mocked_sync.return_value = MockStream('test'), mock_records
+        mocked_sync.return_value = (MockStream('test'), mock_records), False
 
         stream_instance = streams.Stream(mock_config)
         stream_instance.replication_key = 'lastupdated'
@@ -76,7 +76,7 @@ class TestIncremental(unittest.TestCase):
         mock_start_date = "2021-01-10T00:00:00Z"
         mock_records = [{"id":1, "lastupdated": "2021-01-01T00:00:00Z"},
                         {"id":2, "lastupdated": "2021-01-08T00:00:00Z"}]
-        mocked_sync.return_value = MockStream('test'), mock_records
+        mocked_sync.return_value = (MockStream('test'), mock_records), False
 
         stream_instance = streams.Stream(mock_config)
         stream_instance.replication_key = 'lastupdated'

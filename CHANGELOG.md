@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0
+  * Fix connection reset, request timeout and memory overflow issues [#116](https://github.com/singer-io/tap-pendo/pull/116)
+  * Refactor child stream methods
+  * Implement logic to increase the request timeout duration during retry attempt [#118](https://github.com/singer-io/tap-pendo/pull/118)
+  * Reduce backoff time
+
 ## 0.5.2
   * Fixes visitor_history duplicate record sync issue [#119](https://github.com/singer-io/tap-pendo/pull/119)
 
