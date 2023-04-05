@@ -156,7 +156,7 @@ class TestPendoParentStreams(unittest.TestCase):
         (Events,),
         (PollEvents,),
         (GuideEvents,)])
-    def test_remove_none_replication_value_records(self, stream_class):
+    def test_remove_empty_replication_key_records(self, stream_class):
         """Verify response records with none replication value are removed
         and are stored in another list as expected"""
         stream_obj = stream_class(default_config)
@@ -164,12 +164,12 @@ class TestPendoParentStreams(unittest.TestCase):
 
         # Verify if none replication value records are removed from mix records
         test_records = self.generate_null_records(stream_obj, 10)
-        stream_obj.remove_none_replication_value_records(test_records)
+        stream_obj.remove_empty_replication_key_records(test_records)
         self.assertEqual(len(test_records), 10)
-        self.assertEqual(len(stream_obj.none_replication_value_records), 3)
+        self.assertEqual(len(stream_obj.empty_replication_key_records), 3)
 
         # Verify if none replication value records are removed from records having only none replication value
         test_records = self.generate_null_records(stream_obj, 0)
-        stream_obj.remove_none_replication_value_records(test_records)
+        stream_obj.remove_empty_replication_key_records(test_records)
         self.assertEqual(len(test_records), 0)
-        self.assertEqual(len(stream_obj.none_replication_value_records), 3)
+        self.assertEqual(len(stream_obj.empty_replication_key_records), 3)
