@@ -1,0 +1,2512 @@
+{
+    "visitor_id ,remote_ip ,account_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5271,
+        "dups": 0
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5271,
+        "dups": 0
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5271,
+        "dups": 0
+    },
+    "visitor_id ,remote_ip ,account_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5271,
+        "dups": 0
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5271,
+        "dups": 0
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5271,
+        "dups": 0
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5271,
+        "dups": 0
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5271,
+        "dups": 0
+    },
+    "visitor_id ,remote_ip ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5269,
+        "dups": 2
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5269,
+        "dups": 2
+    },
+    "visitor_id ,remote_ip ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5269,
+        "dups": 2
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5269,
+        "dups": 2
+    },
+    "visitor_id ,remote_ip ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5266,
+        "dups": 5
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5266,
+        "dups": 5
+    },
+    "visitor_id ,remote_ip ,app_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5266,
+        "dups": 5
+    },
+    "visitor_id ,remote_ip ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5266,
+        "dups": 5
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5266,
+        "dups": 5
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5266,
+        "dups": 5
+    },
+    "visitor_id ,remote_ip ,app_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5266,
+        "dups": 5
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5266,
+        "dups": 5
+    },
+    "visitor_id ,remote_ip ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5264,
+        "dups": 7
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5264,
+        "dups": 7
+    },
+    "visitor_id ,remote_ip ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5264,
+        "dups": 7
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5264,
+        "dups": 7
+    },
+    "visitor_id ,remote_ip ,account_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "visitor_id ,remote_ip ,account_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "visitor_id ,account_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "remote_ip ,account_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "visitor_id ,account_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "remote_ip ,account_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5263,
+        "dups": 8
+    },
+    "visitor_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5261,
+        "dups": 10
+    },
+    "visitor_id ,app_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5261,
+        "dups": 10
+    },
+    "visitor_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5261,
+        "dups": 10
+    },
+    "visitor_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5261,
+        "dups": 10
+    },
+    "remote_ip ,account_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5260,
+        "dups": 11
+    },
+    "remote_ip ,account_id ,app_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5260,
+        "dups": 11
+    },
+    "visitor_id ,remote_ip ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,remote_ip ,app_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,remote_ip ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,account_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,remote_ip ,app_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,account_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,account_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,account_id ,app_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5258,
+        "dups": 13
+    },
+    "visitor_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5256,
+        "dups": 15
+    },
+    "visitor_id ,app_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5256,
+        "dups": 15
+    },
+    "visitor_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5256,
+        "dups": 15
+    },
+    "remote_ip ,account_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5256,
+        "dups": 15
+    },
+    "visitor_id ,app_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5256,
+        "dups": 15
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5256,
+        "dups": 15
+    },
+    "remote_ip ,account_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5256,
+        "dups": 15
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5256,
+        "dups": 15
+    },
+    "visitor_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5253,
+        "dups": 18
+    },
+    "visitor_id ,app_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5253,
+        "dups": 18
+    },
+    "remote_ip ,account_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5252,
+        "dups": 19
+    },
+    "remote_ip ,account_id ,app_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5252,
+        "dups": 19
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5251,
+        "dups": 20
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5251,
+        "dups": 20
+    },
+    "visitor_id ,account_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5250,
+        "dups": 21
+    },
+    "visitor_id ,account_id ,app_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5250,
+        "dups": 21
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5249,
+        "dups": 22
+    },
+    "visitor_id ,remote_ip ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5249,
+        "dups": 22
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5249,
+        "dups": 22
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5249,
+        "dups": 22
+    },
+    "remote_ip ,account_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5248,
+        "dups": 23
+    },
+    "remote_ip ,account_id ,app_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5248,
+        "dups": 23
+    },
+    "remote_ip ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5248,
+        "dups": 23
+    },
+    "remote_ip ,app_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5248,
+        "dups": 23
+    },
+    "visitor_id ,remote_ip ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5247,
+        "dups": 24
+    },
+    "remote_ip ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5247,
+        "dups": 24
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5247,
+        "dups": 24
+    },
+    "remote_ip ,app_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5247,
+        "dups": 24
+    },
+    "visitor_id ,account_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5246,
+        "dups": 25
+    },
+    "visitor_id ,account_id ,app_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5246,
+        "dups": 25
+    },
+    "visitor_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5245,
+        "dups": 26
+    },
+    "visitor_id ,app_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5245,
+        "dups": 26
+    },
+    "visitor_id ,remote_ip ,account_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5245,
+        "dups": 26
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5245,
+        "dups": 26
+    },
+    "remote_ip ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5242,
+        "dups": 29
+    },
+    "remote_ip ,app_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5242,
+        "dups": 29
+    },
+    "visitor_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5241,
+        "dups": 30
+    },
+    "remote_ip ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5241,
+        "dups": 30
+    },
+    "visitor_id ,app_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5241,
+        "dups": 30
+    },
+    "remote_ip ,app_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5241,
+        "dups": 30
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5241,
+        "dups": 30
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5241,
+        "dups": 30
+    },
+    "visitor_id ,remote_ip ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5240,
+        "dups": 31
+    },
+    "visitor_id ,remote_ip ,app_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5240,
+        "dups": 31
+    },
+    "visitor_id ,remote_ip ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5239,
+        "dups": 32
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5239,
+        "dups": 32
+    },
+    "visitor_id ,account_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5238,
+        "dups": 33
+    },
+    "visitor_id ,account_id ,app_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5238,
+        "dups": 33
+    },
+    "remote_ip ,account_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5236,
+        "dups": 35
+    },
+    "remote_ip ,account_id ,app_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5236,
+        "dups": 35
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5235,
+        "dups": 36
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5235,
+        "dups": 36
+    },
+    "visitor_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5233,
+        "dups": 38
+    },
+    "visitor_id ,remote_ip ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5233,
+        "dups": 38
+    },
+    "visitor_id ,app_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5233,
+        "dups": 38
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5233,
+        "dups": 38
+    },
+    "visitor_id ,account_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5231,
+        "dups": 40
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5231,
+        "dups": 40
+    },
+    "visitor_id ,remote_ip ,account_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5229,
+        "dups": 42
+    },
+    "visitor_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5229,
+        "dups": 42
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5229,
+        "dups": 42
+    },
+    "visitor_id ,app_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5229,
+        "dups": 42
+    },
+    "remote_ip ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5227,
+        "dups": 44
+    },
+    "remote_ip ,app_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5227,
+        "dups": 44
+    },
+    "visitor_id ,account_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5225,
+        "dups": 46
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5225,
+        "dups": 46
+    },
+    "visitor_id ,remote_ip ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5224,
+        "dups": 47
+    },
+    "visitor_id ,remote_ip ,app_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5224,
+        "dups": 47
+    },
+    "visitor_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5223,
+        "dups": 48
+    },
+    "visitor_id ,app_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5223,
+        "dups": 48
+    },
+    "remote_ip ,account_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5223,
+        "dups": 48
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5223,
+        "dups": 48
+    },
+    "remote_ip ,account_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5220,
+        "dups": 51
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5220,
+        "dups": 51
+    },
+    "remote_ip ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5219,
+        "dups": 52
+    },
+    "remote_ip ,app_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5219,
+        "dups": 52
+    },
+    "remote_ip ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5217,
+        "dups": 54
+    },
+    "remote_ip ,app_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5217,
+        "dups": 54
+    },
+    "visitor_id ,remote_ip ,account_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5216,
+        "dups": 55
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5216,
+        "dups": 55
+    },
+    "remote_ip ,account_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5213,
+        "dups": 58
+    },
+    "remote_ip ,account_id ,app_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5213,
+        "dups": 58
+    },
+    "visitor_id ,remote_ip ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5211,
+        "dups": 60
+    },
+    "visitor_id ,remote_ip ,app_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5211,
+        "dups": 60
+    },
+    "visitor_id ,account_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5210,
+        "dups": 61
+    },
+    "visitor_id ,account_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5210,
+        "dups": 61
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5210,
+        "dups": 61
+    },
+    "visitor_id ,account_id ,app_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5210,
+        "dups": 61
+    },
+    "visitor_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5208,
+        "dups": 63
+    },
+    "visitor_id ,app_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5208,
+        "dups": 63
+    },
+    "remote_ip ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5205,
+        "dups": 66
+    },
+    "visitor_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5205,
+        "dups": 66
+    },
+    "remote_ip ,app_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5205,
+        "dups": 66
+    },
+    "visitor_id ,app_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5205,
+        "dups": 66
+    },
+    "remote_ip ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5202,
+        "dups": 69
+    },
+    "remote_ip ,app_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5202,
+        "dups": 69
+    },
+    "visitor_id ,account_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5199,
+        "dups": 72
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5199,
+        "dups": 72
+    },
+    "remote_ip ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5198,
+        "dups": 73
+    },
+    "remote_ip ,app_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5198,
+        "dups": 73
+    },
+    "visitor_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5197,
+        "dups": 74
+    },
+    "visitor_id ,app_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5197,
+        "dups": 74
+    },
+    "remote_ip ,account_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5188,
+        "dups": 83
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5188,
+        "dups": 83
+    },
+    "remote_ip ,account_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5179,
+        "dups": 92
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5179,
+        "dups": 92
+    },
+    "visitor_id ,account_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5178,
+        "dups": 93
+    },
+    "visitor_id ,account_id ,app_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5178,
+        "dups": 93
+    },
+    "remote_ip ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5177,
+        "dups": 94
+    },
+    "remote_ip ,app_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5177,
+        "dups": 94
+    },
+    "visitor_id ,remote_ip ,account_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5175,
+        "dups": 96
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5175,
+        "dups": 96
+    },
+    "visitor_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5173,
+        "dups": 98
+    },
+    "visitor_id ,app_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5173,
+        "dups": 98
+    },
+    "visitor_id ,remote_ip ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5170,
+        "dups": 101
+    },
+    "visitor_id ,remote_ip ,app_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5170,
+        "dups": 101
+    },
+    "remote_ip ,account_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5169,
+        "dups": 102
+    },
+    "remote_ip ,account_id ,app_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5169,
+        "dups": 102
+    },
+    "remote_ip ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5166,
+        "dups": 105
+    },
+    "remote_ip ,app_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5166,
+        "dups": 105
+    },
+    "remote_ip ,account_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5157,
+        "dups": 114
+    },
+    "remote_ip ,account_id ,app_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5157,
+        "dups": 114
+    },
+    "remote_ip ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5156,
+        "dups": 115
+    },
+    "remote_ip ,app_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5156,
+        "dups": 115
+    },
+    "visitor_id ,account_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5155,
+        "dups": 116
+    },
+    "visitor_id ,account_id ,app_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5155,
+        "dups": 116
+    },
+    "visitor_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5150,
+        "dups": 121
+    },
+    "visitor_id ,app_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5150,
+        "dups": 121
+    },
+    "remote_ip ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5132,
+        "dups": 139
+    },
+    "remote_ip ,app_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5132,
+        "dups": 139
+    },
+    "remote_ip ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5126,
+        "dups": 145
+    },
+    "remote_ip ,app_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5126,
+        "dups": 145
+    },
+    "account_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5115,
+        "dups": 156
+    },
+    "account_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5115,
+        "dups": 156
+    },
+    "num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5100,
+        "dups": 171
+    },
+    "app_id ,num_events ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5100,
+        "dups": 171
+    },
+    "visitor_id ,account_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5082,
+        "dups": 189
+    },
+    "visitor_id ,account_id ,app_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5082,
+        "dups": 189
+    },
+    "account_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5082,
+        "dups": 189
+    },
+    "account_id ,app_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5082,
+        "dups": 189
+    },
+    "visitor_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5077,
+        "dups": 194
+    },
+    "visitor_id ,app_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5077,
+        "dups": 194
+    },
+    "remote_ip ,account_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5066,
+        "dups": 205
+    },
+    "remote_ip ,account_id ,app_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5066,
+        "dups": 205
+    },
+    "num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5066,
+        "dups": 205
+    },
+    "app_id ,num_events ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5066,
+        "dups": 205
+    },
+    "remote_ip ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5034,
+        "dups": 237
+    },
+    "remote_ip ,app_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5034,
+        "dups": 237
+    },
+    "account_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5012,
+        "dups": 259
+    },
+    "account_id ,app_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 5012,
+        "dups": 259
+    },
+    "num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 4979,
+        "dups": 292
+    },
+    "app_id ,num_minutes ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 4979,
+        "dups": 292
+    },
+    "account_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 4836,
+        "dups": 435
+    },
+    "account_id ,app_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 4836,
+        "dups": 435
+    },
+    "day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 4801,
+        "dups": 470
+    },
+    "app_id ,day ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 4801,
+        "dups": 470
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4314,
+        "dups": 957
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4314,
+        "dups": 957
+    },
+    "visitor_id ,remote_ip ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4311,
+        "dups": 960
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4311,
+        "dups": 960
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4309,
+        "dups": 962
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4309,
+        "dups": 962
+    },
+    "visitor_id ,remote_ip ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4306,
+        "dups": 965
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4306,
+        "dups": 965
+    },
+    "remote_ip ,account_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4305,
+        "dups": 966
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4305,
+        "dups": 966
+    },
+    "visitor_id ,account_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4300,
+        "dups": 971
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4300,
+        "dups": 971
+    },
+    "visitor_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4297,
+        "dups": 974
+    },
+    "visitor_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4297,
+        "dups": 974
+    },
+    "visitor_id ,account_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4295,
+        "dups": 976
+    },
+    "remote_ip ,account_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4295,
+        "dups": 976
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4295,
+        "dups": 976
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4295,
+        "dups": 976
+    },
+    "visitor_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4292,
+        "dups": 979
+    },
+    "visitor_id ,app_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4292,
+        "dups": 979
+    },
+    "remote_ip ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4285,
+        "dups": 986
+    },
+    "remote_ip ,app_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4285,
+        "dups": 986
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4278,
+        "dups": 993
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4278,
+        "dups": 993
+    },
+    "remote_ip ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4277,
+        "dups": 994
+    },
+    "remote_ip ,app_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4277,
+        "dups": 994
+    },
+    "visitor_id ,remote_ip ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4275,
+        "dups": 996
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4275,
+        "dups": 996
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4261,
+        "dups": 1010
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4261,
+        "dups": 1010
+    },
+    "visitor_id ,remote_ip ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4258,
+        "dups": 1013
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4258,
+        "dups": 1013
+    },
+    "visitor_id ,account_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4245,
+        "dups": 1026
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4245,
+        "dups": 1026
+    },
+    "remote_ip ,account_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4243,
+        "dups": 1028
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4243,
+        "dups": 1028
+    },
+    "visitor_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4242,
+        "dups": 1029
+    },
+    "visitor_id ,app_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4242,
+        "dups": 1029
+    },
+    "remote_ip ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4220,
+        "dups": 1051
+    },
+    "remote_ip ,app_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4220,
+        "dups": 1051
+    },
+    "visitor_id ,account_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4208,
+        "dups": 1063
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4208,
+        "dups": 1063
+    },
+    "visitor_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4205,
+        "dups": 1066
+    },
+    "visitor_id ,app_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4205,
+        "dups": 1066
+    },
+    "remote_ip ,account_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4172,
+        "dups": 1099
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4172,
+        "dups": 1099
+    },
+    "remote_ip ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4149,
+        "dups": 1122
+    },
+    "remote_ip ,app_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 4149,
+        "dups": 1122
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4123,
+        "dups": 1148
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4123,
+        "dups": 1148
+    },
+    "visitor_id ,remote_ip ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4120,
+        "dups": 1151
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4120,
+        "dups": 1151
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4118,
+        "dups": 1153
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4118,
+        "dups": 1153
+    },
+    "visitor_id ,remote_ip ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4115,
+        "dups": 1156
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4115,
+        "dups": 1156
+    },
+    "remote_ip ,account_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4113,
+        "dups": 1158
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4113,
+        "dups": 1158
+    },
+    "visitor_id ,account_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4108,
+        "dups": 1163
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4108,
+        "dups": 1163
+    },
+    "visitor_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4105,
+        "dups": 1166
+    },
+    "visitor_id ,app_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4105,
+        "dups": 1166
+    },
+    "visitor_id ,account_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4103,
+        "dups": 1168
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4103,
+        "dups": 1168
+    },
+    "remote_ip ,account_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4101,
+        "dups": 1170
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4101,
+        "dups": 1170
+    },
+    "visitor_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4100,
+        "dups": 1171
+    },
+    "visitor_id ,app_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4100,
+        "dups": 1171
+    },
+    "remote_ip ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4092,
+        "dups": 1179
+    },
+    "remote_ip ,app_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4092,
+        "dups": 1179
+    },
+    "remote_ip ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4082,
+        "dups": 1189
+    },
+    "remote_ip ,app_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 4082,
+        "dups": 1189
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4076,
+        "dups": 1195
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4076,
+        "dups": 1195
+    },
+    "visitor_id ,remote_ip ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4073,
+        "dups": 1198
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4073,
+        "dups": 1198
+    },
+    "visitor_id ,remote_ip ,account_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 4049,
+        "dups": 1222
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 4049,
+        "dups": 1222
+    },
+    "visitor_id ,remote_ip ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 4046,
+        "dups": 1225
+    },
+    "visitor_id ,remote_ip ,app_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 4046,
+        "dups": 1225
+    },
+    "remote_ip ,account_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4040,
+        "dups": 1231
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4040,
+        "dups": 1231
+    },
+    "visitor_id ,account_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4037,
+        "dups": 1234
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4037,
+        "dups": 1234
+    },
+    "visitor_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4034,
+        "dups": 1237
+    },
+    "visitor_id ,app_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4034,
+        "dups": 1237
+    },
+    "remote_ip ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4017,
+        "dups": 1254
+    },
+    "remote_ip ,app_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 4017,
+        "dups": 1254
+    },
+    "visitor_id ,account_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 3983,
+        "dups": 1288
+    },
+    "visitor_id ,account_id ,app_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 3983,
+        "dups": 1288
+    },
+    "visitor_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 3980,
+        "dups": 1291
+    },
+    "visitor_id ,app_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 3980,
+        "dups": 1291
+    },
+    "remote_ip ,account_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 3948,
+        "dups": 1323
+    },
+    "remote_ip ,account_id ,app_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 3948,
+        "dups": 1323
+    },
+    "remote_ip ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 3925,
+        "dups": 1346
+    },
+    "remote_ip ,app_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 3925,
+        "dups": 1346
+    },
+    "account_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3902,
+        "dups": 1369
+    },
+    "account_id ,app_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3902,
+        "dups": 1369
+    },
+    "account_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3891,
+        "dups": 1380
+    },
+    "account_id ,app_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3891,
+        "dups": 1380
+    },
+    "num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3880,
+        "dups": 1391
+    },
+    "app_id ,num_events ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3880,
+        "dups": 1391
+    },
+    "num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3877,
+        "dups": 1394
+    },
+    "app_id ,num_events ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3877,
+        "dups": 1394
+    },
+    "account_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3853,
+        "dups": 1418
+    },
+    "account_id ,app_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3853,
+        "dups": 1418
+    },
+    "num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3826,
+        "dups": 1445
+    },
+    "app_id ,num_events ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3826,
+        "dups": 1445
+    },
+    "visitor_id ,remote_ip ,account_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3747,
+        "dups": 1524
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3747,
+        "dups": 1524
+    },
+    "visitor_id ,remote_ip ,account_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3743,
+        "dups": 1528
+    },
+    "visitor_id ,remote_ip ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3743,
+        "dups": 1528
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3743,
+        "dups": 1528
+    },
+    "visitor_id ,remote_ip ,app_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3743,
+        "dups": 1528
+    },
+    "visitor_id ,remote_ip ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3739,
+        "dups": 1532
+    },
+    "visitor_id ,remote_ip ,app_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3739,
+        "dups": 1532
+    },
+    "remote_ip ,account_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3736,
+        "dups": 1535
+    },
+    "remote_ip ,account_id ,app_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3736,
+        "dups": 1535
+    },
+    "visitor_id ,account_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3730,
+        "dups": 1541
+    },
+    "visitor_id ,account_id ,app_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3730,
+        "dups": 1541
+    },
+    "visitor_id ,account_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3726,
+        "dups": 1545
+    },
+    "visitor_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3726,
+        "dups": 1545
+    },
+    "visitor_id ,account_id ,app_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3726,
+        "dups": 1545
+    },
+    "visitor_id ,app_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3726,
+        "dups": 1545
+    },
+    "visitor_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3722,
+        "dups": 1549
+    },
+    "visitor_id ,app_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3722,
+        "dups": 1549
+    },
+    "remote_ip ,account_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3722,
+        "dups": 1549
+    },
+    "remote_ip ,account_id ,app_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3722,
+        "dups": 1549
+    },
+    "remote_ip ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3715,
+        "dups": 1556
+    },
+    "remote_ip ,app_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3715,
+        "dups": 1556
+    },
+    "remote_ip ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3703,
+        "dups": 1568
+    },
+    "remote_ip ,app_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3703,
+        "dups": 1568
+    },
+    "visitor_id ,remote_ip ,account_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3703,
+        "dups": 1568
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3703,
+        "dups": 1568
+    },
+    "visitor_id ,remote_ip ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3699,
+        "dups": 1572
+    },
+    "visitor_id ,remote_ip ,app_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3699,
+        "dups": 1572
+    },
+    "visitor_id ,remote_ip ,account_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3680,
+        "dups": 1591
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3680,
+        "dups": 1591
+    },
+    "visitor_id ,remote_ip ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3676,
+        "dups": 1595
+    },
+    "visitor_id ,remote_ip ,app_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3676,
+        "dups": 1595
+    },
+    "remote_ip ,account_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3665,
+        "dups": 1606
+    },
+    "remote_ip ,account_id ,app_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3665,
+        "dups": 1606
+    },
+    "account_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3663,
+        "dups": 1608
+    },
+    "account_id ,app_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3663,
+        "dups": 1608
+    },
+    "visitor_id ,account_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3659,
+        "dups": 1612
+    },
+    "visitor_id ,account_id ,app_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3659,
+        "dups": 1612
+    },
+    "visitor_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3655,
+        "dups": 1616
+    },
+    "visitor_id ,app_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3655,
+        "dups": 1616
+    },
+    "remote_ip ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3645,
+        "dups": 1626
+    },
+    "remote_ip ,app_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3645,
+        "dups": 1626
+    },
+    "num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3639,
+        "dups": 1632
+    },
+    "app_id ,num_events ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3639,
+        "dups": 1632
+    },
+    "visitor_id ,account_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3611,
+        "dups": 1660
+    },
+    "visitor_id ,account_id ,app_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3611,
+        "dups": 1660
+    },
+    "visitor_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3607,
+        "dups": 1664
+    },
+    "visitor_id ,app_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3607,
+        "dups": 1664
+    },
+    "remote_ip ,account_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3574,
+        "dups": 1697
+    },
+    "remote_ip ,account_id ,app_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3574,
+        "dups": 1697
+    },
+    "remote_ip ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3556,
+        "dups": 1715
+    },
+    "remote_ip ,app_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 3556,
+        "dups": 1715
+    },
+    "account_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3552,
+        "dups": 1719
+    },
+    "account_id ,app_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3552,
+        "dups": 1719
+    },
+    "account_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3541,
+        "dups": 1730
+    },
+    "account_id ,app_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3541,
+        "dups": 1730
+    },
+    "num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3526,
+        "dups": 1745
+    },
+    "app_id ,num_events ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3526,
+        "dups": 1745
+    },
+    "num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3523,
+        "dups": 1748
+    },
+    "app_id ,num_events ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3523,
+        "dups": 1748
+    },
+    "account_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3394,
+        "dups": 1877
+    },
+    "account_id ,app_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3394,
+        "dups": 1877
+    },
+    "num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3362,
+        "dups": 1909
+    },
+    "app_id ,num_minutes ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3362,
+        "dups": 1909
+    },
+    "account_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3206,
+        "dups": 2065
+    },
+    "account_id ,app_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3206,
+        "dups": 2065
+    },
+    "num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3177,
+        "dups": 2094
+    },
+    "app_id ,num_minutes ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 3177,
+        "dups": 2094
+    },
+    "account_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3098,
+        "dups": 2173
+    },
+    "account_id ,app_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3098,
+        "dups": 2173
+    },
+    "num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3072,
+        "dups": 2199
+    },
+    "app_id ,num_minutes ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3072,
+        "dups": 2199
+    },
+    "visitor_id ,remote_ip ,account_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3037,
+        "dups": 2234
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3037,
+        "dups": 2234
+    },
+    "visitor_id ,remote_ip ,account_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3033,
+        "dups": 2238
+    },
+    "visitor_id ,remote_ip ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3033,
+        "dups": 2238
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3033,
+        "dups": 2238
+    },
+    "visitor_id ,remote_ip ,app_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3033,
+        "dups": 2238
+    },
+    "visitor_id ,remote_ip ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3029,
+        "dups": 2242
+    },
+    "visitor_id ,remote_ip ,app_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3029,
+        "dups": 2242
+    },
+    "remote_ip ,account_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3017,
+        "dups": 2254
+    },
+    "remote_ip ,account_id ,app_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3017,
+        "dups": 2254
+    },
+    "visitor_id ,account_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3011,
+        "dups": 2260
+    },
+    "visitor_id ,account_id ,app_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3011,
+        "dups": 2260
+    },
+    "visitor_id ,account_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3007,
+        "dups": 2264
+    },
+    "visitor_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3007,
+        "dups": 2264
+    },
+    "visitor_id ,account_id ,app_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3007,
+        "dups": 2264
+    },
+    "visitor_id ,app_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 3007,
+        "dups": 2264
+    },
+    "visitor_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3003,
+        "dups": 2268
+    },
+    "visitor_id ,app_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3003,
+        "dups": 2268
+    },
+    "remote_ip ,account_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3002,
+        "dups": 2269
+    },
+    "remote_ip ,account_id ,app_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 3002,
+        "dups": 2269
+    },
+    "remote_ip ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2995,
+        "dups": 2276
+    },
+    "remote_ip ,app_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2995,
+        "dups": 2276
+    },
+    "remote_ip ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 2982,
+        "dups": 2289
+    },
+    "remote_ip ,app_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 2982,
+        "dups": 2289
+    },
+    "visitor_id ,remote_ip ,account_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2980,
+        "dups": 2291
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2980,
+        "dups": 2291
+    },
+    "visitor_id ,remote_ip ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2976,
+        "dups": 2295
+    },
+    "visitor_id ,remote_ip ,app_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2976,
+        "dups": 2295
+    },
+    "visitor_id ,remote_ip ,account_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2952,
+        "dups": 2319
+    },
+    "visitor_id ,remote_ip ,account_id ,app_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2952,
+        "dups": 2319
+    },
+    "visitor_id ,remote_ip ,": {
+        "total_rec": 5271,
+        "red_rec": 2948,
+        "dups": 2323
+    },
+    "visitor_id ,remote_ip ,app_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2948,
+        "dups": 2323
+    },
+    "remote_ip ,account_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2931,
+        "dups": 2340
+    },
+    "remote_ip ,account_id ,app_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2931,
+        "dups": 2340
+    },
+    "visitor_id ,account_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2921,
+        "dups": 2350
+    },
+    "visitor_id ,account_id ,app_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2921,
+        "dups": 2350
+    },
+    "visitor_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2917,
+        "dups": 2354
+    },
+    "visitor_id ,app_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2917,
+        "dups": 2354
+    },
+    "remote_ip ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2911,
+        "dups": 2360
+    },
+    "remote_ip ,app_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2911,
+        "dups": 2360
+    },
+    "visitor_id ,account_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2865,
+        "dups": 2406
+    },
+    "visitor_id ,account_id ,app_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2865,
+        "dups": 2406
+    },
+    "visitor_id ,app_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2861,
+        "dups": 2410
+    },
+    "remote_ip ,account_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2826,
+        "dups": 2445
+    },
+    "remote_ip ,account_id ,app_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2826,
+        "dups": 2445
+    },
+    "remote_ip ,app_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2808,
+        "dups": 2463
+    },
+    "account_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2789,
+        "dups": 2482
+    },
+    "account_id ,app_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2789,
+        "dups": 2482
+    },
+    "user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2757,
+        "dups": 2514
+    },
+    "app_id ,user_agent ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2757,
+        "dups": 2514
+    },
+    "account_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2301,
+        "dups": 2970
+    },
+    "account_id ,app_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2301,
+        "dups": 2970
+    },
+    "account_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2300,
+        "dups": 2971
+    },
+    "account_id ,app_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2300,
+        "dups": 2971
+    },
+    "day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2274,
+        "dups": 2997
+    },
+    "app_id ,day ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2274,
+        "dups": 2997
+    },
+    "account_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2271,
+        "dups": 3000
+    },
+    "num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2271,
+        "dups": 3000
+    },
+    "account_id ,app_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2271,
+        "dups": 3000
+    },
+    "app_id ,num_events ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 2271,
+        "dups": 3000
+    },
+    "day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2240,
+        "dups": 3031
+    },
+    "app_id ,day ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 2240,
+        "dups": 3031
+    },
+    "account_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 1857,
+        "dups": 3414
+    },
+    "account_id ,app_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 1857,
+        "dups": 3414
+    },
+    "num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 1825,
+        "dups": 3446
+    },
+    "app_id ,num_events ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 1825,
+        "dups": 3446
+    },
+    "account_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 1792,
+        "dups": 3479
+    },
+    "account_id ,app_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 1792,
+        "dups": 3479
+    },
+    "num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 1762,
+        "dups": 3509
+    },
+    "app_id ,num_events ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 1762,
+        "dups": 3509
+    },
+    "account_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 1476,
+        "dups": 3795
+    },
+    "account_id ,app_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 1476,
+        "dups": 3795
+    },
+    "num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 1455,
+        "dups": 3816
+    },
+    "app_id ,num_minutes ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 1455,
+        "dups": 3816
+    },
+    "account_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 1205,
+        "dups": 4066
+    },
+    "account_id ,app_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 1205,
+        "dups": 4066
+    },
+    "num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 1170,
+        "dups": 4101
+    },
+    "app_id ,num_events ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 1170,
+        "dups": 4101
+    },
+    "account_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 896,
+        "dups": 4375
+    },
+    "account_id ,app_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 896,
+        "dups": 4375
+    },
+    "app_id ,user_agent ,": {
+        "total_rec": 5271,
+        "red_rec": 877,
+        "dups": 4394
+    },
+    "account_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 781,
+        "dups": 4490
+    },
+    "account_id ,app_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 781,
+        "dups": 4490
+    },
+    "num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 756,
+        "dups": 4515
+    },
+    "app_id ,num_minutes ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 756,
+        "dups": 4515
+    },
+    "account_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 477,
+        "dups": 4794
+    },
+    "account_id ,app_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 477,
+        "dups": 4794
+    },
+    "num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 453,
+        "dups": 4818
+    },
+    "app_id ,num_events ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 453,
+        "dups": 4818
+    },
+    "account_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 245,
+        "dups": 5026
+    },
+    "account_id ,app_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 245,
+        "dups": 5026
+    },
+    "account_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 236,
+        "dups": 5035
+    },
+    "account_id ,app_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 236,
+        "dups": 5035
+    },
+    "app_id ,day ,": {
+        "total_rec": 5271,
+        "red_rec": 220,
+        "dups": 5051
+    },
+    "num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 210,
+        "dups": 5061
+    },
+    "app_id ,num_events ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 210,
+        "dups": 5061
+    },
+    "account_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 171,
+        "dups": 5100
+    },
+    "account_id ,app_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 171,
+        "dups": 5100
+    },
+    "account_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 160,
+        "dups": 5111
+    },
+    "account_id ,app_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 160,
+        "dups": 5111
+    },
+    "num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 139,
+        "dups": 5132
+    },
+    "app_id ,num_events ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 139,
+        "dups": 5132
+    },
+    "num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 133,
+        "dups": 5138
+    },
+    "app_id ,num_minutes ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 133,
+        "dups": 5138
+    },
+    "account_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 60,
+        "dups": 5211
+    },
+    "account_id ,app_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 60,
+        "dups": 5211
+    },
+    "account_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 59,
+        "dups": 5212
+    },
+    "account_id ,app_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 59,
+        "dups": 5212
+    },
+    "account_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 32,
+        "dups": 5239
+    },
+    "app_id ,feature_id ,": {
+        "total_rec": 5271,
+        "red_rec": 32,
+        "dups": 5239
+    },
+    "account_id ,app_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 32,
+        "dups": 5239
+    },
+    "app_id ,num_events ,": {
+        "total_rec": 5271,
+        "red_rec": 29,
+        "dups": 5242
+    },
+    "account_id ,app_id ,": {
+        "total_rec": 5271,
+        "red_rec": 18,
+        "dups": 5253
+    },
+    "app_id ,num_minutes ,": {
+        "total_rec": 5271,
+        "red_rec": 13,
+        "dups": 5258
+    }
+}
