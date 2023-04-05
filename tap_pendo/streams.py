@@ -561,16 +561,14 @@ class Stream():
     def remove_none_replication_value_records(self, records):
         """Removes the none replication_value records to avoid duplicates records"""
         if len(records) > 0:
-            for i in range(len(records)-1, -1, -1):
-                if self.get_replication_value(records[i]):
+            for index in range(len(records)-1, -1, -1):
+                if self.get_replication_value(records[index]):
                     continue
 
-                last_record = records.pop(i)
+                last_record = records.pop(index)
                 if last_record not in self.none_replication_value_records:
                     # add removed records to be synced at the end
                     self.none_replication_value_records.append(last_record)
-
-        return records
 
     def remove_last_timestamp_records(self, records):
         """Removes the overlapping records with last timestamp value. This avoids possibilty of duplicates"""
@@ -668,7 +666,7 @@ class Stream():
         self.record_limit = self.get_default_record_limit()
 
         if not loop_for_records:
-            # Add none replication_value records with records with valid replication_value
+            # Add none replication_value records into records with valid replication_value
             # before syncing the sud-stream records
             stream_records.extend(self.none_replication_value_records)
             self.none_replication_value_records = []
@@ -867,6 +865,10 @@ class EventsBase(Stream):
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
         self.record_limit = self.get_default_record_limit()
+
+        # Add none replication_value records into records with valid replication_value
+        events.extend(self.none_replication_value_records)
+        self.none_replication_value_records = []
 
         update_currently_syncing(state, None)
         return (self.stream, events), False
