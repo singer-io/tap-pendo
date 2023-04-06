@@ -35,6 +35,24 @@ class TestPendoParentStreams(unittest.TestCase):
 
         return test_records
 
+    def generate_null_records(self, stream_obj, num_records, num_none_replication_value=3):
+        test_records = []
+        offset = 1000000
+        replication_key = humps.decamelize(stream_obj.replication_key)
+
+        if isinstance(stream_obj, Accounts):
+            test_records = [{"appID": 10000, "metadata": {"auto": {"lastupdated": offset+i}}} for i in range(num_records)]
+            test_records.insert(0, {"appID": 10001, "metadata": {"auto": {"lastupdated": None}}})
+            test_records.insert(-1, {"appID": 10002, "metadata": {"auto": {"lastupdated": None}}})
+            test_records.insert(int(len(test_records)/2), {"appID": 10003, "metadata": {"auto": {"lastupdated": None}}})
+        else:
+            test_records = [{"appID": 10001, replication_key: offset+i} for i in range(num_records)]
+            test_records.insert(0, {"id": 10002, replication_key: None})
+            test_records.insert(-1, {"id": 10003, replication_key: None})
+            test_records.insert(int(len(test_records)/2), {"id": 10000, replication_key: None})
+
+        return test_records
+
     @parameterized.expand(
         [(Accounts, "accounts", None, "metadata.auto.lastupdated", None),
         (Features, "features", None, "lastUpdatedAt", None),
@@ -111,15 +129,47 @@ class TestPendoParentStreams(unittest.TestCase):
 
         # Verify if records have distinct replication key value then only one record is removed
         test_records = self.generate_records(stream_obj, 10)
-        self.assertEqual(len(stream_obj.remove_last_timestamp_records(test_records)), 1)
+        records, removed_records = stream_obj.remove_last_timestamp_records(test_records)
+        self.assertEqual(len(records), 9)
+        self.assertEqual(len(removed_records), 1)
         self.assertEqual(stream_obj.record_limit, record_limit)
 
         # Verify if records have 'nn distinct replication key value then 'n' record is removed
         test_records = self.generate_records(stream_obj, 10, 5)
-        self.assertEqual(len(stream_obj.remove_last_timestamp_records(test_records)), 5)
+        records, removed_records = stream_obj.remove_last_timestamp_records(test_records)
+        self.assertEqual(len(records), 10)
+        self.assertEqual(len(removed_records), 5)
         self.assertEqual(stream_obj.record_limit, record_limit)
 
         # Verify if all records have equal replication key value then record limit is set to default
         test_records = self.generate_records(stream_obj, 0, record_limit)
-        self.assertEqual(len(stream_obj.remove_last_timestamp_records(test_records)), record_limit)
+        records, removed_records = stream_obj.remove_last_timestamp_records(test_records)
+        self.assertEqual(len(records), 0)
+        self.assertEqual(len(removed_records), record_limit)
         self.assertEqual(stream_obj.record_limit, API_RECORD_LIMIT)
+
+
+    @parameterized.expand(
+        [(Accounts,),
+        (Features,),
+        (TrackTypes,),
+        (Events,),
+        (PollEvents,),
+        (GuideEvents,)])
+    def test_remove_empty_replication_key_records(self, stream_class):
+        """Verify response records with none replication value are removed
+        and are stored in another list as expected"""
+        stream_obj = stream_class(default_config)
+        record_limit = stream_obj.record_limit  # original record limit value
+
+        # Verify if none replication value records are removed from mix records
+        test_records = self.generate_null_records(stream_obj, 10)
+        stream_obj.remove_empty_replication_key_records(test_records)
+        self.assertEqual(len(test_records), 10)
+        self.assertEqual(len(stream_obj.empty_replication_key_records), 3)
+
+        # Verify if none replication value records are removed from records having only none replication value
+        test_records = self.generate_null_records(stream_obj, 0)
+        stream_obj.remove_empty_replication_key_records(test_records)
+        self.assertEqual(len(test_records), 0)
+        self.assertEqual(len(stream_obj.empty_replication_key_records), 3)
