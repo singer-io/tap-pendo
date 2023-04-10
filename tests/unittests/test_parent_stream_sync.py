@@ -4,12 +4,12 @@ import humps
 
 from parameterized import parameterized
 from tap_pendo.streams import *
-
-default_config = {
+from tap_pendo import filter_app_ids
+default_config = filter_app_ids({
         "record_limit": 10,
         "request_timeout": 10,
         "period": "hourRage"
-    }
+    })
 
 default_kwargs = {"key_id": "key_id", "period": "hour", "first": 1}
 
@@ -55,10 +55,10 @@ class TestPendoParentStreams(unittest.TestCase):
 
     @parameterized.expand(
         [(Accounts, "accounts", None, "metadata.auto.lastupdated", None),
-        (Features, "features", None, "lastUpdatedAt", None),
-        (TrackTypes, "trackTypes", None, "lastUpdatedAt", None),
-        (Guides, "guides", None, "lastUpdatedAt", None),
-        (Pages, "pages", None, "lastUpdatedAt", None),
+        (Features, "features", {'appId': 'expandAppIds("*")'}, "lastUpdatedAt", None),
+        (TrackTypes, "trackTypes", {'appId': 'expandAppIds("*")'}, "lastUpdatedAt", None),
+        (Guides, "guides", {'appId': 'expandAppIds("*")'}, "lastUpdatedAt", None),
+        (Pages, "pages", {'appId': 'expandAppIds("*")'}, "lastUpdatedAt", None),
         (Events, "events", None, "hour", default_kwargs),
         (GuideEvents, "guideEvents", {"guideId": "key_id",}, "browser_time", default_kwargs),
         (FeatureEvents, "featureEvents", {"featureId": "key_id",}, "hour", default_kwargs),
