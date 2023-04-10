@@ -149,6 +149,7 @@ class Stream():
     def __init__(self, config=None):
         self.config = config
         self.record_limit = self.get_default_record_limit()
+        self.empty_replication_key_records = []
 
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
@@ -549,20 +550,41 @@ class Stream():
 
         return body
 
+    def get_replication_key_value(self, record):
+        """Returns the replication key value stored in the record"""
+        if isinstance(self, Accounts):
+            return record['metadata']['auto']['lastupdated']
+
+        decamelized_replication_key = humps.decamelize(self.replication_key)
+        return record.get(decamelized_replication_key)
+
+    def remove_empty_replication_key_records(self, records):
+        """Removes the none replication_value records to avoid duplicates records"""
+        if len(records) > 0:
+            for index in range(len(records)-1, -1, -1):
+                if self.get_replication_key_value(records[index]):
+                    continue
+
+                last_record = records.pop(index)
+                if last_record not in self.empty_replication_key_records:
+                    # add removed records to be synced at the end
+                    self.empty_replication_key_records.append(last_record)
+
     def remove_last_timestamp_records(self, records):
         """Removes the overlapping records with last timestamp value. This avoids possibilty of duplicates"""
         last_processed = []
-        decamalized_replication_key = humps.decamelize(self.replication_key)
 
         if len(records) > 0:
-            if isinstance(self, Accounts):
-                timestamp = records[-1]['metadata']['auto']['lastupdated']
-                while records and timestamp == records[-1]['metadata']['auto']['lastupdated']:
-                    last_processed.append(records.pop())
-            else:
-                timestamp = records[-1].get(decamalized_replication_key)
-                while records and timestamp == records[-1].get(decamalized_replication_key):
-                    last_processed.append(records.pop())
+            if records and self.last_processed:
+                # Previously removed records get duplicated in subsequent api response which needs to be removed
+                records = [record for record in records if self.get_replication_key_value(
+                    record) >= self.get_replication_key_value(self.last_processed[0])]
+
+            if records:
+                timestamp = self.get_replication_key_value(records[-1])
+                while records and timestamp == self.get_replication_key_value(records[-1]):
+                    last = records.pop()
+                    last_processed.append(last)
 
         # This is a corner cases where all records in the set have same timestamp
         # This can occur if record limit is set very smaller compared to the max record limit
@@ -571,7 +593,7 @@ class Stream():
         if len(records) == 0 or not last_processed:
             self.record_limit = API_RECORD_LIMIT
 
-        return last_processed
+        return records, last_processed
 
     def get_first_parameter_value(self, body):
         return body['request']['pipeline'][0]['source']['timeSeries'].get('first', 0)
@@ -600,7 +622,7 @@ class Stream():
 
         # If last processed records exists, then set first to timestamp of first record
         if self.last_processed:
-            first = self.last_processed[0][humps.decamelize(self.replication_key)]
+            first = self.get_replication_key_value(self.last_processed[0])
         else:
             first = int(start_date.timestamp()) * 1000
 
@@ -614,21 +636,13 @@ class Stream():
             # Loop breaks when paged response returns lesser records than set record limit
             records = self.request(self.name, json=body).get('results') or []
 
-            # Set first and filters for next request
-            self.set_request_body_filters(
-                body,
-                first,
-                records)
-
             if len(records) > 1:
-                # Previously removed records get duplicated in subsequent api response which needs to be removed
-                if self.last_processed:
-                    decamelized_replication_key = humps.decamelize(self.replication_key)
-                    records = [record for record in records if record.get(
-                        decamelized_replication_key) >= self.last_processed[0].get(decamelized_replication_key)]
-
-                removed_records = self.remove_last_timestamp_records(records)
+                self.remove_empty_replication_key_records(records)
+                records, removed_records = self.remove_last_timestamp_records(records)
                 stream_records += records
+
+                # Set first and filters for next request
+                self.set_request_body_filters(body, first, records)
 
                 if self.last_processed == removed_records:
                     stream_records += removed_records
@@ -650,6 +664,12 @@ class Stream():
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
         self.record_limit = self.get_default_record_limit()
+
+        if not loop_for_records:
+            # Add none replication_value records into records with valid replication_value
+            # before syncing the sud-stream records
+            stream_records.extend(self.empty_replication_key_records)
+            self.empty_replication_key_records = []
 
         # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_records and sub_stream and sub_stream.is_selected():
@@ -808,7 +828,9 @@ class EventsBase(Stream):
                     self.last_processed = None
                     break
 
-                removed_records = self.remove_last_timestamp_records(records)
+                # Remove last processed and none replication_value records
+                self.remove_empty_replication_key_records(records)
+                records, removed_records = self.remove_last_timestamp_records(records)
                 if len(records) > 0:
                     events += records
 
@@ -844,6 +866,10 @@ class EventsBase(Stream):
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
         self.record_limit = self.get_default_record_limit()
+
+        # Add none replication_value records into records with valid replication_value
+        events.extend(self.empty_replication_key_records)
+        self.empty_replication_key_records = []
 
         update_currently_syncing(state, None)
         return (self.stream, events), False

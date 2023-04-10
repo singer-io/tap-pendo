@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.1
+  * Fix the type error in the accounts stream records that resulted from comparing a none value. [#122](https://github.com/singer-io/tap-pendo/pull/122)
+
 ## 0.6.0
   * Fix connection reset, request timeout and memory overflow issues [#116](https://github.com/singer-io/tap-pendo/pull/116)
   * Refactor child stream methods
