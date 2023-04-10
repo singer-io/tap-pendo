@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.2
+  * Update the lookback window validation to use typecasting using `int()` function instead of `isdigit()`
+
 ## 0.6.1
   * Fix the type error in the accounts stream records that resulted from comparing a none value. [#122](https://github.com/singer-io/tap-pendo/pull/122)
 
