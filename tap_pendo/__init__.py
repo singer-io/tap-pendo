@@ -156,10 +156,11 @@ def sync(config, state, catalog):
 def filter_app_ids(config):
     # reason to use expandAppIds
     # https://support.pendo.io/hc/en-us/community/posts/360078029732-How-to-retrieve-all-application-data-using-Pendo-API-through-Python
-    app_ids = config.get("app_ids", "expandAppIds(\"*\")").replace(" ", "") or "expandAppIds(\"*\")"
+    app_ids = config.get("app_ids") or "expandAppIds(\"*\")"
+
     invalid_app_ids = []
     if app_ids != "expandAppIds(\"*\")":
-        app_ids = app_ids.split(",")
+        app_ids = [app_id.strip() for app_id in app_ids.split(",")]
         for app_id in app_ids:
             try:
                 int(app_id)
@@ -167,11 +168,8 @@ def filter_app_ids(config):
                 invalid_app_ids.append(app_id)
         if invalid_app_ids:
             raise Exception(f"Invalid appIDs provided during the configuration:{invalid_app_ids}")
-        config["app_ids"] = app_ids
-    else:
-        config["app_ids"] = "expandAppIds(\"*\")"
+    config["app_ids"] = app_ids
     return config
-
 
 
 @utils.handle_top_exception(LOGGER)

@@ -54,15 +54,15 @@ class TestPendoParentStreams(unittest.TestCase):
         return test_records
 
     @parameterized.expand(
-        [(Accounts, "accounts", None, "metadata.auto.lastupdated", None),
+        [(Accounts, "accounts", {'appId': 'expandAppIds("*")'}, "metadata.auto.lastupdated", None),
         (Features, "features", {'appId': 'expandAppIds("*")'}, "lastUpdatedAt", None),
         (TrackTypes, "trackTypes", {'appId': 'expandAppIds("*")'}, "lastUpdatedAt", None),
         (Guides, "guides", {'appId': 'expandAppIds("*")'}, "lastUpdatedAt", None),
         (Pages, "pages", {'appId': 'expandAppIds("*")'}, "lastUpdatedAt", None),
-        (Events, "events", None, "hour", default_kwargs),
+        (Events, "events", {'appId': 'expandAppIds("*")'}, "hour", default_kwargs),
         (GuideEvents, "guideEvents", {"guideId": "key_id",}, "browser_time", default_kwargs),
         (FeatureEvents, "featureEvents", {"featureId": "key_id",}, "hour", default_kwargs),
-        (PollEvents, "pollEvents", None, "browser_time", default_kwargs),
+        (PollEvents, "pollEvents", {'appId': 'expandAppIds("*")'}, "browser_time", default_kwargs),
         (TrackEvents, "trackEvents", {"trackTypeId": "key_id",}, "hour", default_kwargs)])
     def test_get_body(self, stream_class, exp_event_type, exp_event_type_value, exp_filter_key, kwargs):
         """Verify get_body method returns an expected request body object"""

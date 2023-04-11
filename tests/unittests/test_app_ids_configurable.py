@@ -15,7 +15,7 @@ class TestAppIdConfiguration(unittest.TestCase):
         main()
         config = {'app_ids': 'expandAppIds("*")', 'start_date': '', 'x_pendo_integration_key': '', 'period': ''}
         mocked_do_discover.assert_called_with(config)
-        
+
     @mock.patch("tap_pendo.utils.parse_args", side_effect=lambda required_config_keys: Namespace(config={"app_ids": "123, 456","start_date": "", "x_pendo_integration_key": "", "period":""},  discover=True))
     @mock.patch("tap_pendo.discover_streams", side_effect=lambda config: {})
     @mock.patch('tap_pendo.do_discover')
@@ -26,7 +26,7 @@ class TestAppIdConfiguration(unittest.TestCase):
         main()
         config = {'app_ids': ['123', '456'], 'start_date': '', 'x_pendo_integration_key': '', 'period': ''}
         mocked_do_discover.assert_called_with(config)
-        
+
     @mock.patch("tap_pendo.utils.parse_args", side_effect=lambda required_config_keys: Namespace(config={"app_ids": "","start_date": "", "x_pendo_integration_key": "", "period":""},  discover=True))
     @mock.patch("tap_pendo.discover_streams", side_effect=lambda config: {})
     @mock.patch('tap_pendo.do_discover')
@@ -37,14 +37,14 @@ class TestAppIdConfiguration(unittest.TestCase):
         main()
         config = {'app_ids': 'expandAppIds("*")', 'start_date': '', 'x_pendo_integration_key': '', 'period': ''}
         mocked_do_discover.assert_called_with(config)
-    
+
     @mock.patch("tap_pendo.utils.parse_args", side_effect=lambda required_config_keys: Namespace(config={"app_ids": "123, test, test123, 123test,  ","start_date": "", "x_pendo_integration_key": "", "period":""},  discover=True))
     def test_app_ids_valid_app_ids_with_invalid_app_ids_config(self, mocked_parse_args):
         """
             To verify that if app_ids is comma seperated blanks with string in configure file then then raise exception.
         """
-        
+
         with self.assertRaises(Exception) as e:
             main()
-            
+
         self.assertEqual(str(e.exception), "Invalid appIDs provided during the configuration:['test', 'test123', '123test', '']", "Not get expected exception")

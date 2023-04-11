@@ -1,91 +1,83 @@
 import tap_tester.connections as connections
 import tap_tester.runner as runner
+import tap_tester.menagerie as menagerie
 from base import TestPendoBase
 
-class PendoAPPIDSTest(TestPendoBase):
-    """Instantiate app_ids with value and None then run the test"""
 
-    def get_properties(self, *args, **kwargs):
-        props = super().get_properties(*args, **kwargs)
-        props.pop('lookback_window')
-        return props
-
-    app_ids_1 = ""
-    app_ids_2 = ""
-
+class PendoMultiAppIdsTest(TestPendoBase):
     def name(self):
-        return "pendo_app_ids_test"
+        return "pendo_multi_app_ids_test"
 
     def test_run(self):
-        self.run_test("-323232", None, {"features", "feature_events", "pages", "page_events", "events", "guides", "guide_events", "track_types", "track_events"})
+        expected_streams = {"features", "pages", "events", "guides", "track_types", "track_events"}
+        self.run_test(expected_streams=expected_streams, app_ids="-323232", is_multi_apps=False)
+        self.run_test(expected_streams=expected_streams, app_ids=None, is_multi_apps=True)
+        self.run_test(expected_streams={"visitors", "visitor_history"}, app_ids=None, is_multi_apps=True)
 
-    def run_test(self, app_ids_1, app_ids_2, streams):
+    def get_properties(self, original: bool = True):
+        """Configuration properties required for the tap."""
+        if self.streams_to_test == {"visitors", "visitor_history"}:
+            return_value = {
+                # To reduce the execution time to test this stream taking recently start_date
+                "start_date": self.START_DATE_VISTOR_HISTORY,
+                "lookback_window": "1",
+                "period": "dayRange",
+            }
+            if original:
+                return return_value
+
+            return return_value
+        else:
+            return super().get_properties()
+
+    def run_test(self, expected_streams, app_ids, is_multi_apps, start_date=None):
         """
-        Test that the app_ids configuration is respected
-        • verify that a sync with app_ids have one app's data 
-        • verify that a sync with None app_ids get more than one app's data
+        - Verify tap syncs records for multiple app_ids if no app_ids provided
+        - Verify tap syncs records for specific app_id if
         """
-        
-        self.app_ids = app_ids_1
-        self.start_date = "2020-09-10T00:00:00Z"
 
-        expected_streams = streams
+        self.start_date = start_date
+        self.streams_to_test = expected_streams
+        self.app_ids = app_ids
 
-        ##########################################################################
-        # First Sync
-        ##########################################################################
+        conn_id = connections.ensure_connection(self)
 
-        # instantiate connection
-        conn_id_1 = connections.ensure_connection(self, original_properties=False)
-
-        # run check mode
-        found_catalogs_1 = self.run_and_verify_check_mode(conn_id_1)
+        found_catalogs = self.run_and_verify_check_mode(conn_id)
 
         # table and field selection
-        test_catalogs_1_all_fields = [catalog for catalog in found_catalogs_1
-                                      if catalog.get('tap_stream_id') in expected_streams]
+        test_catalogs_all_fields = [catalog for catalog in found_catalogs
+                                    if catalog.get('tap_stream_id') in expected_streams]
+
         self.perform_and_verify_table_and_field_selection(
-            conn_id_1, test_catalogs_1_all_fields, select_all_fields=True)
+            conn_id, test_catalogs_all_fields)
 
-        # run initial sync
-        synced_records_1 = runner.get_records_from_target_output()
-        
+        # grab metadata after performing table-and-field selection to set expectations
+        # used for asserting all fields are replicated
+        stream_to_all_catalog_fields = dict()
+        for catalog in test_catalogs_all_fields:
+            stream_id, stream_name = catalog['stream_id'], catalog['stream_name']
+            catalog_entry = menagerie.get_annotated_schema(conn_id, stream_id)
+            fields_from_field_level_md = [md_entry['breadcrumb'][1]
+                                          for md_entry in catalog_entry['metadata']
+                                          if md_entry['breadcrumb'] != []]
+            stream_to_all_catalog_fields[stream_name] = set(
+                fields_from_field_level_md)
+
+        self.run_and_verify_sync(conn_id)
+
+        synced_records = runner.get_records_from_target_output()
+
+        # Verify no unexpected streams were replicated
+        synced_stream_names = set(synced_records.keys())
+
+        # Skipping below streams due to zero records for given start date
+        self.assertSetEqual(expected_streams, synced_stream_names)
+
         for stream in expected_streams:
-            messages_1 = synced_records_1.get(stream)
-            records_appid_set = set([message.get('data').get('app_id') for message in messages_1.get("messages")])
-            self.assertEqual(len(records_appid_set), 1, msg=f"We are getting more than one app's records for {stream}")
-        
+            # below four streams are independent of the app_id
+            if stream in ["accounts", "visitors", "metadata_accounts", "metadata_visitors"]:
+                continue
 
-        ##########################################################################
-        # Update APP IDs Between Syncs
-        ##########################################################################
-        
-        print("Start syncing with no app_ids in config.json")
-        # for no app_ids given None value in self.app_ids
-        self.app_ids = app_ids_2
-        
-
-        # ##########################################################################
-        # # Second Sync
-        # ##########################################################################
-
-        # create a new connection with the new config where app_ids are not given
-        conn_id_2 = connections.ensure_connection(
-            self, original_properties=False)
-
-        # run check mode
-        found_catalogs_2 = self.run_and_verify_check_mode(conn_id_2)
-
-        # table and field selection
-        test_catalogs_2_all_fields = [catalog for catalog in found_catalogs_2
-                                      if catalog.get('tap_stream_id') in expected_streams]
-        self.perform_and_verify_table_and_field_selection(
-            conn_id_2, test_catalogs_2_all_fields, select_all_fields=True)
-
-        # run sync
-        synced_records_2 = runner.get_records_from_target_output()
-        
-        for stream in expected_streams:
-            messages_2 = synced_records_2.get(stream)
-            records_appid_set = set([message.get('data').get('app_id') for message in messages_2.get("messages")])
-            self.assertGreater(len(records_appid_set), 1, msg=f"We have only one app's records for {stream}")
+            with self.subTest(stream=stream):
+                records_appid_set = set([message.get('data').get('app_id') for message in synced_records.get(stream).get("messages")])
+                self.assertEqual(len(records_appid_set)>1, is_multi_apps)

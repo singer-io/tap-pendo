@@ -14,7 +14,7 @@ from tap_tester.logger import LOGGER
 
 
 class TestPendoBase(unittest.TestCase):
-    
+
     REPLICATION_KEYS = "valid-replication-keys"
     PRIMARY_KEYS = "table-key-properties"
     FOREIGN_KEYS = "table-foreign-key-properties"
@@ -25,7 +25,12 @@ class TestPendoBase(unittest.TestCase):
     BOOKMARK_COMPARISON_FORMAT = "%Y-%m-%dT%H:%M%S%z"
     start_date = ""
     app_ids = None
-    
+
+    # After 180 days visitor_history data cannot be synced
+    # so We need to manually create test data for visitors and vistor_history streams
+    # Once created, we should update this start date to optimise the execution time
+    START_DATE_VISTOR_HISTORY = "2023-03-15T00:00:00Z"
+
     @staticmethod
     def name():
         return "test_sync"
@@ -138,12 +143,13 @@ class TestPendoBase(unittest.TestCase):
             "lookback_window": "1",
             "period": "dayRange",
         }
+        if self.app_ids is not None:
+            return_value["app_ids"] = self.app_ids
+
         if original:
             return return_value
         
         return_value["start_date"] = self.start_date
-        if self.app_ids is not None:
-            return_value["app_ids"] = self.app_ids
         return return_value
     
     
