@@ -2,6 +2,9 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+      "_sdc_record_hash": {
+        "type": "string"
+      },
       "account_id": {
         "type": ["null", "string"]
       },

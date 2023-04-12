@@ -85,7 +85,7 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_KEYS: {event_replication_key}
             },
             "events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key}
             },

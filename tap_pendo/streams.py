@@ -937,7 +937,7 @@ class FeatureEvents(EventsBase):
 class Events(EventsBase):
     name = "events"
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'remote_ip', 'user_agent']
+    key_properties = ["_sdc_record_hash"]
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -1007,13 +1007,24 @@ class Events(EventsBase):
                 break
 
     def transform(self, record):
-        return humps.decamelize(record)
+        return humps.decamelize(self._generate_sdc_record_hash(record))
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
         body['request']['pipeline'][0]['source'].update({"events": None})
         return body
 
+    def _generate_sdc_record_hash(self,record) -> str:
+        raw_hash = ""
+        try:
+            for key,val in sorted(tuple((k, v) for k, v in record.items()), key=lambda x: x[0]):
+                raw_hash += f"{key}{val}"
+            encoded_hash_string = str(raw_hash).encode('utf-8')
+            record["_sdc_record_hash"] = hashlib.sha256(encoded_hash_string).hexdigest()
+        except (TypeError, Exception) as err:
+            LOGGER.critical("Failed to hash Event Record")
+            raise err
+        return record
 
 
 class PollEvents(EventsBase):
