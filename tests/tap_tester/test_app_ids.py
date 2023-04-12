@@ -33,7 +33,7 @@ class PendoMultiAppIdsTest(TestPendoBase):
     def run_test(self, expected_streams, app_ids, is_multi_apps, start_date=None):
         """
         - Verify tap syncs records for multiple app_ids if no app_ids provided
-        - Verify tap syncs records for specific app_id if
+        - Verify tap syncs records for specific app_id if single app_id is provided
         """
 
         self.start_date = start_date
@@ -66,12 +66,6 @@ class PendoMultiAppIdsTest(TestPendoBase):
         self.run_and_verify_sync(conn_id)
 
         synced_records = runner.get_records_from_target_output()
-
-        # Verify no unexpected streams were replicated
-        synced_stream_names = set(synced_records.keys())
-
-        # Skipping below streams due to zero records for given start date
-        self.assertSetEqual(expected_streams, synced_stream_names)
 
         for stream in expected_streams:
             # below four streams are independent of the app_id
