@@ -945,7 +945,6 @@ class Events(EventsBase):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
-        self.key_properties.append(self.replication_key)
 
     def get_events(self, window_start_date, state, bookmark_dttm):
         # initialize start date as max bookmark
