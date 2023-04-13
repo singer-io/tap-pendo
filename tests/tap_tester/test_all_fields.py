@@ -13,8 +13,7 @@ MISSING_FILEDS = {"events": {"hour", "feature_id", "parameters"},
                   "features": {"page_id"},
                   "feature_events": {"hour"},
                   "page_events": {"hour"},
-                  "track_events": {"hour", "properties"},
-                  "visitor_history": {"feature_id", "untagged_url"}}
+                  "track_events": {"hour", "properties"}}
 
 class PendoAllFieldsTest(TestPendoBase):
     def name(self):
