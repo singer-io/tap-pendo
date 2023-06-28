@@ -1149,7 +1149,8 @@ class Pages(Stream):
                 "all-pages",
                 "pipeline": [{
                     "source": {
-                        "pages": None
+                        "pages": {
+                        "appId": "expandAppIds(\"*\")"}
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
