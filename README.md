@@ -265,7 +265,8 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `lookback_window` (integer): 10 (For event objects. Default: 0)
    - `request_timeout` (integer): 300 (For passing timeout to the request. Default: 300)
    - `record_limit` (integer, 100000): maximum number of records Pendo API can retrieve in a single request. Default: 100000 records
-   - `app_ids` (string, `8877665523, 1234545`): (comma seperated appIDs. If this parameter is not provided, then the data will be collected from all the apps.)
+   - `app_ids` (string, `8877665523, 1234545`): (comma seperated appIDs. If this parameter is not provided, then the data will be collected from all the apps)
+
    Note: It is important to set `record_limit` parameter to an appropriate value, as selecting a smaller value may have a negative effect on the Pendo API's performance, while a larger value may result in connection errors, request timeouts, or memory overflows.
    ```
    ```json
