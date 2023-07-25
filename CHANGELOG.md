@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0
+  * Update key properties for streams, fixes issue [#34](https://github.com/singer-io/tap-pendo/issues/34) with missing records [#88](https://github.com/singer-io/tap-pendo/pull/88)
+  * Add support for app_id selection [#94](https://github.com/singer-io/tap-pendo/pull/94)
+
 ## 0.6.2
   * Update the lookback window validation to use typecasting using `int()` function instead of `isdigit()` [#93](https://github.com/singer-io/tap-pendo/pull/93)
 
