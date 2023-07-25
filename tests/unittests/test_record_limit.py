@@ -7,6 +7,10 @@ from tap_pendo.streams import EventsBase, API_RECORD_LIMIT
 
 RECORD_LIMIT = 2
 
+def generate_records(num_records, replication_value):
+    return [{"appID": 10000, "hour": replication_value+1} for i in range(num_records)]
+
+
 class TestRecordLimit(unittest.TestCase):
     @parameterized.expand(
         [('None_value', None, API_RECORD_LIMIT),
@@ -36,19 +40,20 @@ class TestRecordLimit(unittest.TestCase):
         self.assertIn(exception_string, str(e.exception))
 
     @parameterized.expand(
-        [('returned_1_record', [{"results": [{"records_id": "data"}]}], False),
-        ('returned_records_equals_record_limit', [{"results": [{"records_id": "data"}]*(RECORD_LIMIT)}], True),
-        ('returned_records_more_than_record_limit', [{"results": [{"records_id": "data"}]*(RECORD_LIMIT+1)}], True),])
+        [('returned_1_record', [{"results": generate_records(1, 1)}], False),
+        ('returned_records_equals_record_limit', [{"results": generate_records(RECORD_LIMIT, 0)},
+                                                  {"results": generate_records(1, RECORD_LIMIT)}], True),
+        ('returned_records_more_than_record_limit', [{"results": generate_records(RECORD_LIMIT+2, 0)}], True),])
     @mock.patch("tap_pendo.streams.EventsBase.remove_last_timestamp_records")
     @mock.patch("tap_pendo.streams.EventsBase.get_first_parameter_value", return_value=1000)
     @mock.patch("tap_pendo.streams.EventsBase.set_request_body_filters")
     @mock.patch("tap_pendo.streams.EventsBase.set_time_series_first")
     @mock.patch("tap_pendo.streams.Stream.request")
-    def test_record_limit(self, 
+    def test_record_limit(self,
                            name,
                            test_data,
                            expected_loop_for_records,
-                           mock_request, 
+                           mock_request,
                            mock_set_time_series,
                            mock_set_request_filter,
                            mock_get_first_parameter,
@@ -62,5 +67,6 @@ class TestRecordLimit(unittest.TestCase):
         event_obj.record_limit = 2
         mock_start_date = strptime_to_utc("2021-01-01T00:00:00Z")
         mock_request.side_effect = test_data
+        mock_remove_last_records.return_value = test_data[0]["results"], []
         _, actual_loop_for_records = event_obj.sync(mock_state, mock_start_date, "PARENT-ID")
         self.assertEqual(actual_loop_for_records, expected_loop_for_records)
