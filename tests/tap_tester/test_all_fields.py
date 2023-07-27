@@ -19,9 +19,8 @@ class PendoAllFieldsTest(TestPendoBase):
         return "pendo_all_fields_test"
 
     def test_run(self):
-        # self.run_test(self.expected_streams() - {"visitors", "visitor_history"})
-        # self.run_test({"visitors", "visitor_history"})
-        self.run_test({"track_events"})
+        self.run_test(self.expected_streams() - {"visitors", "visitor_history"})
+        self.run_test({"visitors", "visitor_history"})
 
 
     def get_properties(self, original: bool = True):
