@@ -5,7 +5,7 @@ from tap_tester import menagerie
 
 class PendoBookMarkTest(TestPendoBase):
     """Test tap sets a bookmark and respects it for the next sync of a stream"""
-    
+
     def name(self):
         return "pendo_bookmark_test"
 
@@ -14,7 +14,7 @@ class PendoBookMarkTest(TestPendoBase):
         if self.streams_to_test == {"visitors", "visitor_history"}:
             return_value = {
                 # To reduce the execution time to test this stream taking recently start_date
-                "start_date": "2022-07-20T00:00:00Z",
+                "start_date": self.START_DATE_VISTOR_HISTORY,
                 "lookback_window": "1",
                 "period": "dayRange",
             }
