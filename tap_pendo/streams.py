@@ -750,7 +750,7 @@ class LazyAggregationStream(Stream):
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'remote_ip']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -948,7 +948,11 @@ class Features(Stream):
 class FeatureEvents(EventsBase):
     name = "feature_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['feature_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent']
+
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
@@ -959,7 +963,7 @@ class FeatureEvents(EventsBase):
 class Events(EventsBase):
     name = "events"
     DATE_WINDOW_SIZE = 1
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'remote_ip', 'user_agent']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
@@ -967,6 +971,7 @@ class Events(EventsBase):
         self.config = config
         self.period = config.get('period')
         self.replication_key = "day" if self.period == 'dayRange' else "hour"
+        self.key_properties.append(self.replication_key)
 
     def get_events(self, window_start_date, state, bookmark_dttm):
         # initialize start date as max bookmark
@@ -1039,7 +1044,7 @@ class Events(EventsBase):
 class PollEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "poll_events"
-    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
+    key_properties = ['visitor_id', 'account_id', 'poll_id', 'browser_time']
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -1056,8 +1061,11 @@ class PollEvents(EventsBase):
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "track_events"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['track_type_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent']
 
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
@@ -1067,7 +1075,7 @@ class TrackEvents(EventsBase):
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "guide_events"
-    key_properties = ['visitor_id', 'account_id', 'server_name', 'remote_ip']
+    key_properties = ['guide_id', 'guide_step_id', 'visitor_id', 'type', 'account_id', 'browser_time', 'url']
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -1164,7 +1172,11 @@ class Pages(Stream):
 class PageEvents(EventsBase):
     name = "page_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['visitor_id', 'account_id', 'server', 'remote_ip']
+    key_properties = ['page_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent',]
+
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
