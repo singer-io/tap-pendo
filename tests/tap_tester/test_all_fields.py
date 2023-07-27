@@ -9,9 +9,7 @@ from base import TestPendoBase
 # Remove skipped fields once bug is fixed
 MISSING_FILEDS = {"events": {"hour", "feature_id", "parameters"},
                   "guide_events": {"poll_response", "poll_id"},
-                  "guides": {"audience"},
-                  "features": {"page_id"},
-                  "feature_events": {"hour"},
+                  "feature_events": {"hour", "parameters"},
                   "page_events": {"hour"},
                   "track_events": {"hour", "properties"}}
                 #  "visitor_history": {"feature_id", "untagged_url"}
@@ -21,13 +19,7 @@ class PendoAllFieldsTest(TestPendoBase):
         return "pendo_all_fields_test"
 
     def test_run(self):
-        # To limit the execution time skipping following streams:
-        #   - 'features', 'feature_events'
-        #   - 'guides', 'guide_events'
-        #   - 'pages', 'page_events'
-        # All above streams have similar impletementation like track_types and track_events streams
-
-        self.run_test({'accounts', 'events', 'poll_events', 'track_events', 'track_types'})
+        self.run_test(self.expected_streams() - {"visitors", "visitor_history"})
         self.run_test({"visitors", "visitor_history"})
 
     def get_properties(self, original: bool = True):
@@ -35,7 +27,7 @@ class PendoAllFieldsTest(TestPendoBase):
         if self.streams_to_test == {"visitors", "visitor_history"}:
             return_value = {
                 # To reduce the execution time to test this stream taking recently start_date
-                "start_date": "2022-07-20T00:00:00Z",
+                "start_date": self.START_DATE_VISTOR_HISTORY,
                 "lookback_window": "1",
                 "period": "dayRange",
             }
@@ -55,6 +47,7 @@ class PendoAllFieldsTest(TestPendoBase):
 
         self.start_date = start_date
         self.streams_to_test = expected_streams
+        self.app_ids = None
 
         expected_automatic_fields = self.expected_automatic_fields()
         conn_id = connections.ensure_connection(self)

@@ -14,7 +14,7 @@ class PendoBookMarkTest(TestPendoBase):
         if self.streams_to_test == {"visitors", "visitor_history"}:
             return_value = {
                 # To reduce the execution time to test this stream taking recently start_date
-                "start_date": "2022-07-20T00:00:00Z",
+                "start_date": self.START_DATE_VISTOR_HISTORY,
                 "lookback_window": "1",
                 "period": "dayRange",
             }

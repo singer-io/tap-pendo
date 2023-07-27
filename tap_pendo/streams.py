@@ -891,7 +891,7 @@ class Accounts(Stream):
                 "name": "all-accounts",
                 "pipeline": [{
                     "source": {
-                        "accounts": None
+                        "accounts": {"appId": self.config["app_ids"]}
                     },
                 }, {
                     "sort": ["metadata.auto.lastupdated"]
@@ -933,7 +933,7 @@ class Features(Stream):
                 "all-features",
                 "pipeline": [{
                     "source": {
-                        "features": None
+                        "features": {"appId": self.config["app_ids"]}
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
@@ -957,7 +957,7 @@ class FeatureEvents(EventsBase):
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
-        body['request']['pipeline'][0]['source'].update({"featureEvents": {"featureId": key_id,}})
+        body['request']['pipeline'][0]['source'].update({"featureEvents": {"featureId": key_id}})
         return body
 
 
@@ -1038,9 +1038,8 @@ class Events(EventsBase):
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
-        body['request']['pipeline'][0]['source'].update({"events": None})
+        body['request']['pipeline'][0]['source'].update({"events": {"appId": self.config["app_ids"]}})
         return body
-
 
 
 class PollEvents(EventsBase):
@@ -1056,7 +1055,7 @@ class PollEvents(EventsBase):
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
-        body['request']['pipeline'][0]['source'].update({"pollEvents": None})
+        body['request']['pipeline'][0]['source'].update({"pollEvents": {"appId": self.config["app_ids"]}})
         return body
 
 
@@ -1071,7 +1070,7 @@ class TrackEvents(EventsBase):
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
-        body['request']['pipeline'][0]['source'].update({"trackEvents": {"trackTypeId": key_id,}})
+        body['request']['pipeline'][0]['source'].update({"trackEvents": {"trackTypeId": key_id}})
         return body
 
 class GuideEvents(EventsBase):
@@ -1085,7 +1084,7 @@ class GuideEvents(EventsBase):
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
-        body['request']['pipeline'][0]['source'].update({"guideEvents": {"guideId": key_id,}})
+        body['request']['pipeline'][0]['source'].update({"guideEvents": {"guideId": key_id}})
         return body
 
 
@@ -1103,7 +1102,7 @@ class TrackTypes(Stream):
                 "name": "all-track-types",
                 "pipeline": [{
                     "source": {
-                        "trackTypes": None
+                        "trackTypes": {"appId": self.config["app_ids"]}
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
@@ -1130,7 +1129,7 @@ class Guides(Stream):
                 "all-guides",
                 "pipeline": [{
                     "source": {
-                        "guides": None
+                        "guides": {"appId": self.config["app_ids"]}
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
@@ -1158,7 +1157,7 @@ class Pages(Stream):
                 "all-pages",
                 "pipeline": [{
                     "source": {
-                        "pages": None
+                        "pages": {"appId": self.config["app_ids"]}
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
@@ -1182,7 +1181,7 @@ class PageEvents(EventsBase):
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
-        body['request']['pipeline'][0]['source'].update({"pageEvents": {"pageId": key_id,}})
+        body['request']['pipeline'][0]['source'].update({"pageEvents": {"pageId": key_id}})
         return body
 
     def generate_sdc_parameters_hash(self, events):

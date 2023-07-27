@@ -1,6 +1,9 @@
 {
   "type": ["null", "object"],
   "properties": {
+    "app_id": {
+      "type": ["null", "number"]
+    },
     "created_by_user": {
       "type": ["null", "object"],
       "properties": {
