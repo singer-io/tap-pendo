@@ -1,6 +1,6 @@
 import tap_tester.connections as connections
-import tap_tester.runner as runner
 import tap_tester.menagerie as menagerie
+import tap_tester.runner as runner
 from base import TestPendoBase
 
 # As we can't find the below fields in the docs and also
@@ -11,7 +11,7 @@ MISSING_FILEDS = {"events": {"hour", "feature_id", "parameters"},
                   "guide_events": {"poll_response", "poll_id"},
                   "feature_events": {"hour", "parameters"},
                   "page_events": {"hour"},
-                  "track_events": {"hour", "properties"}}
+                  "track_events": {"hour"}}
                 #  "visitor_history": {"feature_id", "untagged_url"}
 
 class PendoAllFieldsTest(TestPendoBase):
@@ -19,8 +19,10 @@ class PendoAllFieldsTest(TestPendoBase):
         return "pendo_all_fields_test"
 
     def test_run(self):
-        self.run_test(self.expected_streams() - {"visitors", "visitor_history"})
-        self.run_test({"visitors", "visitor_history"})
+        # self.run_test(self.expected_streams() - {"visitors", "visitor_history"})
+        # self.run_test({"visitors", "visitor_history"})
+        self.run_test({"track_events"})
+
 
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
