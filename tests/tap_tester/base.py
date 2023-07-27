@@ -24,6 +24,8 @@ class TestPendoBase(unittest.TestCase):
     START_DATE_FORMAT = "%Y-%m-%dT00:00:00Z"
     BOOKMARK_COMPARISON_FORMAT = "%Y-%m-%dT%H:%M%S%z"
     start_date = ""
+    is_day_range = True
+    
     app_ids = None
 
     # After 180 days visitor_history data cannot be synced
@@ -47,6 +49,7 @@ class TestPendoBase(unittest.TestCase):
     
     def expected_metadata(self, streams_to_test=[], excluded_streams=[]):
         """The expected streams and metadata about the streams"""
+        event_replication_key = 'day' if self.is_day_range else 'hour'
         return {
             "accounts": {
                 self.PRIMARY_KEYS: {'account_id'},
@@ -84,34 +87,34 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_KEYS: {'last_updated_at'}
             },
             "feature_events":{
-                self.PRIMARY_KEYS:  {"visitor_id", "account_id", "server", "remote_ip"},
+                self.PRIMARY_KEYS: {"feature_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day'}
+                self.REPLICATION_KEYS: {event_replication_key}
             },
             "events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
+                self.PRIMARY_KEYS: {"visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day'}
+                self.REPLICATION_KEYS: {event_replication_key}
             },
             "page_events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
+                self.PRIMARY_KEYS: {"page_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day'}
+                self.REPLICATION_KEYS: {event_replication_key}
             },
             "guide_events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server_name", "remote_ip"},
+                self.PRIMARY_KEYS: {"guide_id", "guide_step_id", "visitor_id", "type", "account_id", "browser_time", "url"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'browser_time'}
             },
             "poll_events":{
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server_name", "remote_ip"},
+                self.PRIMARY_KEYS: {"visitor_id", "account_id", "poll_id", "browser_time"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'browser_time'}
             },
             "track_events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "server", "remote_ip"},
+                self.PRIMARY_KEYS: {"track_type_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'day'}
+                self.REPLICATION_KEYS: {event_replication_key}
             },
             "metadata_accounts": {
                 self.REPLICATION_METHOD: self.FULL_TABLE,
@@ -141,7 +144,7 @@ class TestPendoBase(unittest.TestCase):
         return_value = {
             "start_date": "2019-09-10T00:00:00Z",
             "lookback_window": "1",
-            "period": "dayRange",
+            "period": "dayRange" if self.is_day_range else "hourRange",
         }
         if self.app_ids is not None:
             return_value["app_ids"] = self.app_ids
