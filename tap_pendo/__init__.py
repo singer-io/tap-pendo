@@ -152,11 +152,32 @@ def sync(config, state, catalog):
         singer.write_state(state)
     LOGGER.info("Finished sync")
 
+# To check that given number is numeric or not
+def filter_app_ids(config):
+    # reason to use expandAppIds
+    # https://support.pendo.io/hc/en-us/community/posts/360078029732-How-to-retrieve-all-application-data-using-Pendo-API-through-Python
+    app_ids = config.get("app_ids") or "expandAppIds(\"*\")"
+
+    invalid_app_ids = []
+    if app_ids != "expandAppIds(\"*\")":
+        app_ids = [app_id.strip() for app_id in app_ids.split(",")]
+        for app_id in app_ids:
+            try:
+                int(app_id)
+            except ValueError:
+                invalid_app_ids.append(app_id)
+        if invalid_app_ids:
+            raise Exception(f"Invalid appIDs provided during the configuration:{invalid_app_ids}")
+    config["app_ids"] = app_ids
+    return config
+
+
 @utils.handle_top_exception(LOGGER)
 def main():
 
     # Parse command line arguments
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
+    args.config = filter_app_ids(args.config)
 
     if args.discover:
         do_discover(args.config)

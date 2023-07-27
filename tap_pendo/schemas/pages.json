@@ -2,6 +2,9 @@
   "type": ["null", "object"],
   "additional_properties": false,
   "properties": {
+    "app_id": {
+      "type": ["null", "number"]
+    },
     "created_by_user": {
       "type": ["null", "object"],
       "properties": {
