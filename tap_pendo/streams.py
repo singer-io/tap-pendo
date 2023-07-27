@@ -8,7 +8,6 @@ import time
 from datetime import datetime, timedelta, timezone
 from ast import literal_eval
 
-import hashlib
 import backoff
 import humps
 import ijson
@@ -1173,7 +1172,7 @@ class Pages(Stream):
 class PageEvents(EventsBase):
     name = "page_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['page_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent', '_sdc_parameters_hash']
+    key_properties = ['page_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent',]
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -1184,39 +1183,6 @@ class PageEvents(EventsBase):
         body['request']['pipeline'][0]['source'].update({"pageEvents": {"pageId": key_id}})
         return body
 
-    def generate_sdc_parameters_hash(self, events):
-        # loop over every event
-        for event in events:
-            # initialize empty string to hash
-            parameters_string = ""
-
-            # get 'parameters' value from record
-            parameters = event.get("parameters")
-
-            # create hash string if parameters value is not 'null' else keep empty string
-            if parameters:
-                # create sorted tuple of key-value ie. ((key1, value1), (key2, value2), ...)
-                parameters_pairs = sorted(tuple((k, v) for k, v in parameters.items()), key=lambda x: x[0])
-
-                for pair in parameters_pairs:
-                    # create string of key-values ie. key1value1key2value2...
-                    parameters_string += "".join(pair)
-
-            # encode the created string
-            parameters_string_bytes = parameters_string.encode('utf-8')
-            # calculate the hash of the string
-            parameters_hash = hashlib.sha256(parameters_string_bytes).hexdigest()
-            # create a field in the record and assign the hash value
-            event["_sdc_parameters_hash"] = parameters_hash
-
-        return events
-
-    # extend 'sync' to add hash field in the records
-    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
-        page_events = super().sync(state, start_date=start_date,
-                                   key_id=key_id, parent_last_updated=parent_last_updated)
-        page_events_with_hash = self.generate_sdc_parameters_hash(page_events)
-        return page_events_with_hash
 
 class Reports(Stream):
     name = "reports"
