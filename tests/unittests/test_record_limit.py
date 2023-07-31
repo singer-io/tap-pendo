@@ -79,11 +79,10 @@ class TestRecordLimit(unittest.TestCase):
     def test_remove_last_timestamp_records(self, name, record_limit, expected_record_limit):
         # create records with same replication value
         number_of_records = 100
-        source_records = [{event_obj.replication_key: 100}] * number_of_records
-
         event_obj = EventsBase({"record_limit": record_limit})
         event_obj.replication_key = "hour"
         event_obj.record_limit = record_limit
+        source_records = [{event_obj.replication_key: 100}] * number_of_records
 
         records, last_processed = event_obj.remove_last_timestamp_records(records=source_records)
         self.assertEquals(len(records), 0)
