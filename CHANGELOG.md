@@ -1,8 +1,5 @@
 # Changelog
 
-## 0.6.1
-  * Fix infinite loop issue [#126](https://github.com/singer-io/tap-pendo/pull/126)
-
 ## 1.0.0
   * Update key properties for streams, fixes issue [#34](https://github.com/singer-io/tap-pendo/issues/34) with missing records [#88](https://github.com/singer-io/tap-pendo/pull/88)
   * Add support for app_id selection [#94](https://github.com/singer-io/tap-pendo/pull/94)
