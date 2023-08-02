@@ -591,7 +591,7 @@ class Stream():
         # In this case we will try to set record limit to max limit to make it harder to run into this issue
         # But still can't completely dismiss the minor possibility of this issue occurring
         if len(records) == 0 or not last_processed:
-            self.record_limit = API_RECORD_LIMIT
+            self.record_limit = max(self.record_limit, API_RECORD_LIMIT)
 
         return records, last_processed
 

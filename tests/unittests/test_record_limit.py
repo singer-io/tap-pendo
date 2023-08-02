@@ -70,3 +70,22 @@ class TestRecordLimit(unittest.TestCase):
         mock_remove_last_records.return_value = test_data[0]["results"], []
         _, actual_loop_for_records = event_obj.sync(mock_state, mock_start_date, "PARENT-ID")
         self.assertEqual(actual_loop_for_records, expected_loop_for_records)
+
+
+    @parameterized.expand(
+        [("lesser_than_record_limit", API_RECORD_LIMIT-1, API_RECORD_LIMIT),
+         ("equal_to_record_limit", API_RECORD_LIMIT, API_RECORD_LIMIT),
+         ("greater_than_record_limit", API_RECORD_LIMIT+1, API_RECORD_LIMIT+1)])
+    def test_remove_last_timestamp_records(self, name, record_limit, expected_record_limit):
+        # create records with same replication value
+        number_of_records = 100
+        event_obj = EventsBase({"record_limit": record_limit})
+        event_obj.replication_key = "hour"
+        event_obj.record_limit = record_limit
+        source_records = [{event_obj.replication_key: 100}] * number_of_records
+
+        records, last_processed = event_obj.remove_last_timestamp_records(records=source_records)
+        self.assertEquals(len(records), 0)
+        self.assertEquals(len(last_processed), number_of_records)
+        self.assertEquals(event_obj.record_limit, expected_record_limit)
+
