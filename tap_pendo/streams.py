@@ -1292,16 +1292,13 @@ class Visitors(LazyAggregationStream):
                         }
                     }
                 }, {
-                    "sort": ["metadata.auto.idhash"]
+                    "sort": ["visitorId"]
                 }, {
-                    "filter": f"metadata.auto.idhash>{self.set_filter_value()}"
+                    "filter": self.set_filter_value()
                 }, {
                     "limit": self.record_limit
                 }],
-                "requestId": "all-visitors",
-                "sort": [
-                    "visitorId"
-                ]
+                "requestId": "all-visitors"
             }
         }
 
@@ -1313,7 +1310,12 @@ class Visitors(LazyAggregationStream):
 
     def set_filter_value(self):
         # Set the value of filter parameter in request body
-        return self.last_processed["metadata_auto"]["idhash"] if self.last_processed else 1
+        if self.last_processed:
+            filter_value = f'visitorId>"{self.last_processed["visitor_id"]}"'
+        else:
+            filter_value = 'visitorId>\"\"'
+
+        return filter_value
 
     def transform(self, record):
         # Transform data of accounts into one level dictionary with following transformation
