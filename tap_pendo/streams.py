@@ -729,7 +729,17 @@ class LazyAggregationStream(Stream):
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)
 
+    def get_record_count(self):
+        return 0
+
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
+        loop_for_records = False
+        # Get total number of record count.
+        if self.name in ["visitors"]:
+            # If number of records equal to record then assume there are more records to be synced
+            # and save the last filter value. Otherwise assume we have extracted all records
+            loop_for_records = self.get_record_count() >= self.record_limit
+
         stream_response = self.request(self.name, json=self.get_body()) or []
 
         # Get and intialize sub-stream for the current stream
@@ -746,7 +756,7 @@ class LazyAggregationStream(Stream):
             # which flush out during sync_substream call above
             stream_response = self.request(self.name, json=self.get_body()) or []
 
-        return (self.stream, stream_response), False
+        return (self.stream, stream_response), loop_for_records
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
@@ -1263,6 +1273,7 @@ class Visitors(LazyAggregationStream):
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
     key_properties = ["visitor_id"]
+    last_processed = None
 
     def get_body(self, key_id=None, period=None, first=None):
         include_anonymous_visitors = self.config.get('include_anonymous_visitors') or DEFAULT_INCLUDE_ANONYMOUS_VISITORS
@@ -1280,6 +1291,12 @@ class Visitors(LazyAggregationStream):
                             "identified": not anons
                         }
                     }
+                }, {
+                    "sort": ["metadata.auto.idhash"]
+                }, {
+                    "filter": f"metadata.auto.idhash>{self.set_filter_value()}"
+                }, {
+                    "limit": self.record_limit
                 }],
                 "requestId": "all-visitors",
                 "sort": [
@@ -1287,6 +1304,16 @@ class Visitors(LazyAggregationStream):
                 ]
             }
         }
+
+    def get_record_count(self):
+        # Get number of records to be fetched using current filter
+        body = self.get_body()
+        body["request"]["pipeline"].append({"count": None})
+        return list(self.request(self.name, json=body))[0]["count"]
+
+    def set_filter_value(self):
+        # Set the value of filter parameter in request body
+        return self.last_processed["metadata_auto"]["idhash"] if self.last_processed else 1
 
     def transform(self, record):
         # Transform data of accounts into one level dictionary with following transformation

@@ -59,6 +59,9 @@ def sync_stream(state, start_date, instance):
                     LOGGER.info('Replication Value NULL for tap_stream_id: %s', stream.tap_stream_id)
                     counter.increment()
 
+                # preserve the last processed record which will be useful if stream supports pagination
+                instance.last_processed = record
+
             # Update bookmark and write state for the stream with new_bookmark
             instance.update_bookmark(state, instance.name, strftime(new_bookmark),
                                      instance.replication_key)
