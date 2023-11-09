@@ -9,7 +9,7 @@ class PendoAllFieldsTest(TestPendoBase):
     record_limit = 50
     include_anonymous_visitors = False
     def name(self):
-        return "pendo_all_fields_test"
+        return "pendo_visitors_pagination_test"
 
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
