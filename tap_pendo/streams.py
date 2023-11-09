@@ -733,14 +733,11 @@ class LazyAggregationStream(Stream):
     def get_record_count(self):
         return 0
 
-    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
-        loop_for_records = False
-        # Get total number of record count.
-        if self.name in ["visitors"]:
-            # If number of records equal to record then assume there are more records to be synced
-            # and save the last filter value. Otherwise assume we have extracted all records
-            loop_for_records = self.get_record_count() >= self.record_limit
+    def is_loop_required(self):
+        return False
 
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
+        loop_for_records = self.is_loop_required()
         stream_response = self.request(self.name, json=self.get_body()) or []
 
         # Get and intialize sub-stream for the current stream
@@ -1308,6 +1305,11 @@ class Visitors(LazyAggregationStream):
         body = self.get_body()
         body["request"]["pipeline"].append({"count": None})
         return list(self.request(self.name, json=body))[0]["count"]
+
+    def is_loop_required(self):
+        # If number of records equal to record then assume there are more records to be synced
+        # and save the last filter value. Otherwise assume we have extracted all records
+        return self.get_record_count() >= self.record_limit
 
     def set_filter_value(self):
         # Set the value of filter parameter in request body
