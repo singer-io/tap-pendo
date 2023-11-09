@@ -507,7 +507,8 @@ class Stream():
                     sub_stream.name, record[parent.key_properties[0]])
 
         # After processing for all parent ids we can remove our resumption state
-        state.get('bookmarks').get(sub_stream.name).pop('last_processed')
+        if 'last_processed' in state.get('bookmarks').get(sub_stream.name):
+            state.get('bookmarks').get(sub_stream.name).pop('last_processed')
 
         self.update_child_stream_bookmarks(state=state,
                                            sub_stream=sub_stream,

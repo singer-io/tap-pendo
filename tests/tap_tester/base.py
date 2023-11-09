@@ -31,7 +31,7 @@ class TestPendoBase(unittest.TestCase):
     # After 180 days visitor_history data cannot be synced
     # so We need to manually create test data for visitors and vistor_history streams
     # Once created, we should update this start date to optimise the execution time
-    START_DATE_VISTOR_HISTORY = "2023-03-15T00:00:00Z"
+    START_DATE_VISTOR_HISTORY = "2023-11-05T00:00:00Z"
 
     @staticmethod
     def name():
