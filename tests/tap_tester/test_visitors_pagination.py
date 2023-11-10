@@ -24,8 +24,9 @@ class PendoAllFieldsTest(TestPendoBase):
 
     def test_run(self):
         # Verify that visitors pagination logic work as expected named and anonymous visitors
+        # without impacting other stream replication
         # Note: there are 21000+ named and anonymous visitors
-        self.run_pagination_test(expected_streams= {"visitors"},
+        self.run_pagination_test(expected_streams= {"accounts", "features", "feature_events", "visitors"},
                                  start_date="2019-09-10T00:00:00Z",
                                  record_limit=10000,
                                  include_anonymous_visitors="true")

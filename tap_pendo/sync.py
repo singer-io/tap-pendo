@@ -60,7 +60,7 @@ def sync_stream(state, start_date, instance):
                     counter.increment()
 
                 # preserve the last processed record which will be useful if stream supports pagination
-                instance.last_processed = record
+                instance.last_synced_record = record
 
             # Update bookmark and write state for the stream with new_bookmark
             instance.update_bookmark(state, instance.name, strftime(new_bookmark),
