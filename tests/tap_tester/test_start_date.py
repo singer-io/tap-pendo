@@ -31,11 +31,11 @@ class PendoStartDateTest(TestPendoBase):
 
         # All these streams have similar implementation like guides and guide_events so removing this test to limit the execution time
         # self.run_test("2020-09-01T00:00:00Z", "2021-03-01T00:00:00Z", {"features", "feature_events", "pages", "page_events", "events", "track_types", "track_events"})
-        
+
         # Visitors history can be retrieved only for 180 days so to reduce execution time setting first start time older than 180 days back
         self.run_test(
-            start_date_1="2022-06-25T00:00:00Z",
-            start_date_2="2022-07-20T00:00:00Z",
+            start_date_1=self.START_DATE_VISTOR_HISTORY,
+            start_date_2="2023-11-09T00:00:00Z",
             streams={"visitors", "visitor_history"})
 
     def expected_metadata(self):
@@ -72,7 +72,7 @@ class PendoStartDateTest(TestPendoBase):
         self.start_date_1 = start_date_1
         self.start_date_2 = start_date_2
         self.streams = streams
-        
+
         self.start_date = self.start_date_1
 
         expected_streams = streams
@@ -100,7 +100,7 @@ class PendoStartDateTest(TestPendoBase):
         ##########################################################################
         # Update START DATE Between Syncs
         ##########################################################################
-        
+
         LOGGER.info("REPLICATION START DATE CHANGE: {} ===>>> {} ".format(
             self.start_date, self.start_date_2))
         self.start_date = self.start_date_2
