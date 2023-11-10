@@ -141,7 +141,7 @@ class Stream():
     period = None
     request_retry_count = 1
     last_processed = None
-    last_synced_record = None
+    last_synced_record = {}
 
     # initialized the endpoint attribute which can be overriden by child streams based on
     # the different parameters used by the stream.
@@ -1272,7 +1272,6 @@ class Visitors(LazyAggregationStream):
     replication_method = "INCREMENTAL"
     replication_key = "lastupdated"
     key_properties = ["visitor_id"]
-    last_synced_record = None
 
     def get_body(self, key_id=None, period=None, first=None):
         include_anonymous_visitors = self.config.get('include_anonymous_visitors') or DEFAULT_INCLUDE_ANONYMOUS_VISITORS
