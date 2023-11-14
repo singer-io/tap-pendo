@@ -141,6 +141,7 @@ class Stream():
     period = None
     request_retry_count = 1
     last_processed = None
+    last_synced_record = {}
 
     # initialized the endpoint attribute which can be overriden by child streams based on
     # the different parameters used by the stream.
@@ -507,7 +508,8 @@ class Stream():
                     sub_stream.name, record[parent.key_properties[0]])
 
         # After processing for all parent ids we can remove our resumption state
-        state.get('bookmarks').get(sub_stream.name).pop('last_processed')
+        if 'last_processed' in state.get('bookmarks').get(sub_stream.name):
+            state.get('bookmarks').get(sub_stream.name).pop('last_processed')
 
         self.update_child_stream_bookmarks(state=state,
                                            sub_stream=sub_stream,
@@ -729,7 +731,14 @@ class LazyAggregationStream(Stream):
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)
 
+    def get_record_count(self):
+        return 0
+
+    def is_loop_required(self):
+        return False
+
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
+        loop_for_records = self.is_loop_required()
         stream_response = self.request(self.name, json=self.get_body()) or []
 
         # Get and intialize sub-stream for the current stream
@@ -746,7 +755,7 @@ class LazyAggregationStream(Stream):
             # which flush out during sync_substream call above
             stream_response = self.request(self.name, json=self.get_body()) or []
 
-        return (self.stream, stream_response), False
+        return (self.stream, stream_response), loop_for_records
 
 class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
@@ -1280,13 +1289,36 @@ class Visitors(LazyAggregationStream):
                             "identified": not anons
                         }
                     }
+                }, {
+                    "sort": ["visitorId"]
+                }, {
+                    "filter": self.set_filter_value()
+                }, {
+                    "limit": self.record_limit
                 }],
-                "requestId": "all-visitors",
-                "sort": [
-                    "visitorId"
-                ]
+                "requestId": "all-visitors"
             }
         }
+
+    def get_record_count(self):
+        # Get number of records to be fetched using current filter
+        body = self.get_body()
+        body["request"]["pipeline"].append({"count": None})
+        return list(self.request(self.name, json=body))[0]["count"]
+
+    def is_loop_required(self):
+        # If number of records equal to record then assume there are more records to be synced
+        # and save the last filter value. Otherwise assume we have extracted all records
+        return self.get_record_count() >= self.record_limit
+
+    def set_filter_value(self):
+        # Set the value of filter parameter in request body
+        if self.last_synced_record:
+            filter_value = f'visitorId>"{self.last_synced_record["visitor_id"]}"'
+        else:
+            filter_value = 'visitorId>\"\"'
+
+        return filter_value
 
     def transform(self, record):
         # Transform data of accounts into one level dictionary with following transformation

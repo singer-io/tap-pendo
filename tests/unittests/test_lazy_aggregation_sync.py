@@ -39,7 +39,8 @@ class TestLazyAggregationSync(unittest.TestCase):
     @mock.patch("requests.Session.send")
     @mock.patch("tap_pendo.streams.Stream.is_selected")
     @mock.patch("tap_pendo.streams.Stream.sync_substream", side_effect=mocked_substream)
-    def test_lazzy_aggregation_with_sub_stream(self, mocked_substream, mocked_selected, mocked_request):
+    @mock.patch("tap_pendo.streams.Visitors.get_record_count", return_value=100)
+    def test_lazzy_aggregation_without_sub_stream(self, get_record_count, mocked_substream, mocked_selected, mocked_request):
         '''
             Verify that if sub stream is present then also all data should be return for super stream
             and sync_substream should be called
@@ -60,7 +61,8 @@ class TestLazyAggregationSync(unittest.TestCase):
     @mock.patch("requests.Session.send")
     @mock.patch("tap_pendo.streams.Stream.is_selected")
     @mock.patch("tap_pendo.streams.Stream.sync_substream", side_effect=mocked_substream)
-    def test_lazzy_aggregation_without_sub_stream(self, mocked_substream, mocked_selected, mocked_request):
+    @mock.patch("tap_pendo.streams.Visitors.get_record_count", return_value=100)
+    def test_lazzy_aggregation_without_sub_stream(self, get_record_count, mocked_substream, mocked_selected, mocked_request):
         '''
             Verify that if sub stream is not selected then also all data should be return for super stream
             and sync_substream should not be called

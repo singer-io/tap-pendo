@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0
+  * Add the the custom pagination support for the Visitors stream [#126](https://github.com/singer-io/tap-pendo/pull/129)
+
 ## 1.0.1
   * Fix infinite loop issue [#126](https://github.com/singer-io/tap-pendo/pull/126)
 
