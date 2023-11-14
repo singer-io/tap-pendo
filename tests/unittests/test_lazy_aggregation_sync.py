@@ -3,10 +3,6 @@ import requests
 from unittest import mock
 from tap_pendo.streams import Visitors
 
-# from debugpy import listen, wait_for_client
-# listen(8000)
-# wait_for_client()
-
 class Mockresponse:
     def __init__(self, resp, status_code, headers=None, raise_error=False):
         self.status_code = status_code
