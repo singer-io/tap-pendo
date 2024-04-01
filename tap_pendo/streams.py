@@ -20,7 +20,7 @@ from requests.models import ProtocolError
 from singer import Transformer, metadata
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
-from tap_pendo.exception import QueryExceededMemoryLimitException
+from tap_pendo.exception import QueryExceededMemoryLimitException, Server42xRateLimitError
 
 KEY_PROPERTIES = ['id']
 US_BASE_URL = "https://app.pendo.io"
@@ -99,10 +99,6 @@ def retry_handler(details):
 def reset_request_retry_count(details):
     """Reset the Stream retry count in case we continue execution even after max. retries"""
     Stream.request_retry_count = 1
-
-
-class Server42xRateLimitError(Exception):
-    pass
 
 
 class Endpoints():
