@@ -1168,7 +1168,7 @@ class Pages(Stream):
                         "pages": {"appId": self.config["app_ids"]}
                     }
                 }, {
-                    "sort": [f"{self.replication_key}"]
+                    "sort": ["id"]
                 }, {
                     "limit": self.record_limit
                 }],
