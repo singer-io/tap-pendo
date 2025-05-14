@@ -495,7 +495,7 @@ class Stream():
 
                             self.update_child_stream_bookmarks(state=state,
                                                                sub_stream=sub_stream,
-                                                               last_processed_value=record.get(parent.key_properties[0]),
+                                                               last_processed_value=record.get(humps.decamelize(self.replication_key)),
                                                                new_bookmark=strftime(new_bookmark),
                                                                previous_sync_completed_ts=previous_sync_completed_ts)
 
@@ -505,7 +505,7 @@ class Stream():
             except HTTPError:
                 LOGGER.warning(
                     "Unable to retrieve %s Event for Stream (ID: %s)",
-                    sub_stream.name, record[parent.key_properties[0]])
+                    sub_stream.name, record[humps.decamelize(self.replication_key)])
 
         # After processing for all parent ids we can remove our resumption state
         if 'last_processed' in state.get('bookmarks').get(sub_stream.name):
@@ -1168,7 +1168,7 @@ class Pages(Stream):
                         "pages": {"appId": self.config["app_ids"]}
                     }
                 }, {
-                    "sort": ["id"]
+                    "sort": [f"{self.replication_key}"]
                 }, {
                     "limit": self.record_limit
                 }],
