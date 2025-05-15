@@ -399,11 +399,11 @@ class Stream():
         # Loop over records of parent stream
         for record in parent_response:
             try:
-                if last_processed and record.get(parent.key_properties[0]) < last_processed:
+                if last_processed and record.get(humps.decamelize(self.replication_key)) < last_processed:
                     # Skipping last synced parent ids
                     continue
 
-                if record.get(parent.key_properties[0]) == last_processed:
+                if record.get(humps.decamelize(self.replication_key)) == last_processed:
                     # Set bookmark to ressume last processed parent id replication
                     bookmark_dttm = strptime_to_utc(last_replication_date)
                 else:
