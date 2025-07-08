@@ -10,10 +10,10 @@ setup(
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_pendo"],
     install_requires=[
-        'singer-python==5.13.0',
+        'singer-python==5.13.2',
         "requests",
         'pyhumps==1.3.1',
-        'backoff==1.8.0',
+        'backoff==1.10.0',
         'ijson==3.1.4',
     ],
     extras_require={
