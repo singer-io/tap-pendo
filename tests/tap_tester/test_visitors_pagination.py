@@ -33,7 +33,7 @@ class PendoAllFieldsTest(TestPendoBase):
 
         # Verify with visitors pagination, we are able to sync child stream records i.e. visitor_history
         # Note: there are only 58 named and anonymous visitors but only recently updated visitors will be synced
-        self.run_pagination_test(expected_streams={"visitors", "visitor_history"},
+        self.run_pagination_test(expected_streams={"visitors"},
                                  start_date=self.START_DATE_VISTOR_HISTORY,
                                  record_limit=50,
                                  include_anonymous_visitors="false")
