@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+  * Bump dependency versions for twistlock compliance
+  * Update tests to fix failing circle build
+  * [#132](https://github.com/singer-io/tap-pendo/pull/132)
+
 ## 1.1.0
   * Add the the custom pagination support for the Visitors stream [#126](https://github.com/singer-io/tap-pendo/pull/129)
 
