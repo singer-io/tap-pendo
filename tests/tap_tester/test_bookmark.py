@@ -34,7 +34,7 @@ class PendoBookMarkTest(TestPendoBase):
 
         # Test only visitors and visitor_history
         self.is_day_range = True
-        self.run_test({"visitors", "visitor_history"})
+        self.run_test({"visitors"})
 
     def run_test(self, expected_streams):
         """

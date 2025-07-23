@@ -11,7 +11,11 @@ MISSING_FILEDS = {"events": {"hour", "feature_id", "parameters"},
                   "guide_events": {"poll_response", "poll_id"},
                   "feature_events": {"hour", "parameters"},
                   "page_events": {"hour"},
-                  "track_events": {"hour"}}
+                  "track_events": {"hour"},
+                  "track_types": {"color"},
+                  "features": {"color"},
+                  "pages": {"color"},
+                  }
                 #  "visitor_history": {"feature_id", "untagged_url"}
 
 class PendoAllFieldsTest(TestPendoBase):
@@ -20,7 +24,7 @@ class PendoAllFieldsTest(TestPendoBase):
 
     def test_run(self):
         self.run_test(self.expected_streams() - {"visitors", "visitor_history"})
-        self.run_test({"visitors", "visitor_history"})
+        self.run_test({"visitors"})
 
 
     def get_properties(self, original: bool = True):

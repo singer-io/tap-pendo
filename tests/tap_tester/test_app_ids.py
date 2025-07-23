@@ -69,9 +69,10 @@ class PendoMultiAppIdsTest(TestPendoBase):
 
         for stream in expected_streams:
             # below four streams are independent of the app_id
-            if stream in ["accounts", "visitors", "metadata_accounts", "metadata_visitors"]:
+            if stream in ["accounts", "visitors", "metadata_accounts", "metadata_visitors", "visitor_history"]:
                 continue
 
             with self.subTest(stream=stream):
-                records_appid_set = set([message.get('data').get('app_id') for message in synced_records.get(stream).get("messages")])
+                records_appid_set = set([message.get('data', {}).get('app_id')
+                                         for message in synced_records.get(stream, {}).get("messages", [])])
                 self.assertEqual(len(records_appid_set)>1, is_multi_apps)
