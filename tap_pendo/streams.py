@@ -405,7 +405,7 @@ class Stream():
                         # Skipping last synced parent ids
                         continue
                 except TypeError:
-                    # If last_processed_key(str primary key previously, int replication_key now) is not comparable, 
+                    # If last_processed_key(str primary key previously, int replication_key now) is not comparable,
                     # set last_processed to current record's replication key value
                     LOGGER.warning("Found non-comparable value for last_processed_key: %s", last_processed_key)
                     last_processed = record.get(last_processed_key)
