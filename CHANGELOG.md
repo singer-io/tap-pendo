@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+  * Use replication_key in last_processed instead of primary_key [#133](https://github.com/singer-io/tap-pendo/pull/133)
+
 ## 1.1.1
   * Bump dependency versions for twistlock compliance
   * Update tests to fix failing circle build
