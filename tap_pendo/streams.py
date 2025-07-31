@@ -396,14 +396,21 @@ class Stream():
                             sub_stream.stream.schema.to_dict(),
                             sub_stream.key_properties)
 
+        last_processed_key = parent.key_properties[0] if isinstance(parent, Visitors) else humps.decamelize(self.replication_key)
         # Loop over records of parent stream
         for record in parent_response:
             try:
-                if last_processed and record.get(parent.key_properties[0]) < last_processed:
-                    # Skipping last synced parent ids
-                    continue
+                try:
+                    if last_processed and record.get(last_processed_key) < last_processed:
+                        # Skipping last synced parent ids
+                        continue
+                except TypeError:
+                    # If last_processed_key(str primary key previously, int replication_key now) is not comparable,
+                    # set last_processed to current record's replication key value
+                    LOGGER.warning("Found non-comparable value for last_processed_key: %s", last_processed_key)
+                    last_processed = record.get(last_processed_key)
 
-                if record.get(parent.key_properties[0]) == last_processed:
+                if record.get(last_processed_key) == last_processed:
                     # Set bookmark to ressume last processed parent id replication
                     bookmark_dttm = strptime_to_utc(last_replication_date)
                 else:
@@ -495,7 +502,7 @@ class Stream():
 
                             self.update_child_stream_bookmarks(state=state,
                                                                sub_stream=sub_stream,
-                                                               last_processed_value=record.get(parent.key_properties[0]),
+                                                               last_processed_value=record.get(last_processed_key),
                                                                new_bookmark=strftime(new_bookmark),
                                                                previous_sync_completed_ts=previous_sync_completed_ts)
 
@@ -505,7 +512,7 @@ class Stream():
             except HTTPError:
                 LOGGER.warning(
                     "Unable to retrieve %s Event for Stream (ID: %s)",
-                    sub_stream.name, record[parent.key_properties[0]])
+                    sub_stream.name, record[last_processed_key])
 
         # After processing for all parent ids we can remove our resumption state
         if 'last_processed' in state.get('bookmarks').get(sub_stream.name):
