@@ -1,4 +1,4 @@
-# pylint: disable=E1101,R0201,R0904,W0222,W0613
+# pylint: disable=E1101,R0904,W0222,W0613
 
 #!/usr/bin/env python3
 import json
@@ -14,10 +14,9 @@ import ijson
 import requests
 import singer
 from urllib3.exceptions import ReadTimeoutError
-import singer.metrics as metrics
 from requests.exceptions import HTTPError
 from requests.models import ProtocolError
-from singer import Transformer, metadata
+from singer import Transformer, metadata, metrics
 from singer.utils import now, strftime, strptime_to_utc
 from tap_pendo import utils as tap_pendo_utils
 
@@ -276,7 +275,7 @@ class Stream():
 
         shared_schema_refs = {}
         for shared_file in shared_file_names:
-            with open(os.path.join(shared_schemas_path, shared_file)) as data_file:
+            with open(os.path.join(shared_schemas_path, shared_file), 'r', encoding='utf-8') as data_file:
                 shared_schema_refs[shared_file] = json.load(data_file)
 
         return shared_schema_refs
@@ -296,12 +295,12 @@ class Stream():
         refs = self.load_shared_schema_refs() # Load references scheamas
 
         schema_file = f"schemas/{self.name}.json"
-        with open(get_abs_path(schema_file)) as f:
+        with open(get_abs_path(schema_file), 'r', encoding='utf-8') as f:
             schema = json.load(f)
         self.resolve_schema_references(schema, "$ref", refs)
         return schema
 
-    def _add_custom_fields(self, schema):  # pylint: disable=no-self-use
+    def _add_custom_fields(self, schema):
         return schema
 
     def load_metadata(self):
@@ -1014,16 +1013,14 @@ class Events(EventsBase):
 
             body = self.get_body(period, start, end)
             events = self.request(self.name, json=body) or []
-            event = None
 
             # loop over every event and yield
-            for event in events:
-                yield event
+            yield from events
 
             # as we are fetching the data in sorted manner (ascending),
             # the last event will contain the highest bookmark value
-            if event:
-                replication_value = event.get(humps.decamelize(self.replication_key))
+            if len(events) > 0:
+                replication_value = events[-1].get(humps.decamelize(self.replication_key))
                 bookmark_value = strptime_to_utc(strftime(datetime.fromtimestamp(replication_value / 1000, timezone.utc)))
                 max_bookmark = max(bookmark_value, max_bookmark)
                 self.update_bookmark(state, self.name, strftime(max_bookmark), self.replication_key)

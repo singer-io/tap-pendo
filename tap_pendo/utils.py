@@ -50,12 +50,12 @@ def get_abs_path(path):
 
 
 def load_json(path):
-    with open(path) as f:
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 
 def load_schema(entity):
-    return load_json(get_abs_path("schemas/{}.json".format(entity)))
+    return load_json(get_abs_path(f"schemas/{entity}.json"))
 
 
 def update_state(state, entity, dt):
@@ -96,5 +96,4 @@ def check_config(config, required_keys):
     # Verify that all the required keys are present in config
     missing_keys = [key for key in required_keys if key not in config]
     if missing_keys:
-        raise Exception(
-            "Config is missing required keys: {}".format(missing_keys))
+        raise Exception(f"Config is missing required keys: {missing_keys}")
