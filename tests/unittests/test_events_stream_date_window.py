@@ -41,12 +41,12 @@ class EventsDateWindow(unittest.TestCase):
         ]
 
         # verify the 'get_body' was called with expected arguments
-        self.assertEquals(mocked_get_body.mock_calls, get_body_calls)
+        self.assertEqual(mocked_get_body.mock_calls, get_body_calls)
         # verify the 'update_bookmark' was called with expected arguments
-        self.assertEquals(mocked_update_bookmark.mock_calls, update_bookmark_calls)
+        self.assertEqual(mocked_update_bookmark.mock_calls, update_bookmark_calls)
         # verify the data we mocked was returned
-        self.assertEquals(len(events_data), len(expected_records))
-        self.assertEquals(events_data, expected_records)
+        self.assertEqual(len(events_data), len(expected_records))
+        self.assertEqual(events_data, expected_records)
 
     @mock.patch("tap_pendo.streams.Events.update_bookmark")
     def test_hourRange(self, mocked_update_bookmark, mocked_request, mocked_get_body, mocked_singer_now):
@@ -81,12 +81,12 @@ class EventsDateWindow(unittest.TestCase):
         ]
 
         # verify the 'get_body' was called with expected arguments
-        self.assertEquals(mocked_get_body.mock_calls, get_body_calls)
+        self.assertEqual(mocked_get_body.mock_calls, get_body_calls)
         # verify the 'update_bookmark' was called with expected arguments
-        self.assertEquals(mocked_update_bookmark.mock_calls, update_bookmark_calls)
+        self.assertEqual(mocked_update_bookmark.mock_calls, update_bookmark_calls)
         # verify the data we mocked was returned
-        self.assertEquals(len(events_data), len(expected_records))
-        self.assertEquals(events_data, expected_records)
+        self.assertEqual(len(events_data), len(expected_records))
+        self.assertEqual(events_data, expected_records)
 
     def test_custom_window_size_dayRange(self, mocked_request, mocked_get_body, mocked_singer_now):
 
@@ -112,7 +112,7 @@ class EventsDateWindow(unittest.TestCase):
         ]
 
         # verify the 'get_body' was called with expected arguments
-        self.assertEquals(mocked_get_body.mock_calls, get_body_calls)
+        self.assertEqual(mocked_get_body.mock_calls, get_body_calls)
 
     def test_custom_window_size_hourRange(self, mocked_request, mocked_get_body, mocked_singer_now):
 
@@ -138,7 +138,7 @@ class EventsDateWindow(unittest.TestCase):
         ]
 
         # verify the 'get_body' was called with expected arguments
-        self.assertEquals(mocked_get_body.mock_calls, get_body_calls)
+        self.assertEqual(mocked_get_body.mock_calls, get_body_calls)
 
     @mock.patch("tap_pendo.streams.Events.update_bookmark")
     def test_bookmark_value(self, mocked_update_bookmark, mocked_request, mocked_get_body, mocked_singer_now):
@@ -172,4 +172,4 @@ class EventsDateWindow(unittest.TestCase):
         ]
 
         # verify the 'update_bookmark' was called with expected arguments
-        self.assertEquals(mocked_update_bookmark.mock_calls, update_bookmark_calls)
+        self.assertEqual(mocked_update_bookmark.mock_calls, update_bookmark_calls)

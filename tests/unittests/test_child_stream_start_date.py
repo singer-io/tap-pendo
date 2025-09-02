@@ -75,7 +75,7 @@ class TestStartDateOfChildStream(unittest.TestCase):
         """
         start_date = strptime_to_utc("2021-01-01T00:00:00Z")
         expected_start_date = streams.round_times(now(), now())[0] - timedelta(179)
-        self.assertEquals(streams.get_absolute_start_end_time(start_date)[0],
+        self.assertEqual(streams.get_absolute_start_end_time(start_date)[0],
                           expected_start_date,
                           msg="Older than 179 days visitor history start date is resetting to (now - 179 days)")
 
@@ -85,7 +85,7 @@ class TestStartDateOfChildStream(unittest.TestCase):
         """
         start_date = now() - timedelta(179)
         expected_start_date = streams.round_times(start_date, start_date)[0]
-        self.assertEquals(streams.get_absolute_start_end_time(start_date)[0],
+        self.assertEqual(streams.get_absolute_start_end_time(start_date)[0],
                           expected_start_date,
                           msg="Exactly 179 days older visitor history start date is not getting set properly")
 
@@ -95,7 +95,7 @@ class TestStartDateOfChildStream(unittest.TestCase):
         """
         start_date = now() - timedelta(50)
         expected_start_date = streams.round_times(start_date, start_date)[0]
-        self.assertEquals(streams.get_absolute_start_end_time(start_date)[0],
+        self.assertEqual(streams.get_absolute_start_end_time(start_date)[0],
                           expected_start_date,
                           msg="Lesser than 179 days older visitor history start date is not getting set properly")
 
@@ -133,4 +133,4 @@ class TestStartDateOfChildStream(unittest.TestCase):
             # parse start date as it is in the format: 2021-01-01T00:00:00.000000Z
             parsed_start_date = parse(strftime(start_date)).strftime("%Y-%m-%dT%H:%M:%SZ")
             # verify if the 'parsed_start_date' is same as the start date from config file
-            self.assertEquals(parsed_start_date, config.get("start_date"))
+            self.assertEqual(parsed_start_date, config.get("start_date"))

@@ -85,7 +85,7 @@ class TestRecordLimit(unittest.TestCase):
         source_records = [{event_obj.replication_key: 100}] * number_of_records
 
         records, last_processed = event_obj.remove_last_timestamp_records(records=source_records)
-        self.assertEquals(len(records), 0)
-        self.assertEquals(len(last_processed), number_of_records)
-        self.assertEquals(event_obj.record_limit, expected_record_limit)
+        self.assertEqual(len(records), 0)
+        self.assertEqual(len(last_processed), number_of_records)
+        self.assertEqual(event_obj.record_limit, expected_record_limit)
 
