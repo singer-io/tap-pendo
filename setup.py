@@ -12,7 +12,7 @@ setup(
     install_requires=[
         'singer-python==5.13.2',
         "requests",
-        'pyhumps==1.3.1',
+        'pyhumps',
         'backoff==1.10.0',
         'ijson==3.1.4',
     ],
