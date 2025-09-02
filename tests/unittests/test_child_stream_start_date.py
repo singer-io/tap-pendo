@@ -76,8 +76,8 @@ class TestStartDateOfChildStream(unittest.TestCase):
         start_date = strptime_to_utc("2021-01-01T00:00:00Z")
         expected_start_date = streams.round_times(now(), now())[0] - timedelta(179)
         self.assertEqual(streams.get_absolute_start_end_time(start_date)[0],
-                          expected_start_date,
-                          msg="Older than 179 days visitor history start date is resetting to (now - 179 days)")
+                         expected_start_date,
+                         msg="Older than 179 days visitor history start date is resetting to (now - 179 days)")
 
     def test_visitor_history_start_date_equals_180_days(self):
         """
@@ -86,8 +86,8 @@ class TestStartDateOfChildStream(unittest.TestCase):
         start_date = now() - timedelta(179)
         expected_start_date = streams.round_times(start_date, start_date)[0]
         self.assertEqual(streams.get_absolute_start_end_time(start_date)[0],
-                          expected_start_date,
-                          msg="Exactly 179 days older visitor history start date is not getting set properly")
+                         expected_start_date,
+                         msg="Exactly 179 days older visitor history start date is not getting set properly")
 
     def test_visitor_history_start_date_lesser_than_180_days(self):
         """
@@ -96,8 +96,8 @@ class TestStartDateOfChildStream(unittest.TestCase):
         start_date = now() - timedelta(50)
         expected_start_date = streams.round_times(start_date, start_date)[0]
         self.assertEqual(streams.get_absolute_start_end_time(start_date)[0],
-                          expected_start_date,
-                          msg="Lesser than 179 days older visitor history start date is not getting set properly")
+                         expected_start_date,
+                         msg="Lesser than 179 days older visitor history start date is not getting set properly")
 
     @mock.patch("singer.write_schema")
     @mock.patch("tap_pendo.streams.Stream.update_bookmark")
