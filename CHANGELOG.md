@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.1
+  * Unpin pyhump dependency and refactor for pylint errors [#136](https://github.com/singer-io/tap-pendo/pull/136)
+
 ## 1.2.0
   * Use replication_key in last_processed instead of primary_key [#133](https://github.com/singer-io/tap-pendo/pull/133)
 
