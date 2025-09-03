@@ -2,8 +2,7 @@ import json
 
 import humps
 import singer
-import singer.metrics as metrics
-from singer import Transformer, metadata
+from singer import Transformer, metadata, metrics
 from singer.transform import strptime_to_utc
 from singer.utils import strftime
 

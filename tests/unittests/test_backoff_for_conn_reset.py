@@ -53,9 +53,9 @@ class TestConnectionResetError(unittest.TestCase):
             list(self.stream.request(endpoint=None))
 
         # verify if the request was called 7 times
-        self.assertEquals(mocked_send.call_count, 7)
+        self.assertEqual(mocked_send.call_count, 7)
 
-    @mock.patch('http.client.HTTPResponse.readinto')
+    @mock.patch('http.client.HTTPResponse.read')
     def test_connection_reset_error__from_ijson(self, mocked_request, mocked_sleep):
         # mock request and raise error
         mocked_request.side_effect = socket.error(104, 'Connection reset by peer')
@@ -64,9 +64,9 @@ class TestConnectionResetError(unittest.TestCase):
             list(self.stream.request(endpoint=None))
 
         # verify if the request was called 7 times
-        self.assertEquals(mocked_request.call_count, 7)
+        self.assertEqual(mocked_request.call_count, 7)
 
-    @mock.patch('http.client.HTTPResponse.readinto')
+    @mock.patch('http.client.HTTPResponse.read')
     def test_timeout_error__from_ijson(self, mocked_request, mocked_sleep):
         # mock request and raise error
         mocked_request.side_effect = socket.timeout('The read operation timed out')
@@ -75,7 +75,7 @@ class TestConnectionResetError(unittest.TestCase):
             list(self.stream.request(endpoint=None))
 
         # verify if the request was called 7 times
-        self.assertEquals(mocked_request.call_count, 7)
+        self.assertEqual(mocked_request.call_count, 7)
 
     @mock.patch('requests.Session.send')
     @mock.patch('ijson.items')
@@ -92,7 +92,7 @@ class TestConnectionResetError(unittest.TestCase):
             list(self.stream.request(endpoint=None))
 
         # verify if the request was called 7 times
-        self.assertEquals(mocked_send.call_count, 7)
+        self.assertEqual(mocked_send.call_count, 7)
 
     @mock.patch('requests.Session.send')
     @mock.patch('tap_pendo.streams.LOGGER.info')
@@ -107,7 +107,7 @@ class TestConnectionResetError(unittest.TestCase):
             list(self.stream.request(endpoint=None))
 
         # verify if the request was called 7 times
-        self.assertEquals(mocked_send.call_count, 7)
+        self.assertEqual(mocked_send.call_count, 7)
         mocked_logger_info.assert_called_with("Rate limit reached. Sleeping for %s seconds", 30)
 
     @mock.patch('requests.Session.send')
@@ -122,4 +122,4 @@ class TestConnectionResetError(unittest.TestCase):
             list(self.stream.request(endpoint=None))
 
         # verify if the request was called 5 times
-        self.assertEquals(mocked_send.call_count, 1)
+        self.assertEqual(mocked_send.call_count, 1)

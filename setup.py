@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="tap-pendo",
-    version="1.2.0",
+    version="1.2.1",
     description="Singer.io tap for extracting data",
     author="Stitch",
     url="https://github.com/singer-io/tap-pendo",
@@ -12,14 +12,13 @@ setup(
     install_requires=[
         'singer-python==5.13.2',
         "requests",
-        'pyhumps==1.3.1',
+        'pyhumps',
         'backoff==1.10.0',
         'ijson==3.1.4',
     ],
     extras_require={
         'test': [
-            'pylint==2.5.3',
-            'nose'
+            'pylint'
         ],
         'dev': [
             'ipdb==0.11'
