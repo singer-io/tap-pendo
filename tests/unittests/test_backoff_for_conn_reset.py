@@ -55,7 +55,7 @@ class TestConnectionResetError(unittest.TestCase):
         # verify if the request was called 7 times
         self.assertEqual(mocked_send.call_count, 7)
 
-    @mock.patch('http.client.HTTPResponse.readinto')
+    @mock.patch('http.client.HTTPResponse.read')
     def test_connection_reset_error__from_ijson(self, mocked_request, mocked_sleep):
         # mock request and raise error
         mocked_request.side_effect = socket.error(104, 'Connection reset by peer')
@@ -66,7 +66,7 @@ class TestConnectionResetError(unittest.TestCase):
         # verify if the request was called 7 times
         self.assertEqual(mocked_request.call_count, 7)
 
-    @mock.patch('http.client.HTTPResponse.readinto')
+    @mock.patch('http.client.HTTPResponse.read')
     def test_timeout_error__from_ijson(self, mocked_request, mocked_sleep):
         # mock request and raise error
         mocked_request.side_effect = socket.timeout('The read operation timed out')
