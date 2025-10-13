@@ -3,7 +3,7 @@ import os
 import singer
 from singer import metadata
 
-from tap_pendo.streams import STREAMS
+from tap_pendo.streams import STREAMS, SUB_STREAMS
 
 LOGGER = singer.get_logger()
 
@@ -139,10 +139,17 @@ def discover_streams(config):
         if s.name == 'metadata_visitors':
             build_metadata_metadata(mdata, schema, custom_visitor_fields)
 
+        stream_name = s.name
+        parent = None
+        if stream_name in SUB_STREAMS.values():
+            for name, child in SUB_STREAMS.items():
+                if child == stream_name:
+                    parent = name
         stream = {
             'stream': s.name,
             'tap_stream_id': s.name,
             'schema': schema,
+            **({'parent-stream-id': parent} if parent else {}),
             'metadata': metadata.to_list(mdata)
         }
 
