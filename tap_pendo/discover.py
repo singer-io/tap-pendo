@@ -145,11 +145,22 @@ def discover_streams(config):
             for name, child in SUB_STREAMS.items():
                 if child == stream_name:
                     parent = name
+        if parent:
+            added = False
+            for key, value in mdata.items():
+                if isinstance(value, dict) and 'metadata' in value:
+                    value['metadata']['parent_stream_name'] = parent
+                    added = True
+                    break
+
+            # fallback in case no 'metadata' key was found
+            if not added:
+                # Add at root level safely
+                mdata[()] = {'metadata': {'parent_stream_id': parent}}
         stream = {
             'stream': s.name,
             'tap_stream_id': s.name,
             'schema': schema,
-            **({'parent_stream_id': parent} if parent else {}),
             'metadata': metadata.to_list(mdata)
         }
 
