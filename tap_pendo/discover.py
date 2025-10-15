@@ -138,25 +138,20 @@ def discover_streams(config):
 
         if s.name == 'metadata_visitors':
             build_metadata_metadata(mdata, schema, custom_visitor_fields)
-
-        parent_stream_id = None
-        if s.name in SUB_STREAMS.values():
+        stream_name = s.name
+        parent = None
+        if stream_name in SUB_STREAMS.values():
             for name, child in SUB_STREAMS.items():
-                if child == s.name:
-                    parent_stream_id = name
-                    break
-
-        # Build the catalog stream entry
+                if child == stream_name:
+                    parent = name
+        if parent:
+            mdata[()]['parent-tap-stream-id'] = parent
         stream = {
             'stream': s.name,
             'tap_stream_id': s.name,
             'schema': schema,
-            'metadata': metadata.to_list(mdata),
+            'metadata': metadata.to_list(mdata)
         }
-
-        # Store parent internally for sync logic (not in discovery metadata)
-        if parent_stream_id:
-            stream['parent_stream_id'] = parent_stream_id
 
         streams.append(stream)
 
