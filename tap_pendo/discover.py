@@ -145,11 +145,13 @@ def discover_streams(config):
             for name, child in SUB_STREAMS.items():
                 if child == stream_name:
                     parent = name
+        if parent:
+            mdata[()]['parent-tap-stream-id'] = parent
+
         stream = {
             'stream': s.name,
             'tap_stream_id': s.name,
             'schema': schema,
-            **({'parent-stream-id': parent} if parent else {}),
             'metadata': metadata.to_list(mdata)
         }
 
