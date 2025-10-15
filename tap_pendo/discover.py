@@ -149,7 +149,7 @@ def discover_streams(config):
             'stream': s.name,
             'tap_stream_id': s.name,
             'schema': schema,
-            **({'parent-stream-id': parent} if parent else {}),
+            **({'parent_stream_id': parent} if parent else {}),
             'metadata': metadata.to_list(mdata)
         }
 
