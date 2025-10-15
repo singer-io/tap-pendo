@@ -156,7 +156,7 @@ def discover_streams(config):
 
         # Store parent internally for sync logic (not in discovery metadata)
         if parent_stream_id:
-            stream['_parent_stream_id'] = parent_stream_id
+            stream['parent_stream_id'] = parent_stream_id
 
         streams.append(stream)
 
