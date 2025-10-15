@@ -138,7 +138,6 @@ def discover_streams(config):
 
         if s.name == 'metadata_visitors':
             build_metadata_metadata(mdata, schema, custom_visitor_fields)
-
         stream_name = s.name
         parent = None
         if stream_name in SUB_STREAMS.values():
@@ -146,17 +145,7 @@ def discover_streams(config):
                 if child == stream_name:
                     parent = name
         if parent:
-            added = False
-            for key, value in mdata.items():
-                if isinstance(value, dict) and 'metadata' in value:
-                    value['metadata']['parent_stream_name'] = parent
-                    added = True
-                    break
-
-            # fallback in case no 'metadata' key was found
-            if not added:
-                # Add at root level safely
-                mdata[()] = {'metadata': {'parent_stream_id': parent}}
+            mdata[()]['parent-stream-id'] = parent
         stream = {
             'stream': s.name,
             'tap_stream_id': s.name,
