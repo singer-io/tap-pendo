@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.1
+  * The change enables sub-streams to reference their parent streams through metadata [#137](https://github.com/singer-io/tap-pendo/pull/137)
+
 ## 1.2.1
   * Unpin pyhump dependency and refactor for pylint errors [#136](https://github.com/singer-io/tap-pendo/pull/136)
 

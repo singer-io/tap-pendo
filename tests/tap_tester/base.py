@@ -22,6 +22,7 @@ class TestPendoBase(unittest.TestCase):
     INCREMENTAL = "INCREMENTAL"
     FULL_TABLE = "FULL_TABLE"
     START_DATE_FORMAT = "%Y-%m-%dT00:00:00Z"
+    PARENT_TAP_STREAM_ID = "parent-tap-stream-id"
     BOOKMARK_COMPARISON_FORMAT = "%Y-%m-%dT%H:%M%S%z"
     start_date = ""
     is_day_range = True
@@ -74,7 +75,8 @@ class TestPendoBase(unittest.TestCase):
             "visitor_history": {
                 self.PRIMARY_KEYS: {'visitor_id'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'modified_ts'}
+                self.REPLICATION_KEYS: {'modified_ts'},
+                self.PARENT_TAP_STREAM_ID: 'visitors'
             },
             "visitors": {
                 self.PRIMARY_KEYS: {'visitor_id'},
@@ -89,7 +91,8 @@ class TestPendoBase(unittest.TestCase):
             "feature_events":{
                 self.PRIMARY_KEYS: {"feature_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {event_replication_key}
+                self.REPLICATION_KEYS: {event_replication_key},
+                self.PARENT_TAP_STREAM_ID: 'features'
             },
             "events": {
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
@@ -99,12 +102,14 @@ class TestPendoBase(unittest.TestCase):
             "page_events": {
                 self.PRIMARY_KEYS: {"page_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {event_replication_key}
+                self.REPLICATION_KEYS: {event_replication_key},
+                self.PARENT_TAP_STREAM_ID: 'pages'
             },
             "guide_events": {
                 self.PRIMARY_KEYS: {"guide_id", "guide_step_id", "visitor_id", "type", "account_id", "browser_time", "url"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {'browser_time'}
+                self.REPLICATION_KEYS: {'browser_time'},
+                self.PARENT_TAP_STREAM_ID: 'guides'
             },
             "poll_events":{
                 self.PRIMARY_KEYS: {"visitor_id", "account_id", "poll_id", "browser_time"},
@@ -114,7 +119,8 @@ class TestPendoBase(unittest.TestCase):
             "track_events": {
                 self.PRIMARY_KEYS: {"track_type_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {event_replication_key}
+                self.REPLICATION_KEYS: {event_replication_key},
+                self.PARENT_TAP_STREAM_ID: 'track_types'
             },
             "metadata_accounts": {
                 self.REPLICATION_METHOD: self.FULL_TABLE,

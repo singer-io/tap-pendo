@@ -68,16 +68,29 @@ class PendoDiscoverTest(TestPendoBase):
                     stream_properties[0].get(
                         "metadata", {self.REPLICATION_KEYS: []}).get(self.REPLICATION_KEYS, [])
                 )
-                actual_replication_method = stream_properties[0].get(
-                    "metadata", {self.REPLICATION_METHOD: None}).get(self.REPLICATION_METHOD)
+                actual_replication_method = stream_properties[0].get("metadata", {self.REPLICATION_METHOD: None}).get(self.REPLICATION_METHOD)
                 actual_automatic_fields = set(
                     item.get("breadcrumb", ["properties", None])[1] for item in metadata
                     if item.get("metadata").get("inclusion") == "automatic"
                 )
-                
+                expected_parent = self.expected_metadata()[stream].get(self.PARENT_TAP_STREAM_ID)
+                actual_parent = stream_properties[0].get("metadata", {}).get(self.PARENT_TAP_STREAM_ID)
+
                 ##########################################################################
                 # metadata assertions
                 ##########################################################################
+
+                if expected_parent:
+                    self.assertEqual(
+                        expected_parent,
+                        actual_parent,
+                        msg=f"Expected parent-tap-stream-id '{expected_parent}' but got '{actual_parent}' for stream {stream}"
+                    )
+                else:
+                    self.assertIsNone(
+                        actual_parent,
+                        msg=f"Unexpected parent-tap-stream-id found for stream {stream}: {actual_parent}"
+                    )
 
                 # verify there is only 1 top level breadcrumb in metadata
                 self.assertTrue(len(stream_properties) == 1,
