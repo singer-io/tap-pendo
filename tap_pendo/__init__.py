@@ -8,6 +8,7 @@ from singer import metadata
 from singer import metrics as singer_metrics
 from singer import utils
 from tap_pendo.discover import discover_streams
+from tap_pendo.exception import DependencyException
 from tap_pendo.streams import STREAMS, SUB_STREAMS, update_currently_syncing
 from tap_pendo.sync import sync_full_table, sync_stream
 
@@ -35,10 +36,6 @@ def get_sub_stream_ids():
     for _, value in SUB_STREAMS.items():
         sub_stream_ids.append(value)
     return sub_stream_ids
-
-
-class DependencyException(Exception):
-    pass
 
 
 def validate_dependencies(selected_stream_ids):
