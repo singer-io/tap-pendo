@@ -104,6 +104,10 @@ class Server42xRateLimitError(Exception):
     pass
 
 
+class PendoForbiddenError(Exception):
+    pass
+
+
 class Endpoints():
     endpoint = ""
     method = ""
@@ -180,6 +184,10 @@ class Stream():
                         retry_after)
             time.sleep(retry_after)
             raise Server42xRateLimitError(resp.reason)
+
+        # Check for 403 Forbidden and raise PendoForbiddenError
+        if resp.status_code == 403:
+            raise PendoForbiddenError(f"HTTP-error-code: 403, Error: {resp.reason}")
 
         resp.raise_for_status() # Check for requests status and raise exception in failure
         Stream.request_retry_count = 1    # Reset retry count after success
@@ -262,6 +270,32 @@ class Stream():
             bookmark_key or self.replication_key,
             bookmark_value)
         singer.write_state(state)
+
+    def check_access(self) -> bool:
+        """
+        Verify that the API credentials have read access to this stream.
+        Makes a real, valid request using this stream's own get_body() so that
+        the API evaluates actual permissions.
+        Child streams (SUB_STREAMS.values()) always return True; access is
+        governed by the parent stream's check.
+        """
+        # Child streams always return True - access is governed by parent
+        if self.name in SUB_STREAMS.values():
+            return True
+
+        try:
+            # self.get_body() produces a fully valid request body for all
+            # non-EventsBase parent streams (all args have defaults).
+            # EventsBase overrides this method with proper minimal args.
+            self.request(self.name, json=self.get_body())
+            return True
+        except PendoForbiddenError as exc:
+            LOGGER.warning(
+                "Permission Error: Stream '%s' - %s",
+                self.__class__.__name__,
+                exc,
+            )
+            return False
 
 
     def load_shared_schema_refs(self):
@@ -804,6 +838,32 @@ class EventsBase(Stream):
                 ]
             }
         }
+
+    def check_access(self) -> bool:
+        """
+        Override for EventsBase streams (Events, PollEvents).
+        These streams' get_body() requires positional args (key_id, period, first),
+        so the base class method cannot call it directly.  We build a valid minimal
+        request here — a 24-hour window ending now — so the API evaluates real
+        permissions and only a genuine 403 is treated as "no access".
+        """
+        # Child streams always return True - access is governed by parent
+        if self.name in SUB_STREAMS.values():
+            return True
+
+        try:
+            # A 24-hour window ending now is minimal but fully valid.
+            first = int(now().timestamp() * 1000) - (24 * 60 * 60 * 1000)
+            body = self.get_body(key_id=None, period=self.period, first=first)
+            self.request(self.name, json=body)
+            return True
+        except PendoForbiddenError as exc:
+            LOGGER.warning(
+                "Permission Error: Stream '%s' - %s",
+                self.__class__.__name__,
+                exc,
+            )
+            return False
 
     def get_first_parameter_value(self, body):
         return body['request']['pipeline'][0]['source']['timeSeries'].get('first', 0)

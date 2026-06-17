@@ -3,7 +3,7 @@ import os
 import singer
 from singer import metadata
 
-from tap_pendo.streams import STREAMS, SUB_STREAMS
+from tap_pendo.streams import STREAMS, SUB_STREAMS, PendoForbiddenError
 
 LOGGER = singer.get_logger()
 
@@ -105,8 +105,63 @@ def build_account_visitor_metadata(mdata, schema, custom_fields):
                                'inclusion', 'available')
 
 
+def _apply_access_checks(config):
+    """
+    Probe each parent stream for read access and return sets of accessible
+    parent and child streams.
+    Note: Child streams inherit parent accessibility. If a parent is not accessible,
+    its child streams are also excluded.
+    Raises PendoForbiddenError if no parent streams are accessible.
+    """
+    accessible_parents = set()
+    inaccessible_parents = []
+
+    child_streams = set(SUB_STREAMS.values())
+
+    # Only check parent streams — child accessibility is derived from their parent
+    for stream_name, stream_cls in STREAMS.items():
+        if stream_name in child_streams:
+            continue
+        stream_obj = stream_cls(config)
+        try:
+            if stream_obj.check_access():
+                accessible_parents.add(stream_name)
+            else:
+                inaccessible_parents.append(stream_name)
+        except PendoForbiddenError as e:
+            LOGGER.warning("Access check failed for stream '%s': %s", stream_name, e)
+            inaccessible_parents.append(stream_name)
+
+    if not accessible_parents:
+        raise PendoForbiddenError(
+            "HTTP-error-code: 403, Error: The credentials do not have 'read' access to any supported streams."
+        )
+
+    if inaccessible_parents:
+        LOGGER.warning(
+            "No 'read' access to stream(s): %s. Excluded from catalog.",
+            ", ".join(inaccessible_parents),
+        )
+
+    # Build set of accessible child streams (children of accessible parents)
+    accessible_children = set()
+    for parent_stream, child_stream in SUB_STREAMS.items():
+        if parent_stream in accessible_parents:
+            accessible_children.add(child_stream)
+        else:
+            LOGGER.warning(
+                "Stream '%s' excluded from catalog because its parent stream '%s' is not accessible.",
+                child_stream, parent_stream,
+            )
+
+    return accessible_parents, accessible_children
+
+
 def discover_streams(config):
-    # Discover schemas, build metadata for all the steams and return catalog
+    # Discover schemas, build metadata for all the streams and return catalog
+    # First, check access to all parent streams and get accessible streams
+    accessible_parents, accessible_children = _apply_access_checks(config)
+
     streams = []
 
     LOGGER.info("Discovering custom fields for Accounts")
@@ -117,9 +172,14 @@ def discover_streams(config):
     custom_visitor_fields = STREAMS['metadata_visitors'](
         config).get_fields().get('custom') or {}
 
-    for s in STREAMS.values():
+    for stream_name, stream_cls in STREAMS.items():
+        is_accessible = (stream_name in accessible_parents) or (stream_name in accessible_children)
 
-        s = s(config)
+        if not is_accessible:
+            LOGGER.info("Skipping stream '%s': not accessible", stream_name)
+            continue
+
+        s = stream_cls(config)
 
         schema = s.load_schema() # load schema for the stream
         mdata = metadata.to_map(s.load_metadata())
