@@ -104,7 +104,7 @@ class Server42xRateLimitError(Exception):
     pass
 
 
-class PendoForbiddenError(Exception):
+class PendoForbiddenError(HTTPError):
     pass
 
 
@@ -187,7 +187,10 @@ class Stream():
 
         # Check for 403 Forbidden and raise PendoForbiddenError
         if resp.status_code == 403:
-            raise PendoForbiddenError(f"HTTP-error-code: 403, Error: {resp.reason}")
+            raise PendoForbiddenError(
+                f"HTTP-error-code: 403, Error: {resp.reason}",
+                response=resp,
+            )
 
         resp.raise_for_status() # Check for requests status and raise exception in failure
         Stream.request_retry_count = 1    # Reset retry count after success
@@ -287,7 +290,13 @@ class Stream():
             # self.get_body() produces a fully valid request body for all
             # non-EventsBase parent streams (all args have defaults).
             # EventsBase overrides this method with proper minimal args.
-            self.request(self.name, json=self.get_body())
+            body = self.get_body()
+            # Limit to 1 record — we only need a response code, not actual data.
+            for stage in body.get('request', {}).get('pipeline', []):
+                if 'limit' in stage:
+                    stage['limit'] = 1
+                    break
+            self.request(self.name, json=body)
             return True
         except PendoForbiddenError as exc:
             LOGGER.warning(
@@ -855,6 +864,11 @@ class EventsBase(Stream):
             # A 24-hour window ending now is minimal but fully valid.
             first = int(now().timestamp() * 1000) - (24 * 60 * 60 * 1000)
             body = self.get_body(key_id=None, period=self.period, first=first)
+            # Limit to 1 record — we only need a response code, not actual data.
+            for stage in body.get('request', {}).get('pipeline', []):
+                if 'limit' in stage:
+                    stage['limit'] = 1
+                    break
             self.request(self.name, json=body)
             return True
         except PendoForbiddenError as exc:
