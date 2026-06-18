@@ -205,3 +205,18 @@ class TestCheckAccess(unittest.TestCase):
         result = poll_stream.check_access()
 
         assert result is True
+
+    @mock.patch('tap_pendo.streams.Stream.request')
+    def test_check_access_metadata_streams_with_none_body(self, mock_request):
+        """metadata_accounts and metadata_visitors have get_body()=None (GET endpoints)."""
+        mock_request.return_value = {}
+
+        for stream_name in ('metadata_accounts', 'metadata_visitors'):
+            with self.subTest(stream=stream_name):
+                stream = STREAMS[stream_name](self.config)
+                result = stream.check_access()
+                assert result is True
+                # Verify request was sent with json=None
+                call_kwargs = mock_request.call_args
+                assert call_kwargs[1].get('json') is None
+                mock_request.reset_mock()

@@ -292,10 +292,11 @@ class Stream():
             # EventsBase overrides this method with proper minimal args.
             body = self.get_body()
             # Limit to 1 record — we only need a response code, not actual data.
-            for stage in body.get('request', {}).get('pipeline', []):
-                if 'limit' in stage:
-                    stage['limit'] = 1
-                    break
+            if body is not None:
+                for stage in body.get('request', {}).get('pipeline', []):
+                    if 'limit' in stage:
+                        stage['limit'] = 1
+                        break
             self.request(self.name, json=body)
             return True
         except PendoForbiddenError as exc:
