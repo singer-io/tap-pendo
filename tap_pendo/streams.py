@@ -187,8 +187,9 @@ class Stream():
 
         # Check for 403 Forbidden and raise PendoForbiddenError
         if resp.status_code == 403:
+            reason = resp.reason or resp.text or "Forbidden"
             raise PendoForbiddenError(
-                f"HTTP-error-code: 403, Error: {resp.reason}",
+                f"HTTP-error-code: 403, Error: {reason}",
                 response=resp,
             )
 
@@ -301,9 +302,9 @@ class Stream():
             return True
         except PendoForbiddenError as exc:
             LOGGER.warning(
-                "Permission Error: Stream '%s' - %s",
-                self.__class__.__name__,
-                exc,
+                "Unauthorized Stream: %s, excluding from catalog. HTTP-Error-Message:'%s'",
+                self.name,
+                str(exc),
             )
             return False
 
@@ -874,9 +875,9 @@ class EventsBase(Stream):
             return True
         except PendoForbiddenError as exc:
             LOGGER.warning(
-                "Permission Error: Stream '%s' - %s",
-                self.__class__.__name__,
-                exc,
+                "Unauthorized Stream: %s, excluding from catalog. HTTP-Error-Message:'%s'",
+                self.name,
+                str(exc),
             )
             return False
 

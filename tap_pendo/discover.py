@@ -105,45 +105,11 @@ def build_account_visitor_metadata(mdata, schema, custom_fields):
                                'inclusion', 'available')
 
 
-def _apply_access_checks(config):
+def _prune_inaccessible_children(accessible_parents):
     """
-    Probe each parent stream for read access and return sets of accessible
-    parent and child streams.
-    Note: Child streams inherit parent accessibility. If a parent is not accessible,
-    its child streams are also excluded.
-    Raises PendoForbiddenError if no parent streams are accessible.
+    Return the set of child streams whose parent is accessible.
+    Logs a warning for each child excluded due to an inaccessible parent.
     """
-    accessible_parents = set()
-    inaccessible_parents = []
-
-    child_streams = set(SUB_STREAMS.values())
-
-    # Only check parent streams — child accessibility is derived from their parent
-    for stream_name, stream_cls in STREAMS.items():
-        if stream_name in child_streams:
-            continue
-        stream_obj = stream_cls(config)
-        try:
-            if stream_obj.check_access():
-                accessible_parents.add(stream_name)
-            else:
-                inaccessible_parents.append(stream_name)
-        except PendoForbiddenError as e:
-            LOGGER.warning("Access check failed for stream '%s': %s", stream_name, e)
-            inaccessible_parents.append(stream_name)
-
-    if not accessible_parents:
-        raise PendoForbiddenError(
-            "HTTP-error-code: 403, Error: The credentials do not have 'read' access to any supported streams."
-        )
-
-    if inaccessible_parents:
-        LOGGER.warning(
-            "No 'read' access to stream(s): %s. Excluded from catalog.",
-            ", ".join(inaccessible_parents),
-        )
-
-    # Build set of accessible child streams (children of accessible parents)
     accessible_children = set()
     for parent_stream, child_stream in SUB_STREAMS.items():
         if parent_stream in accessible_parents:
@@ -153,6 +119,38 @@ def _apply_access_checks(config):
                 "Stream '%s' excluded from catalog because its parent stream '%s' is not accessible.",
                 child_stream, parent_stream,
             )
+    return accessible_children
+
+
+def _apply_access_checks(config):
+    """
+    Probe each parent stream for read access and return sets of accessible
+    parent and child streams.
+    Child streams inherit parent accessibility.
+    Raises PendoForbiddenError if no parent streams are accessible.
+    """
+    child_streams = set(SUB_STREAMS.values())
+    parent_streams = {name: cls for name, cls in STREAMS.items() if name not in child_streams}
+
+    inaccessible_streams = [
+        stream_name
+        for stream_name, stream_cls in parent_streams.items()
+        if not stream_cls(config).check_access()
+    ]
+
+    if len(inaccessible_streams) == len(parent_streams):
+        raise PendoForbiddenError(
+            "HTTP-error-code: 403, Error: The credentials do not have 'read' access to any supported streams."
+        )
+
+    if inaccessible_streams:
+        LOGGER.warning(
+            "No 'read' access to stream(s): %s. Excluded from catalog.",
+            ", ".join(inaccessible_streams),
+        )
+
+    accessible_parents = set(parent_streams.keys()) - set(inaccessible_streams)
+    accessible_children = _prune_inaccessible_children(accessible_parents)
 
     return accessible_parents, accessible_children
 
