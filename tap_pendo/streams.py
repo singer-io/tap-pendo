@@ -38,6 +38,8 @@ def to_giveup(error):
     """
         Boolean function to return if we want to give up retrying based on error response
     """
+    if isinstance(error, PendoForbiddenError):
+        return True
     return error.response is not None and 400 <= error.response.status_code < 500
 
 def get_abs_path(path):
@@ -203,8 +205,7 @@ class Stream():
     # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
                           max_tries=7,
-                          giveup=lambda e: e.response is not None and 400 <= e.
-                          response.status_code < 500,
+                          giveup=to_giveup,
                           factor=BACKOFF_FACTOR,
                           jitter=None,
                           on_backoff=retry_handler,
