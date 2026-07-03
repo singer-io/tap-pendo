@@ -143,14 +143,19 @@ def _apply_access_checks(config):
             "HTTP-error-code: 403, Error: The credentials do not have 'read' access to any supported streams."
         )
 
-    if inaccessible_streams:
-        LOGGER.warning(
-            "No 'read' access to stream(s): %s. Excluded from catalog.",
-            ", ".join(inaccessible_streams),
-        )
-
     accessible_parents = set(parent_streams.keys()) - set(inaccessible_streams)
     accessible_children = _prune_inaccessible_children(accessible_parents)
+
+    if inaccessible_streams:
+        inaccessible_children = [
+            child for parent, child in SUB_STREAMS.items()
+            if parent in inaccessible_streams
+        ]
+        all_excluded = inaccessible_streams + inaccessible_children
+        LOGGER.warning(
+            "Unauthorized streams have been excluded: %s",
+            ", ".join(all_excluded),
+        )
 
     return accessible_parents, accessible_children
 
@@ -162,19 +167,24 @@ def discover_streams(config):
 
     streams = []
 
-    LOGGER.info("Discovering custom fields for Accounts")
-    custom_account_fields = STREAMS['metadata_accounts'](
-        config).get_fields().get('custom') or {}
+    if 'metadata_accounts' in accessible_parents and 'accounts' in accessible_parents:
+        LOGGER.info("Discovering custom fields for Accounts")
+        custom_account_fields = STREAMS['metadata_accounts'](
+            config).get_fields().get('custom') or {}
+    else:
+        custom_account_fields = {}
 
-    LOGGER.info("Discovering custom fields for Visitors")
-    custom_visitor_fields = STREAMS['metadata_visitors'](
-        config).get_fields().get('custom') or {}
+    if 'metadata_visitors' in accessible_parents and 'visitors' in accessible_parents:
+        LOGGER.info("Discovering custom fields for Visitors")
+        custom_visitor_fields = STREAMS['metadata_visitors'](
+            config).get_fields().get('custom') or {}
+    else:
+        custom_visitor_fields = {}
 
     for stream_name, stream_cls in STREAMS.items():
         is_accessible = (stream_name in accessible_parents) or (stream_name in accessible_children)
 
         if not is_accessible:
-            LOGGER.info("Skipping stream '%s': not accessible", stream_name)
             continue
 
         s = stream_cls(config)
