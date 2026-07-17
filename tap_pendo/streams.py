@@ -758,6 +758,14 @@ class LazyAggregationStream(Stream):
                 time.sleep(retry_after)
                 raise Server42xRateLimitError(resp.reason)
 
+            # Check for 403 Forbidden and raise PendoForbiddenError
+            if resp.status_code == 403:
+                reason = resp.reason or resp.text or "Forbidden"
+                raise PendoForbiddenError(
+                    f"HTTP-error-code: 403, Error: {reason}",
+                    response=resp,
+                )
+
             resp.raise_for_status() # Check for requests status and raise exception in failure]
 
             # Get records from the raw response
@@ -782,6 +790,35 @@ class LazyAggregationStream(Stream):
             count += 1
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)
+
+    def check_access(self) -> bool:
+        """
+        Override for LazyAggregationStream (e.g. Visitors).
+        The base send_request_get_results is a generator, so calling
+        self.request() returns a lazy generator without executing any code.
+        We must consume one item to trigger the actual HTTP request and
+        allow PendoForbiddenError to surface if the stream is forbidden.
+        """
+        if self.name in SUB_STREAMS.values():
+            return True
+
+        try:
+            body = self.get_body()
+            if body is not None:
+                for stage in body.get('request', {}).get('pipeline', []):
+                    if 'limit' in stage:
+                        stage['limit'] = 1
+                        break
+            # Consume one item to force the generator to execute the HTTP request
+            next(iter(self.request(self.name, json=body)), None)
+            return True
+        except PendoForbiddenError as exc:
+            LOGGER.warning(
+                "Unauthorized Stream: %s, excluding from catalog. HTTP-Error-Message:'%s'",
+                self.name,
+                str(exc),
+            )
+            return False
 
     def get_record_count(self):
         return 0

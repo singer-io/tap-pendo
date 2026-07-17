@@ -220,3 +220,29 @@ class TestCheckAccess(unittest.TestCase):
                 call_kwargs = mock_request.call_args
                 assert call_kwargs[1].get('json') is None
                 mock_request.reset_mock()
+
+    @mock.patch('tap_pendo.streams.LazyAggregationStream.request')
+    def test_check_access_visitors_returns_true_on_success(self, mock_request):
+        """Visitors.check_access() consumes the generator and returns True on success."""
+        mock_request.return_value = iter([{"visitor_id": "v1"}])
+
+        visitors_stream = STREAMS['visitors'](self.config)
+        result = visitors_stream.check_access()
+
+        assert result is True
+        mock_request.assert_called_once()
+        # Verify limit=1 was set in the probe body
+        body = mock_request.call_args[1]['json']
+        pipeline = body['request']['pipeline']
+        limits = [s['limit'] for s in pipeline if 'limit' in s]
+        assert limits == [1], f"Expected limit=1 in probe body, got {limits}"
+
+    @mock.patch('tap_pendo.streams.LazyAggregationStream.request')
+    def test_check_access_visitors_returns_false_on_forbidden(self, mock_request):
+        """Visitors.check_access() returns False when 403 is raised during generator consumption."""
+        mock_request.side_effect = PendoForbiddenError("HTTP-error-code: 403, Error: Forbidden")
+
+        visitors_stream = STREAMS['visitors'](self.config)
+        result = visitors_stream.check_access()
+
+        assert result is False
