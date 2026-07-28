@@ -38,6 +38,8 @@ def to_giveup(error):
     """
         Boolean function to return if we want to give up retrying based on error response
     """
+    if isinstance(error, PendoForbiddenError):
+        return True
     return error.response is not None and 400 <= error.response.status_code < 500
 
 def get_abs_path(path):
@@ -101,6 +103,10 @@ def reset_request_retry_count(details):
 
 
 class Server42xRateLimitError(Exception):
+    pass
+
+
+class PendoForbiddenError(HTTPError):
     pass
 
 
@@ -181,6 +187,14 @@ class Stream():
             time.sleep(retry_after)
             raise Server42xRateLimitError(resp.reason)
 
+        # Check for 403 Forbidden and raise PendoForbiddenError
+        if resp.status_code == 403:
+            reason = resp.reason or resp.text or "Forbidden"
+            raise PendoForbiddenError(
+                f"HTTP-error-code: 403, Error: {reason}",
+                response=resp,
+            )
+
         resp.raise_for_status() # Check for requests status and raise exception in failure
         Stream.request_retry_count = 1    # Reset retry count after success
 
@@ -191,8 +205,7 @@ class Stream():
     # as it is the parent class of "Timeout" error
     @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, Server42xRateLimitError),
                           max_tries=7,
-                          giveup=lambda e: e.response is not None and 400 <= e.
-                          response.status_code < 500,
+                          giveup=to_giveup,
                           factor=BACKOFF_FACTOR,
                           jitter=None,
                           on_backoff=retry_handler,
@@ -262,6 +275,39 @@ class Stream():
             bookmark_key or self.replication_key,
             bookmark_value)
         singer.write_state(state)
+
+    def check_access(self) -> bool:
+        """
+        Verify that the API credentials have read access to this stream.
+        Makes a real, valid request using this stream's own get_body() so that
+        the API evaluates actual permissions.
+        Child streams (SUB_STREAMS.values()) always return True; access is
+        governed by the parent stream's check.
+        """
+        # Child streams always return True - access is governed by parent
+        if self.name in SUB_STREAMS.values():
+            return True
+
+        try:
+            # self.get_body() produces a fully valid request body for all
+            # non-EventsBase parent streams (all args have defaults).
+            # EventsBase overrides this method with proper minimal args.
+            body = self.get_body()
+            # Limit to 1 record — we only need a response code, not actual data.
+            if body is not None:
+                for stage in body.get('request', {}).get('pipeline', []):
+                    if 'limit' in stage:
+                        stage['limit'] = 1
+                        break
+            self.request(self.name, json=body)
+            return True
+        except PendoForbiddenError as exc:
+            LOGGER.warning(
+                "Unauthorized Stream: %s, excluding from catalog. HTTP-Error-Message:'%s'",
+                self.name,
+                str(exc),
+            )
+            return False
 
 
     def load_shared_schema_refs(self):
@@ -712,6 +758,14 @@ class LazyAggregationStream(Stream):
                 time.sleep(retry_after)
                 raise Server42xRateLimitError(resp.reason)
 
+            # Check for 403 Forbidden and raise PendoForbiddenError
+            if resp.status_code == 403:
+                reason = resp.reason or resp.text or "Forbidden"
+                raise PendoForbiddenError(
+                    f"HTTP-error-code: 403, Error: {reason}",
+                    response=resp,
+                )
+
             resp.raise_for_status() # Check for requests status and raise exception in failure]
 
             # Get records from the raw response
@@ -736,6 +790,35 @@ class LazyAggregationStream(Stream):
             count += 1
             # Request retry
             yield from self.request(endpoint, params, count, **kwargs)
+
+    def check_access(self) -> bool:
+        """
+        Override for LazyAggregationStream (e.g. Visitors).
+        The base send_request_get_results is a generator, so calling
+        self.request() returns a lazy generator without executing any code.
+        We must consume one item to trigger the actual HTTP request and
+        allow PendoForbiddenError to surface if the stream is forbidden.
+        """
+        if self.name in SUB_STREAMS.values():
+            return True
+
+        try:
+            body = self.get_body()
+            if body is not None:
+                for stage in body.get('request', {}).get('pipeline', []):
+                    if 'limit' in stage:
+                        stage['limit'] = 1
+                        break
+            # Consume one item to force the generator to execute the HTTP request
+            next(iter(self.request(self.name, json=body)), None)
+            return True
+        except PendoForbiddenError as exc:
+            LOGGER.warning(
+                "Unauthorized Stream: %s, excluding from catalog. HTTP-Error-Message:'%s'",
+                self.name,
+                str(exc),
+            )
+            return False
 
     def get_record_count(self):
         return 0
@@ -804,6 +887,37 @@ class EventsBase(Stream):
                 ]
             }
         }
+
+    def check_access(self) -> bool:
+        """
+        Override for EventsBase streams (Events, PollEvents).
+        These streams' get_body() requires positional args (key_id, period, first),
+        so the base class method cannot call it directly.  We build a valid minimal
+        request here — a 24-hour window ending now — so the API evaluates real
+        permissions and only a genuine 403 is treated as "no access".
+        """
+        # Child streams always return True - access is governed by parent
+        if self.name in SUB_STREAMS.values():
+            return True
+
+        try:
+            # A 24-hour window ending now is minimal but fully valid.
+            first = int(now().timestamp() * 1000) - (24 * 60 * 60 * 1000)
+            body = self.get_body(key_id=None, period=self.period, first=first)
+            # Limit to 1 record — we only need a response code, not actual data.
+            for stage in body.get('request', {}).get('pipeline', []):
+                if 'limit' in stage:
+                    stage['limit'] = 1
+                    break
+            self.request(self.name, json=body)
+            return True
+        except PendoForbiddenError as exc:
+            LOGGER.warning(
+                "Unauthorized Stream: %s, excluding from catalog. HTTP-Error-Message:'%s'",
+                self.name,
+                str(exc),
+            )
+            return False
 
     def get_first_parameter_value(self, body):
         return body['request']['pipeline'][0]['source']['timeSeries'].get('first', 0)
