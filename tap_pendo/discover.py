@@ -3,7 +3,7 @@ import os
 import singer
 from singer import metadata
 
-from tap_pendo.streams import STREAMS, SUB_STREAMS
+from tap_pendo.streams import STREAMS, SUB_STREAMS, PendoForbiddenError
 
 LOGGER = singer.get_logger()
 
@@ -105,21 +105,89 @@ def build_account_visitor_metadata(mdata, schema, custom_fields):
                                'inclusion', 'available')
 
 
+def _prune_inaccessible_children(accessible_parents):
+    """
+    Return the set of child streams whose parent is accessible.
+    Logs a warning for each child excluded due to an inaccessible parent.
+    """
+    accessible_children = set()
+    for parent_stream, child_stream in SUB_STREAMS.items():
+        if parent_stream in accessible_parents:
+            accessible_children.add(child_stream)
+        else:
+            LOGGER.warning(
+                "Stream '%s' excluded from catalog because its parent stream '%s' is not accessible.",
+                child_stream, parent_stream,
+            )
+    return accessible_children
+
+
+def _apply_access_checks(config):
+    """
+    Probe each parent stream for read access and return sets of accessible
+    parent and child streams.
+    Child streams inherit parent accessibility.
+    Raises PendoForbiddenError if no parent streams are accessible.
+    """
+    child_streams = set(SUB_STREAMS.values())
+    parent_streams = {name: cls for name, cls in STREAMS.items() if name not in child_streams}
+
+    inaccessible_streams = [
+        stream_name
+        for stream_name, stream_cls in parent_streams.items()
+        if not stream_cls(config).check_access()
+    ]
+
+    if len(inaccessible_streams) == len(parent_streams):
+        raise PendoForbiddenError(
+            "HTTP-error-code: 403, Error: The credentials do not have 'read' access to any supported streams."
+        )
+
+    accessible_parents = set(parent_streams.keys()) - set(inaccessible_streams)
+    accessible_children = _prune_inaccessible_children(accessible_parents)
+
+    if inaccessible_streams:
+        inaccessible_children = [
+            child for parent, child in SUB_STREAMS.items()
+            if parent in inaccessible_streams
+        ]
+        all_excluded = inaccessible_streams + inaccessible_children
+        LOGGER.warning(
+            "Unauthorized streams have been excluded: %s",
+            ", ".join(all_excluded),
+        )
+
+    return accessible_parents, accessible_children
+
+
 def discover_streams(config):
-    # Discover schemas, build metadata for all the steams and return catalog
+    # Discover schemas, build metadata for all the streams and return catalog
+    # First, check access to all parent streams and get accessible streams
+    accessible_parents, accessible_children = _apply_access_checks(config)
+
     streams = []
 
-    LOGGER.info("Discovering custom fields for Accounts")
-    custom_account_fields = STREAMS['metadata_accounts'](
-        config).get_fields().get('custom') or {}
+    if 'metadata_accounts' in accessible_parents and 'accounts' in accessible_parents:
+        LOGGER.info("Discovering custom fields for Accounts")
+        custom_account_fields = STREAMS['metadata_accounts'](
+            config).get_fields().get('custom') or {}
+    else:
+        custom_account_fields = {}
 
-    LOGGER.info("Discovering custom fields for Visitors")
-    custom_visitor_fields = STREAMS['metadata_visitors'](
-        config).get_fields().get('custom') or {}
+    if 'metadata_visitors' in accessible_parents and 'visitors' in accessible_parents:
+        LOGGER.info("Discovering custom fields for Visitors")
+        custom_visitor_fields = STREAMS['metadata_visitors'](
+            config).get_fields().get('custom') or {}
+    else:
+        custom_visitor_fields = {}
 
-    for s in STREAMS.values():
+    for stream_name, stream_cls in STREAMS.items():
+        is_accessible = (stream_name in accessible_parents) or (stream_name in accessible_children)
 
-        s = s(config)
+        if not is_accessible:
+            continue
+
+        s = stream_cls(config)
 
         schema = s.load_schema() # load schema for the stream
         mdata = metadata.to_map(s.load_metadata())
