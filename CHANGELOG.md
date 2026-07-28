@@ -3,6 +3,7 @@
 ## 1.4.0
   * Exclude 403-forbidden streams from discovery instead of failing [#139](https://github.com/singer-io/tap-pendo/pull/139)
   * Add unit tests for discovery access checks.
+  * Upgrade `singer-python`, `requests`, `backoff` and `ijson` libraries to latest version
 
 ## 1.3.1
   * The change enables sub-streams to reference their parent streams through metadata [#137](https://github.com/singer-io/tap-pendo/pull/137)
