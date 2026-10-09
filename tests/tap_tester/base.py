@@ -151,6 +151,8 @@ class TestPendoBase(unittest.TestCase):
             "start_date": "2019-09-10T00:00:00Z",
             "lookback_window": "1",
             "period": "dayRange" if self.is_day_range else "hourRange",
+            # Default 1-day windows at one request per 2 seconds take over an hour per events sync from 2019
+            "events_date_window": "30",
         }
         if self.app_ids is not None:
             return_value["app_ids"] = self.app_ids

@@ -117,6 +117,7 @@ This tap:
 - Primary key fields: `visitor_id`, `account_id`, `remote_ip`, `user_agent`, `day` or `hour`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
+  - Requested in windows of `events_date_window` days, from the bookmark to the sync start time; the bookmark is written after each window that has records
 - Transformations: Camel to snake case.
 
 **[page_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
@@ -265,6 +266,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
    - `lookback_window` (integer): 10 (For event objects. Default: 0)
    - `request_timeout` (integer): 300 (For passing timeout to the request. Default: 300)
    - `record_limit` (integer, 100000): maximum number of records Pendo API can retrieve in a single request. Default: 100000 records
+   - `events_date_window` (integer): 1 (Days of `events` data per aggregation request. When Pendo fails a request with a timeout, 408, 5xx or "Query exceeded memory limit", the tap halves the window, down to one hour for `hourRange` or one day for `dayRange`. Default: 1)
    - `app_ids` (string, `8877665523, 1234545`): (comma seperated appIDs. If this parameter is not provided, then the data will be collected from all the apps)
 
    Note: It is important to set `record_limit` parameter to an appropriate value, as selecting a smaller value may have a negative effect on the Pendo API's performance, while a larger value may result in connection errors, request timeouts, or memory overflows.
@@ -277,6 +279,7 @@ Interrupted syncs for Event type stream are resumed via a bookmark placed during
      "lookback_window": 10,
      "request_timeout": 300,
      "record_limit": 100000,
+     "events_date_window": 1,
      "include_anonymous_visitors": "true",
      "app_ids": "1234545, 8877665523"
    }

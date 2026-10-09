@@ -34,6 +34,9 @@ DEFAULT_INCLUDE_ANONYMOUS_VISITORS = 'false'
 
 BACKOFF_FACTOR = 5
 
+HOUR_MS = 60 * 60 * 1000
+DAY_MS = 24 * HOUR_MS
+
 def to_giveup(error):
     """
         Boolean function to return if we want to give up retrying based on error response
@@ -41,6 +44,20 @@ def to_giveup(error):
     if isinstance(error, PendoForbiddenError):
         return True
     return error.response is not None and 400 <= error.response.status_code < 500
+
+def is_query_too_large(error):
+    """Pendo fails an aggregation that exceeds its time or memory limit with a timeout, 408, 5xx
+    or 400 "Query exceeded memory limit"; retrying the same body fails the same way."""
+    if isinstance(error, requests.exceptions.ReadTimeout):
+        return True
+    response = getattr(error, 'response', None)
+    if response is None:
+        return False
+    return (response.status_code == 408 or response.status_code >= 500
+            or (response.status_code == 400 and 'exceeded memory limit' in response.text))
+
+def ms_to_iso(epoch_ms):
+    return strftime(datetime.fromtimestamp(epoch_ms / 1000, timezone.utc))
 
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
@@ -107,6 +124,14 @@ class Server42xRateLimitError(Exception):
 
 
 class PendoForbiddenError(HTTPError):
+    pass
+
+
+class WindowTooLargeError(Exception):
+    pass
+
+
+class RecordLimitTooSmallError(Exception):
     pass
 
 
@@ -195,6 +220,10 @@ class Stream():
                 response=resp,
             )
 
+        if resp.status_code >= 400:
+            # Pendo states why an aggregation failed only in the response body
+            LOGGER.warning("%s %s failed with %s: %s", req.method, req.url, resp.status_code,
+                           " ".join(resp.text[:500].split()))
         resp.raise_for_status() # Check for requests status and raise exception in failure
         Stream.request_retry_count = 1    # Reset retry count after success
 
@@ -922,12 +951,15 @@ class EventsBase(Stream):
     def get_first_parameter_value(self, body):
         return body['request']['pipeline'][0]['source']['timeSeries'].get('first', 0)
 
+    def get_start_time(self, start_date):
+        """Epoch ms where the sync starts when no page is pending"""
+        lookback = start_date - timedelta(days=self.lookback_window())
+        return int(lookback.timestamp()) * 1000
+
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
-        # Calculate lookback window
-        lookback = start_date - timedelta(
-            days=self.lookback_window())
+        start_time = self.get_start_time(start_date)
 
         # Period always amounts to a day either aggegated by day or hours in a day
         period = self.config.get('period')
@@ -935,7 +967,7 @@ class EventsBase(Stream):
         # If last processed records exists, then set first to timestamp of first record
         try:
             first = self.last_processed[0][humps.decamelize(
-                self.replication_key)] if self.last_processed else int(lookback.timestamp()) * 1000
+                self.replication_key)] if self.last_processed else start_time
         except Exception as e:
             LOGGER.info(str(e))
 
@@ -957,6 +989,7 @@ class EventsBase(Stream):
                     self.last_processed = None
                     break
 
+                page_size = len(records)
                 # Remove last processed and none replication_value records
                 self.remove_empty_replication_key_records(records)
                 records, removed_records = self.remove_last_timestamp_records(records)
@@ -971,13 +1004,19 @@ class EventsBase(Stream):
                     self.last_processed = removed_records
                 else:
                     # This block handles race condition where all records have same replication key value
+                    if self.record_limit <= page_size:
+                        # Pages advance by replication key value, so a value that fills a page stalls paging
+                        raise RecordLimitTooSmallError(
+                            f"{self.name}: all {page_size} records of a page share {self.replication_key} "
+                            f"{self.get_first_parameter_value(body)}; set record_limit above {page_size}")
+
                     first = self.last_processed[0][humps.decamelize(
-                        self.replication_key)] if self.last_processed else int(lookback.timestamp()) * 1000
+                        self.replication_key)] if self.last_processed else start_time
 
                     body = self.get_body(key_id, period, first)
                     continue
 
-            elif len(records) == 1:
+            else:
                 events += records
                 self.last_processed = None
                 break
@@ -1091,73 +1130,72 @@ class FeatureEvents(EventsBase):
 
 class Events(EventsBase):
     name = "events"
-    DATE_WINDOW_SIZE = 1
     key_properties = ['visitor_id', 'account_id', 'remote_ip', 'user_agent']
     replication_method = "INCREMENTAL"
 
     def __init__(self, config):
         super().__init__(config=config)
-        self.config = config
-        self.period = config.get('period')
-        self.replication_key = "day" if self.period == 'dayRange' else "hour"
         self.key_properties.append(self.replication_key)
+        # Pendo aggregates whole buckets, so a window narrower than one bucket saves it no work
+        self.min_window = DAY_MS if self.period == 'dayRange' else HOUR_MS
+        self.window_size = self.get_window_size()
+        self.window_start = None
+        self.window_end = None
+        self.sync_end = None
 
-    def get_events(self, window_start_date, state, bookmark_dttm):
-        # initialize start date as max bookmark
-        max_bookmark = bookmark_dttm
-        # Get period type from config and make request for event's data
-        period = self.config.get('period')
-        # date format to filter
-        date = "date({}, {}, {})"
-        # get events date window size
-        events_date_window_size = int(self.config.get('events_date_window', 30))
-        update_currently_syncing(state, self.name)
+    def get_window_size(self):
+        days = int(self.config.get('events_date_window') or 1)
+        if days < 1:
+            raise ValueError(f"events_date_window '{days}' must be at least 1 day")
+        return days * DAY_MS
 
-        while True:
+    def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
+        """Requests one window at a time, since one aggregation over a long range can exceed Pendo's limits.
+        The cursor lives on the instance because the bookmark moves only with records."""
+        if self.window_start is None:
+            self.window_start = super().get_start_time(start_date)
+            self.sync_end = int(now().timestamp() * 1000)
 
-            # get year, month and day from the start date
-            # if the start date is '2021-01-01' and 'events_date_window' is 25 days
-            # then the window end date will be '2021-01-26'
-            start_date, end_date = round_times(window_start_date, window_start_date + timedelta(days=events_date_window_size))
+        while self.window_start < self.sync_end:
+            self.window_end = min(self.window_start + self.window_size, self.sync_end)
+            pending = self.last_processed
+            if not pending:
+                LOGGER.info("%s: window %s to %s", self.name, ms_to_iso(self.window_start), ms_to_iso(self.window_end))
+            try:
+                (stream, events), more_pages = super().sync(state, start_date, key_id, parent_last_updated)
+            except WindowTooLargeError as err:
+                self.shrink_window(pending, err)
+                continue
 
-            # create start filter
-            start = date.format(start_date.year, start_date.month, start_date.day)
-            # create end filter
-            end = date.format(end_date.year, end_date.month, end_date.day)
+            if more_pages:
+                return (stream, events), True
+            self.window_start = self.window_end
+            if events:
+                return (stream, events), self.window_start < self.sync_end
 
-            body = self.get_body(period, start, end)
-            events = self.request(self.name, json=body) or []
+        return (self.stream, []), False
 
-            # loop over every event and yield
-            yield from events
+    def shrink_window(self, pending, error):
+        """Halves the failed window and resumes at the first record not returned yet"""
+        width = self.window_end - self.window_start
+        if pending:
+            self.window_start = self.get_replication_key_value(pending[0])
+        self.last_processed = None
+        self.window_size = max(self.min_window, width // 2 // self.min_window * self.min_window)
+        LOGGER.warning("%s: %s; retrying from %s with a %s-hour window", self.name, error,
+                       ms_to_iso(self.window_start), self.window_size // HOUR_MS)
 
-            # as we are fetching the data in sorted manner (ascending),
-            # the last event will contain the highest bookmark value
-            if len(events) > 0:
-                replication_value = events[-1].get(humps.decamelize(self.replication_key))
-                bookmark_value = strptime_to_utc(strftime(datetime.fromtimestamp(replication_value / 1000, timezone.utc)))
-                max_bookmark = max(bookmark_value, max_bookmark)
-                self.update_bookmark(state, self.name, strftime(max_bookmark), self.replication_key)
+    def get_start_time(self, start_date):
+        return self.window_start
 
-            if self.period == 'dayRange':
-                # for 'dayRange' the data is aggregated by day,
-                # hence adding 1 day more in the next start date ie.
-                # Old Start date = date(2021, 1, 1), Old End date = date(2021, 1, 31)
-                # New Start date = date(2021, 2, 1), New End date = date(2021, 3, 3)
-                window_start_date = end_date + timedelta(days=1)
-            else:
-                # for 'hourRange' the data is aggregated by hour, adding 1 day in the next start date
-                # results in data loss hence keeping previous end date as the next start date
-                # Old Start date = date(2021, 1, 1), Old End date = date(2021, 1, 31)
-                # New Start date = date(2021, 1, 31), New End date = date(2021, 3, 2)
-                # Note: This may result into data duplication of boundary hours of
-                #   consecutive date windows which will be handled at the target side
-                window_start_date = end_date
-
-            # break the loop if the starting window is greater than now
-            # the Pendo API supports passing future date, the data will be collected till the current date
-            if window_start_date > now():
-                break
+    def send_request_get_results(self, req, endpoint, params, count, **kwargs):
+        try:
+            return super().send_request_get_results(req, endpoint, params, count, **kwargs)
+        except requests.exceptions.RequestException as err:
+            # A smaller window is a cheaper query, while backoff would resend the same one
+            if self.window_end and self.window_end - self.window_start > self.min_window and is_query_too_large(err):
+                raise WindowTooLargeError(err) from err
+            raise
 
     def transform(self, record):
         return humps.decamelize(record)
@@ -1165,6 +1203,19 @@ class Events(EventsBase):
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
         body['request']['pipeline'][0]['source'].update({"events": {"appId": self.config["app_ids"]}})
+        if self.window_end:
+            body['request']['pipeline'][0]['source']['timeSeries']['last'] = self.window_end
+        return self.bound_filter_to_window(body)
+
+    def set_request_body_filters(self, body, start_time, records=None):
+        return self.bound_filter_to_window(super().set_request_body_filters(body, start_time, records))
+
+    def bound_filter_to_window(self, body):
+        """`last` also returns the bucket that contains it, so the filter keeps buckets that start inside the window"""
+        if self.window_end:
+            filter_index = self.get_pipeline_key_index(body, 'filter')
+            body['request']['pipeline'][filter_index]['filter'] += \
+                f"&&{humps.camelize(self.replication_key)}<{self.window_end}"
         return body
 
 
