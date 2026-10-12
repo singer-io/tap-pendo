@@ -6,8 +6,9 @@ from unittest import mock
 
 import requests
 from parameterized import parameterized
+from urllib3.exceptions import ReadTimeoutError
 
-from tap_pendo.streams import DAY_MS, HOUR_MS, Events, FeatureEvents
+from tap_pendo.streams import DAY_MS, HOUR_MS, SPARSE_WINDOW_ROWS, Events, FeatureEvents
 from tap_pendo.sync import sync_stream
 
 CONFIG = {'x_pendo_integration_key': 'test', 'period': 'hourRange', 'app_ids': 'expandAppIds("*")'}
@@ -29,6 +30,12 @@ def rows(*hours, key='hour'):
     """A 200 response with one row per hour offset from START"""
     return response(200, {'results': [{key: START_MS + h * HOUR_MS, 'visitorId': f'v{i}'}
                                       for i, h in enumerate(hours)]})
+
+
+def visitors(count, hour=0):
+    """A 200 response with `count` rows in one hour"""
+    return response(200, {'results': [{'hour': START_MS + hour * HOUR_MS, 'visitorId': f'v{i}'}
+                                      for i in range(count)]})
 
 
 def window(body):
@@ -89,8 +96,7 @@ class TestEventsWindows(unittest.TestCase):
 
         self.assertEqual((records, more), ([], False))
         self.assertEqual(pendo.windows(), [(START_MS, START_MS + DAY_MS),
-                                           (START_MS + DAY_MS, START_MS + 2 * DAY_MS),
-                                           (START_MS + 2 * DAY_MS, START_MS + 2 * DAY_MS + 12 * HOUR_MS)])
+                                           (START_MS + DAY_MS, START_MS + 2 * DAY_MS + 12 * HOUR_MS)])
         body = pendo.bodies[0]['request']['pipeline']
         self.assertEqual(body[0]['source']['timeSeries']['period'], 'hourRange')
         self.assertEqual(body[0]['source']['events'], {'appId': 'expandAppIds("*")'})
@@ -100,22 +106,89 @@ class TestEventsWindows(unittest.TestCase):
 
     def test_empty_windows_advance_the_cursor(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state):
         """Empty windows advance the cursor in one call; a window with records returns at once"""
-        mocked_send.side_effect = pendo = FakePendo(rows(), rows(), rows(50), rows())
-        events = self.events(mocked_now, timedelta(days=4))
+        mocked_send.side_effect = pendo = FakePendo(rows(), rows(), rows(80), rows())
+        events = self.events(mocked_now, timedelta(days=10))
 
         (_, records), more = events.sync({}, START)
-        self.assertEqual([r['hour'] for r in records], [START_MS + 50 * HOUR_MS])
+        self.assertEqual([r['hour'] for r in records], [START_MS + 80 * HOUR_MS])
         self.assertTrue(more)
         self.assertEqual(len(pendo.bodies), 3)
 
         (_, records), more = events.sync({}, START)
         self.assertEqual((records, more), ([], False))
-        self.assertEqual(pendo.windows()[-1], (START_MS + 3 * DAY_MS, START_MS + 4 * DAY_MS))
+        self.assertEqual(pendo.windows()[-1], (START_MS + 7 * DAY_MS, START_MS + 10 * DAY_MS))
+
+    def test_sparse_windows_double_up_to_32_days(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state):
+        mocked_send.side_effect = pendo = FakePendo(rows())
+        events = self.events(mocked_now, timedelta(days=100))
+
+        events.sync({}, START)
+
+        self.assertEqual([width // DAY_MS for width in pendo.widths()], [1, 2, 4, 8, 16, 32, 32, 5])
+
+    @parameterized.expand([
+        ('sparse', SPARSE_WINDOW_ROWS - 1, [1, 2, 4, 8, 5]),
+        ('dense', SPARSE_WINDOW_ROWS, [1, 2, 4, 1, 2, 4, 6]),
+    ])
+    def test_window_after_records(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state, name, count,
+                                  expected_days):
+        """A window with fewer rows than SPARSE_WINDOW_ROWS doubles the next one; a denser one resets it"""
+        mocked_send.side_effect = pendo = FakePendo(rows(), rows(), visitors(count, hour=80), rows())
+        events = self.events(mocked_now, timedelta(days=20))
+
+        more = True
+        while more:
+            _, more = events.sync({}, START)
+
+        self.assertEqual([width // DAY_MS for width in pendo.widths()], expected_days)
+
+    def test_dense_window_returns_to_the_configured_size(self, mocked_send, mocked_now, mocked_sleep,
+                                                         mocked_write_state):
+        mocked_send.side_effect = pendo = FakePendo(rows(), visitors(SPARSE_WINDOW_ROWS, hour=50), rows())
+        events = self.events(mocked_now, timedelta(days=14), events_date_window='2')
+
+        more = True
+        while more:
+            _, more = events.sync({}, START)
+
+        self.assertEqual([width // DAY_MS for width in pendo.widths()], [2, 4, 2, 4, 2])
+
+    def test_sparse_windows_grow_again_after_a_halving(self, mocked_send, mocked_now, mocked_sleep,
+                                                        mocked_write_state):
+        """One failure does not keep a long sparse history in small windows"""
+        mocked_send.side_effect = pendo = FakePendo(rows(), rows(), response(503, ''), rows())
+        events = self.events(mocked_now, timedelta(days=12))
+
+        events.sync({}, START)
+
+        self.assertEqual([width // DAY_MS for width in pendo.widths()], [1, 2, 4, 2, 4, 3])
+        self.assertEqual(pendo.windows()[3], (START_MS + 3 * DAY_MS, START_MS + 5 * DAY_MS))
+
+    def test_dense_windows_stay_at_or_below_a_halved_window(self, mocked_send, mocked_now, mocked_sleep,
+                                                             mocked_write_state):
+        """After a failure, dense data keeps the halved size instead of failing again on every window"""
+        mocked_send.side_effect = pendo = FakePendo(response(503, ''), visitors(SPARSE_WINDOW_ROWS))
+        events = self.events(mocked_now, timedelta(days=2))
+
+        more = True
+        while more:
+            _, more = events.sync({}, START)
+
+        self.assertEqual([width // HOUR_MS for width in pendo.widths()], [24, 12, 12, 12, 12])
+
+    def test_window_above_the_growth_limit_keeps_its_size(self, mocked_send, mocked_now, mocked_sleep,
+                                                          mocked_write_state):
+        mocked_send.side_effect = pendo = FakePendo(rows())
+        events = self.events(mocked_now, timedelta(days=100), events_date_window='40')
+
+        events.sync({}, START)
+
+        self.assertEqual([width // DAY_MS for width in pendo.widths()], [40, 40, 20])
 
     def test_bookmark_per_window(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state):
         """sync_stream writes the records and the bookmark of each window before the next window"""
-        mocked_send.side_effect = FakePendo(rows(1, 5), rows(), rows(50))
-        events = self.events(mocked_now, timedelta(days=3))
+        mocked_send.side_effect = FakePendo(rows(1, 5), rows(), rows(100))
+        events = self.events(mocked_now, timedelta(days=7))
         events.stream = CatalogStream()
         bookmarks = []
         mocked_write_state.side_effect = lambda state: bookmarks.append(
@@ -126,7 +199,7 @@ class TestEventsWindows(unittest.TestCase):
 
         self.assertEqual(mocked_write_record.call_count, 3)
         self.assertEqual(list(dict.fromkeys(b for b in bookmarks if b)),
-                         ['2021-01-01T05:00:00.000000Z', '2021-01-03T02:00:00.000000Z'])
+                         ['2021-01-01T05:00:00.000000Z', '2021-01-05T04:00:00.000000Z'])
 
     def test_503_halves_the_window_down_to_one_hour_then_backs_off(self, mocked_send, mocked_now, mocked_sleep,
                                                                     mocked_write_state):
@@ -143,7 +216,10 @@ class TestEventsWindows(unittest.TestCase):
     @parameterized.expand([
         ('408', response(408, 'Request Timeout')),
         ('400_memory_limit', response(400, '{"message": "Query exceeded memory limit"}')),
+        ('400_memory_limit_capitalized', response(400, '{"message": "Query Exceeded Memory Limit"}')),
         ('read_timeout', requests.exceptions.ReadTimeout('Read timed out. (read timeout=300)')),
+        ('body_read_timeout', requests.exceptions.ConnectionError(
+            ReadTimeoutError(None, None, 'Read timed out. (read timeout=300)'))),
     ])
     def test_query_too_large_halves_the_window(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state,
                                                name, failure):
@@ -167,6 +243,16 @@ class TestEventsWindows(unittest.TestCase):
         with self.assertRaises(requests.exceptions.HTTPError):
             events.sync({}, START)
         self.assertEqual(len(pendo.bodies), 1)
+
+    def test_connection_error_backs_off_without_halving(self, mocked_send, mocked_now, mocked_sleep,
+                                                        mocked_write_state):
+        """Only a read timeout inside a ConnectionError says the query is too large"""
+        mocked_send.side_effect = pendo = FakePendo(requests.exceptions.ConnectionError('Connection aborted.'))
+        events = self.events(mocked_now, timedelta(days=1))
+
+        with self.assertRaises(requests.exceptions.ConnectionError):
+            events.sync({}, START)
+        self.assertEqual(pendo.widths(), [DAY_MS] * 7)
 
     def test_halving_resumes_at_the_pending_page(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state):
         """A failure after an earlier call returned part of the window resumes at the first record not returned"""
@@ -226,8 +312,8 @@ class TestEventsWindows(unittest.TestCase):
 
         events.sync({}, START)
 
-        self.assertEqual(pendo.windows()[0], (START_MS - 2 * DAY_MS, START_MS - DAY_MS))
-        self.assertEqual(len(pendo.bodies), 3)
+        self.assertEqual(pendo.windows(), [(START_MS - 2 * DAY_MS, START_MS - DAY_MS),
+                                           (START_MS - DAY_MS, START_MS + DAY_MS)])
 
 
 class TestEventsWindowSettings(unittest.TestCase):

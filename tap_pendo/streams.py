@@ -36,6 +36,10 @@ BACKOFF_FACTOR = 5
 
 HOUR_MS = 60 * 60 * 1000
 DAY_MS = 24 * HOUR_MS
+# Pendo's cost follows the rows of a window more than its width, so the next window
+# after one with fewer rows than this doubles, up to MAX_WINDOW_MS
+SPARSE_WINDOW_ROWS = 1000
+MAX_WINDOW_MS = 32 * DAY_MS
 
 def to_giveup(error):
     """
@@ -47,14 +51,17 @@ def to_giveup(error):
 
 def is_query_too_large(error):
     """Pendo fails an aggregation that exceeds its time or memory limit with a timeout, 408, 5xx
-    or 400 "Query exceeded memory limit"; retrying the same body fails the same way."""
+    or 400 "Query exceeded memory limit"; retrying the same body fails the same way.
+    requests reports a read timeout during the body download as a ConnectionError."""
     if isinstance(error, requests.exceptions.ReadTimeout):
         return True
+    if isinstance(error, requests.exceptions.ConnectionError):
+        return any(isinstance(arg, ReadTimeoutError) for arg in error.args)
     response = getattr(error, 'response', None)
     if response is None:
         return False
     return (response.status_code == 408 or response.status_code >= 500
-            or (response.status_code == 400 and 'exceeded memory limit' in response.text))
+            or (response.status_code == 400 and 'exceeded memory limit' in response.text.lower()))
 
 def ms_to_iso(epoch_ms):
     return strftime(datetime.fromtimestamp(epoch_ms / 1000, timezone.utc))
@@ -1136,12 +1143,17 @@ class Events(EventsBase):
     def __init__(self, config):
         super().__init__(config=config)
         self.key_properties.append(self.replication_key)
-        # Pendo aggregates whole buckets, so a window narrower than one bucket saves it no work
-        self.min_window = DAY_MS if self.period == 'dayRange' else HOUR_MS
         self.window_size = self.get_window_size()
+        self.dense_window = self.window_size
+        self.window_rows = 0
         self.window_start = None
         self.window_end = None
         self.sync_end = None
+
+    @property
+    def min_window(self):
+        """Pendo aggregates whole buckets, so a window narrower than one bucket saves it no work"""
+        return DAY_MS if self.period == 'dayRange' else HOUR_MS
 
     def get_window_size(self):
         days = int(self.config.get('events_date_window') or 1)
@@ -1167,21 +1179,36 @@ class Events(EventsBase):
                 self.shrink_window(pending, err)
                 continue
 
+            self.window_rows += len(events)
             if more_pages:
                 return (stream, events), True
-            self.window_start = self.window_end
+            self.next_window()
             if events:
                 return (stream, events), self.window_start < self.sync_end
 
         return (self.stream, []), False
 
+    def next_window(self):
+        """Doubles the window after a sparse one and returns to `dense_window` after a dense one"""
+        self.window_start = self.window_end
+        if self.window_rows < SPARSE_WINDOW_ROWS:
+            self.window_size = min(self.window_size * 2, max(self.get_window_size(), MAX_WINDOW_MS))
+        else:
+            self.window_size = self.dense_window
+        self.window_rows = 0
+
     def shrink_window(self, pending, error):
-        """Halves the failed window and resumes at the first record not returned yet"""
+        """Halves the failed window and resumes at the first record not returned yet.
+        Dense windows stay at or below the halved size for the rest of the run, so dense data
+        does not fail once per window; sparse windows still grow, so one transient error does not
+        shrink the rest of a long sparse history."""
         width = self.window_end - self.window_start
         if pending:
             self.window_start = self.get_replication_key_value(pending[0])
         self.last_processed = None
         self.window_size = max(self.min_window, width // 2 // self.min_window * self.min_window)
+        self.dense_window = min(self.dense_window, self.window_size)
+        self.window_rows = 0
         LOGGER.warning("%s: %s; retrying from %s with a %s-hour window", self.name, error,
                        ms_to_iso(self.window_start), self.window_size // HOUR_MS)
 
