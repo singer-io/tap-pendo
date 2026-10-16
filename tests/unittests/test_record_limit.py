@@ -1,8 +1,9 @@
 import unittest
+from datetime import timedelta
 from unittest import mock
 from parameterized import parameterized
 from singer.utils import strptime_to_utc
-from tap_pendo.streams import EventsBase, API_RECORD_LIMIT
+from tap_pendo.streams import EventsBase, Events, FeatureEvents, RecordLimitTooSmallError, API_RECORD_LIMIT
 
 
 RECORD_LIMIT = 2
@@ -88,4 +89,41 @@ class TestRecordLimit(unittest.TestCase):
         self.assertEqual(len(records), 0)
         self.assertEqual(len(last_processed), number_of_records)
         self.assertEqual(event_obj.record_limit, expected_record_limit)
+
+
+START_DATE = strptime_to_utc("2021-01-01T00:00:00Z")
+
+
+@mock.patch("singer.write_state")
+@mock.patch("tap_pendo.streams.Stream.request")
+class TestPageOfOneValue(unittest.TestCase):
+    """Pages advance by replication key value, so a value that fills a whole page needs a bigger page"""
+
+    def test_child_stream_raises_when_the_page_cannot_grow(self, mock_request, mock_write_state):
+        mock_request.return_value = {"results": [{"hour": 1000}] * 3}
+        with mock.patch("tap_pendo.streams.API_RECORD_LIMIT", 3):
+            stream = FeatureEvents({"period": "hourRange", "record_limit": 3})
+            with self.assertRaisesRegex(RecordLimitTooSmallError,
+                                        "feature_events: all 3 records of a page share hour 1000; "
+                                        "set record_limit above 3"):
+                stream.sync({}, START_DATE, "FEATURE-ID")
+        self.assertEqual(mock_request.call_count, 1)
+
+    def test_child_stream_retries_with_a_bigger_page(self, mock_request, mock_write_state):
+        mock_request.side_effect = [{"results": [{"hour": 1000}] * 2},
+                                    {"results": [{"hour": 1000}, {"hour": 1000}, {"hour": 2000}]}]
+        with mock.patch("tap_pendo.streams.API_RECORD_LIMIT", 5):
+            stream = FeatureEvents({"period": "hourRange", "record_limit": 2})
+            (_, records), more = stream.sync({}, START_DATE, "FEATURE-ID")
+
+        self.assertEqual((len(records), more), (3, False))
+        self.assertEqual(mock_request.call_args_list[1].kwargs["json"]["request"]["pipeline"][3], {"limit": 5})
+
+    @mock.patch("tap_pendo.streams.now", return_value=START_DATE + timedelta(days=1))
+    def test_events_window_raises_too(self, mock_now, mock_request, mock_write_state):
+        mock_request.return_value = {"results": [{"hour": 1000}] * API_RECORD_LIMIT}
+        stream = Events({"period": "hourRange", "app_ids": 'expandAppIds("*")'})
+        with self.assertRaises(RecordLimitTooSmallError):
+            stream.sync({}, START_DATE)
+        self.assertEqual(mock_request.call_count, 1)
 

@@ -952,3 +952,35 @@ class Positive(unittest.TestCase):
         
         # verify if the desired data was returned from the request
         self.assertEqual(resp, json)
+
+
+@mock.patch('requests.Session.send')
+@mock.patch('tap_pendo.streams.LOGGER.warning')
+class TestErrorBodyLogging(unittest.TestCase):
+
+    def error_response(self, status, text):
+        resp = requests.Response()
+        resp.status_code = status
+        resp.reason = "Service Unavailable"
+        resp.url = "https://app.pendo.io/api/v1/aggregation"
+        resp._content = text.encode()
+        return resp
+
+    def test_logs_status_and_head_of_body_before_raising(self, mocked_warning, mocked_send):
+        mocked_send.return_value = self.error_response(503, "<html>\n  <h1>503</h1>\n" + "x" * 600)
+        req = requests.Request("POST", "https://app.pendo.io/api/v1/aggregation", json={}).prepare()
+
+        with self.assertRaises(requests.exceptions.HTTPError):
+            streams.Accounts({'x_pendo_integration_key': 'test'}).send_request_get_results(req, 'accounts', None, 1)
+
+        mocked_warning.assert_called_once_with("%s %s failed with %s: %s", "POST",
+                                               "https://app.pendo.io/api/v1/aggregation", 503,
+                                               "<html> <h1>503</h1> " + "x" * 478)
+
+    def test_success_logs_nothing(self, mocked_warning, mocked_send):
+        mocked_send.return_value = get_response({"results": []})
+        req = requests.Request("POST", "https://app.pendo.io/api/v1/aggregation", json={}).prepare()
+
+        streams.Accounts({'x_pendo_integration_key': 'test'}).send_request_get_results(req, 'accounts', None, 1)
+
+        mocked_warning.assert_not_called()
