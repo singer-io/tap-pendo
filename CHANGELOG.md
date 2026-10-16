@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.1
+  * Request `events` in bounded time windows (`events_date_window`, default 1 day) that grow over sparse data and halve on read timeouts, 408, 5xx and memory errors [singer-io/tap-pendo#141](https://github.com/singer-io/tap-pendo/pull/141)
+  * Log the status and body of failed API responses
+  * Raise `RecordLimitTooSmallError` when all records of a full page share one replication key value
+
 ## 1.4.0
   * Exclude 403-forbidden streams from discovery instead of failing [#139](https://github.com/singer-io/tap-pendo/pull/139)
   * Add unit tests for discovery access checks.
