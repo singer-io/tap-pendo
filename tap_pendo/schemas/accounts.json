@@ -9,6 +9,10 @@
       "type": ["null", "string"],
       "format": "date-time"
     },
+    "metadata_agent": {
+      "type": ["null", "object"],
+      "additional_properties": false
+    },
     "metadata_auto": {
       "type": ["null", "object"],
       "additional_properties": false,
