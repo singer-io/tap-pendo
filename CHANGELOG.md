@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2
+  * Discover `metadata.agent` fields for `accounts` and `visitors` and add `metadata_agent` to the `accounts` schema
+  * Add `guide_step_id` and `url` to the `poll_events` schema
+
 ## 1.4.1
   * Request `events` in bounded time windows (`events_date_window`, default 1 day) that grow over sparse data and halve on read timeouts, 408, 5xx and memory errors [singer-io/tap-pendo#141](https://github.com/singer-io/tap-pendo/pull/141)
   * Log the status and body of failed API responses

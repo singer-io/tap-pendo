@@ -88,21 +88,40 @@ def build_metadata_metadata(mdata, schema, custom_fields):
                                'available')
 
 
-def build_account_visitor_metadata(mdata, schema, custom_fields):
-    # Build metadata with custom fields for streams 'accounts' and 'visitors'
-    if 'metadata_custom' not in schema['properties']:
-        schema['properties']['metadata_custom'] = {}
-        schema['properties']['metadata_custom']['type'] = ["null", "object"]
-        schema['properties']['metadata_custom'][
-            'additional_properties'] = "false"
-    for key, value in custom_fields.items():
-        schema['properties']['metadata_custom']['type'] = ["null", "object"]
-        schema['properties']['metadata_custom']['properties'] = {
-            **schema['properties']['metadata_custom'].get('properties', {}),
-            key: get_schema_property_type(value.get('type'))
+def get_lenient_schema_property_type(schema_type):
+    # Agent fields are defined by the customer's installation snippet, so an unrecognized
+    # type must not fail discovery; leave the property unconstrained instead
+    try:
+        return get_schema_property_type(schema_type)
+    except Exception:  # pylint: disable=broad-except
+        LOGGER.warning("Unknown metadata property type '%s'; leaving it unconstrained", schema_type)
+        return {}
+
+
+def build_metadata_group(mdata, schema, group, fields, type_resolver=get_schema_property_type):
+    # Add the discovered fields of a `metadata.<group>` object to the 'metadata_<group>' property
+    # of the 'accounts' and 'visitors' streams
+    property_name = 'metadata_' + group
+    if property_name not in schema['properties']:
+        schema['properties'][property_name] = {
+            'type': ["null", "object"],
+            'additional_properties': "false"
         }
-        mdata = metadata.write(mdata, ("properties", 'metadata_custom'),
+    for key, value in fields.items():
+        schema['properties'][property_name]['type'] = ["null", "object"]
+        schema['properties'][property_name]['properties'] = {
+            **schema['properties'][property_name].get('properties', {}),
+            key: type_resolver((value or {}).get('type'))
+        }
+        mdata = metadata.write(mdata, ("properties", property_name),
                                'inclusion', 'available')
+
+
+def build_account_visitor_metadata(mdata, schema, custom_fields, agent_fields=None):
+    # Build metadata with custom and agent fields for streams 'accounts' and 'visitors'
+    build_metadata_group(mdata, schema, 'custom', custom_fields)
+    build_metadata_group(mdata, schema, 'agent', agent_fields or {},
+                         get_lenient_schema_property_type)
 
 
 def _prune_inaccessible_children(accessible_parents):
@@ -168,18 +187,22 @@ def discover_streams(config):
     streams = []
 
     if 'metadata_accounts' in accessible_parents and 'accounts' in accessible_parents:
-        LOGGER.info("Discovering custom fields for Accounts")
-        custom_account_fields = STREAMS['metadata_accounts'](
-            config).get_fields().get('custom') or {}
+        LOGGER.info("Discovering custom and agent fields for Accounts")
+        account_fields = STREAMS['metadata_accounts'](config).get_fields()
+        custom_account_fields = account_fields.get('custom') or {}
+        agent_account_fields = account_fields.get('agent') or {}
     else:
         custom_account_fields = {}
+        agent_account_fields = {}
 
     if 'metadata_visitors' in accessible_parents and 'visitors' in accessible_parents:
-        LOGGER.info("Discovering custom fields for Visitors")
-        custom_visitor_fields = STREAMS['metadata_visitors'](
-            config).get_fields().get('custom') or {}
+        LOGGER.info("Discovering custom and agent fields for Visitors")
+        visitor_fields = STREAMS['metadata_visitors'](config).get_fields()
+        custom_visitor_fields = visitor_fields.get('custom') or {}
+        agent_visitor_fields = visitor_fields.get('agent') or {}
     else:
         custom_visitor_fields = {}
+        agent_visitor_fields = {}
 
     for stream_name, stream_cls in STREAMS.items():
         is_accessible = (stream_name in accessible_parents) or (stream_name in accessible_children)
@@ -195,11 +218,13 @@ def discover_streams(config):
         # additionally, build metadata for custom fields for below streams
         if s.name == 'accounts':
             build_account_visitor_metadata(mdata, schema,
-                                           custom_account_fields)
+                                           custom_account_fields,
+                                           agent_account_fields)
 
         if s.name == 'visitors':
             build_account_visitor_metadata(mdata, schema,
-                                           custom_visitor_fields)
+                                           custom_visitor_fields,
+                                           agent_visitor_fields)
 
         if s.name == 'metadata_accounts':
             build_metadata_metadata(mdata, schema, custom_account_fields)
