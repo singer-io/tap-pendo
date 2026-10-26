@@ -15,8 +15,8 @@ MISSING_FILEDS = {"events": {"hour", "feature_id", "parameters"},
                   "track_types": {"color"},
                   "features": {"color"},
                   "pages": {"color"},
-                  "accounts: {"metadata_pendo"},
-                  "visitors: {"metadata_pendo"}
+                  "accounts": {"metadata_pendo"},
+                  "visitors": {"metadata_pendo"}
                   }
                 #  "visitor_history": {"feature_id", "untagged_url"}
 
