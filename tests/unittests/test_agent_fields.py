@@ -28,7 +28,7 @@ class TestAgentFields(unittest.TestCase):
 
     def test_agent_fields_added_to_accounts_schema(self):
         schema = load_schema('accounts')
-        build_account_visitor_metadata({}, schema, {}, self.agent_fields)
+        build_account_visitor_metadata({}, schema, {}, {'agent': self.agent_fields})
 
         agent = schema['properties']['metadata_agent']
         self.assertEqual(agent['properties']['trial_status'], {"type": ["null", "string"]})
@@ -40,7 +40,7 @@ class TestAgentFields(unittest.TestCase):
 
     def test_agent_fields_are_merged_into_visitors_schema(self):
         schema = load_schema('visitors')
-        build_account_visitor_metadata({}, schema, {}, {"role": {"type": "string"}})
+        build_account_visitor_metadata({}, schema, {}, {'agent': {"role": {"type": "string"}}})
 
         properties = schema['properties']['metadata_agent']['properties']
         self.assertEqual(properties['role'], {"type": ["null", "string"]})
@@ -49,7 +49,7 @@ class TestAgentFields(unittest.TestCase):
 
     def test_agent_fields_are_not_removed_by_transformer(self):
         schema = load_schema('accounts')
-        build_account_visitor_metadata({}, schema, {}, self.agent_fields)
+        build_account_visitor_metadata({}, schema, {}, {'agent': self.agent_fields})
 
         record = {"account_id": "a1", "metadata_agent": {"trial_status": "active", "licensedays": 5}}
         with Transformer() as transformer:
@@ -74,7 +74,8 @@ class TestAgentFields(unittest.TestCase):
             "agent": {"trial_status": {"type": "string"}},
             "custom": {"accountindustry": {"type": "string"}},
         }
-        mock_visitors.return_value = {"agent": {"role": {"type": "string"}}}
+        mock_visitors.return_value = {"agent": {"role": {"type": "string"}}, "auto": {"newautofield": {"type": "string"}},
+                                      "pendo": {"designerenabled": {"type": "boolean"}}}
         mock_access.return_value = ({'accounts', 'metadata_accounts', 'visitors', 'metadata_visitors'}, set())
 
         catalog = {s['tap_stream_id']: s for s in discover_streams({"app_ids": []})}
@@ -82,6 +83,11 @@ class TestAgentFields(unittest.TestCase):
         accounts = catalog['accounts']['schema']['properties']
         self.assertIn('trial_status', accounts['metadata_agent']['properties'])
         self.assertIn('accountindustry', accounts['metadata_custom']['properties'])
-        self.assertIn('role', catalog['visitors']['schema']['properties']['metadata_agent']['properties'])
+        visitors = catalog['visitors']['schema']['properties']
+        self.assertIn('role', visitors['metadata_agent']['properties'])
+        self.assertEqual(visitors['metadata_pendo']['properties']['designerenabled'],
+                         {"type": ["null", "boolean"]})
+        # 'auto' is declared statically and is not extended by discovery
+        self.assertNotIn('newautofield', visitors['metadata_auto']['properties'])
         mdata = metadata.to_map(catalog['accounts']['metadata'])
         self.assertEqual(mdata[('properties', 'metadata_agent')]['inclusion'], 'available')

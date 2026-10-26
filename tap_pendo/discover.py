@@ -117,11 +117,21 @@ def build_metadata_group(mdata, schema, group, fields, type_resolver=get_schema_
                                'inclusion', 'available')
 
 
-def build_account_visitor_metadata(mdata, schema, custom_fields, agent_fields=None):
-    # Build metadata with custom and agent fields for streams 'accounts' and 'visitors'
+def get_other_metadata_groups(fields):
+    # Groups other than 'auto' (declared statically) and 'custom', e.g. 'agent', 'pendo' or integration groups
+    return {
+        group: group_fields for group, group_fields in fields.items()
+        if group not in ('auto', 'custom') and group_fields and isinstance(group_fields, dict)
+    }
+
+
+def build_account_visitor_metadata(mdata, schema, custom_fields, other_groups=None):
+    # Build metadata with custom fields and the other discovered groups (like 'agent')
+    # for streams 'accounts' and 'visitors'
     build_metadata_group(mdata, schema, 'custom', custom_fields)
-    build_metadata_group(mdata, schema, 'agent', agent_fields or {},
-                         get_lenient_schema_property_type)
+    for group, group_fields in (other_groups or {}).items():
+        build_metadata_group(mdata, schema, group, group_fields,
+                             get_lenient_schema_property_type)
 
 
 def _prune_inaccessible_children(accessible_parents):
@@ -187,22 +197,22 @@ def discover_streams(config):
     streams = []
 
     if 'metadata_accounts' in accessible_parents and 'accounts' in accessible_parents:
-        LOGGER.info("Discovering custom and agent fields for Accounts")
+        LOGGER.info("Discovering custom and other metadata fields for Accounts")
         account_fields = STREAMS['metadata_accounts'](config).get_fields()
         custom_account_fields = account_fields.get('custom') or {}
-        agent_account_fields = account_fields.get('agent') or {}
+        other_account_groups = get_other_metadata_groups(account_fields)
     else:
         custom_account_fields = {}
-        agent_account_fields = {}
+        other_account_groups = {}
 
     if 'metadata_visitors' in accessible_parents and 'visitors' in accessible_parents:
-        LOGGER.info("Discovering custom and agent fields for Visitors")
+        LOGGER.info("Discovering custom and other metadata fields for Visitors")
         visitor_fields = STREAMS['metadata_visitors'](config).get_fields()
         custom_visitor_fields = visitor_fields.get('custom') or {}
-        agent_visitor_fields = visitor_fields.get('agent') or {}
+        other_visitor_groups = get_other_metadata_groups(visitor_fields)
     else:
         custom_visitor_fields = {}
-        agent_visitor_fields = {}
+        other_visitor_groups = {}
 
     for stream_name, stream_cls in STREAMS.items():
         is_accessible = (stream_name in accessible_parents) or (stream_name in accessible_children)
@@ -219,12 +229,12 @@ def discover_streams(config):
         if s.name == 'accounts':
             build_account_visitor_metadata(mdata, schema,
                                            custom_account_fields,
-                                           agent_account_fields)
+                                           other_account_groups)
 
         if s.name == 'visitors':
             build_account_visitor_metadata(mdata, schema,
                                            custom_visitor_fields,
-                                           agent_visitor_fields)
+                                           other_visitor_groups)
 
         if s.name == 'metadata_accounts':
             build_metadata_metadata(mdata, schema, custom_account_fields)

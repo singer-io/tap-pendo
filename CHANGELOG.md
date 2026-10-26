@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.4.2
-  * Discover `metadata.agent` fields for `accounts` and `visitors` and add `metadata_agent` to the `accounts` schema
+  * Discover fields of every `metadata` group besides `auto` and `custom` (`agent`, `pendo`, integration groups) for `accounts` and `visitors`, and add `metadata_agent` to the `accounts` schema
   * Add `guide_step_id` and `url` to the `poll_events` schema
 
 ## 1.4.1
