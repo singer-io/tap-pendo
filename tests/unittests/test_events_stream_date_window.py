@@ -270,14 +270,31 @@ class TestEventsWindows(unittest.TestCase):
                                                (START_MS + 3 * HOUR_MS, START_MS + 15 * HOUR_MS),
                                                (START_MS + 15 * HOUR_MS, START_MS + DAY_MS)])
 
-    def test_halving_mid_call_restarts_the_window(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state):
-        """Records of earlier pages in the failed call were never returned, so the window starts over"""
-        mocked_send.side_effect = pendo = FakePendo(rows(1, 2), response(503, ''), rows(1))
+    def test_each_full_page_returns_at_once(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state):
+        """A window of several pages comes back one page per call; each call resumes at the held-back hour"""
+        mocked_send.side_effect = pendo = FakePendo(rows(1, 2), rows(2, 3), rows(3))
+        events = self.events(mocked_now, timedelta(days=1), record_limit=2)
+
+        calls = []
+        more = True
+        while more:
+            (_, records), more = events.sync({}, START)
+            calls.append(([r['hour'] for r in records], more, len(pendo.bodies)))
+
+        self.assertEqual(calls, [([START_MS + HOUR_MS], True, 1),
+                                 ([START_MS + 2 * HOUR_MS], True, 2),
+                                 ([START_MS + 3 * HOUR_MS], False, 3)])
+        self.assertEqual(pendo.windows(), [(START_MS + h * HOUR_MS, START_MS + DAY_MS) for h in (0, 2, 3)])
+
+    def test_failure_after_a_one_value_page_restarts_the_window(self, mocked_send, mocked_now, mocked_sleep,
+                                                                 mocked_write_state):
+        """A page whose rows share one hour adds no records, so a failure on the bigger retry loses none"""
+        mocked_send.side_effect = pendo = FakePendo(rows(1, 1), response(503, ''), rows(1, 1))
         events = self.events(mocked_now, timedelta(hours=12), record_limit=2)
 
         (_, records), _ = events.sync({}, START)
 
-        self.assertEqual([r['hour'] for r in records], [START_MS + HOUR_MS])
+        self.assertEqual([r['hour'] for r in records], [START_MS + HOUR_MS] * 2)
         self.assertEqual(pendo.windows()[2], (START_MS, START_MS + 6 * HOUR_MS))
 
     def test_window_of_one_bucket_backs_off(self, mocked_send, mocked_now, mocked_sleep, mocked_write_state):

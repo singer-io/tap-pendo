@@ -65,6 +65,8 @@ def sync_stream(state, start_date, instance):
             instance.update_bookmark(state, instance.name, strftime(new_bookmark),
                                      instance.replication_key)
             singer.write_state(state)
+            # Free this batch before the next instance.sync call loads another page
+            del records
 
         return counter.value
 
