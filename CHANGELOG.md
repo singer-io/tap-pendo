@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.2
+  * Return each full page of `accounts` and the event streams at once and free it before the next request, so a sync keeps one page in memory instead of several; large subscriptions ran out of pod memory (`Tap failed with code -9`)
+
 ## 1.4.1
   * Request `events` in bounded time windows (`events_date_window`, default 1 day) that grow over sparse data and halve on read timeouts, 408, 5xx and memory errors [singer-io/tap-pendo#141](https://github.com/singer-io/tap-pendo/pull/141)
   * Log the status and body of failed API responses

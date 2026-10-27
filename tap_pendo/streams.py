@@ -589,6 +589,8 @@ class Stream():
 
                             # When all sync completes, set this as new bookmark
                             final_bookmark = max(final_bookmark, new_bookmark)
+                            # Free this batch before the next sub_stream.sync call loads another page
+                            del stream_events
 
             except HTTPError:
                 LOGGER.warning(
@@ -746,9 +748,9 @@ class Stream():
                 self.last_processed = None
                 break
 
-            # If record limit set is reached, then return the extracted records
-            # Set the last processed records to ressume the extraction
-            if len(stream_records) >= self.record_limit:
+            # sync_substream moves the child bookmark once per call, so a parent with a child stream returns
+            # whole batches; other streams hand each page back, so memory holds one page
+            if stream_records and (sub_stream is None or len(stream_records) >= self.record_limit):
                 loop_for_records = True
                 break
 
@@ -1028,16 +1030,8 @@ class EventsBase(Stream):
                 self.last_processed = None
                 break
 
-            # Set first and filters for next request
-            self.set_request_body_filters(
-                body,
-                self.get_first_parameter_value(body),
-                records)
-
-            # If record limit set is reached, then return the extracted records
-            # Set the last processed records to ressume the extraction
-            if len(events) >= self.record_limit:
-                return (self.stream, events), True
+            # Hand each page back at once, so memory holds one page; the next call resumes at last_processed
+            return (self.stream, events), True
 
         # These is a corner cases where this limit may get changed so reseeting it before next iteration
         self.record_limit = self.get_default_record_limit()
