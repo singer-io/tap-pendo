@@ -275,15 +275,11 @@ class TestEventsWindows(unittest.TestCase):
         mocked_send.side_effect = pendo = FakePendo(rows(1, 2), rows(2, 3), rows(3))
         events = self.events(mocked_now, timedelta(days=1), record_limit=2)
 
-        calls = []
-        more = True
-        while more:
-            (_, records), more = events.sync({}, START)
-            calls.append(([r['hour'] for r in records], more, len(pendo.bodies)))
+        calls = [events.sync({}, START) for _ in range(3)]
 
-        self.assertEqual(calls, [([START_MS + HOUR_MS], True, 1),
-                                 ([START_MS + 2 * HOUR_MS], True, 2),
-                                 ([START_MS + 3 * HOUR_MS], False, 3)])
+        self.assertEqual([([r['hour'] for r in records], more) for (_, records), more in calls],
+                         [([START_MS + HOUR_MS], True), ([START_MS + 2 * HOUR_MS], True),
+                          ([START_MS + 3 * HOUR_MS], False)])
         self.assertEqual(pendo.windows(), [(START_MS + h * HOUR_MS, START_MS + DAY_MS) for h in (0, 2, 3)])
 
     def test_failure_after_a_one_value_page_restarts_the_window(self, mocked_send, mocked_now, mocked_sleep,

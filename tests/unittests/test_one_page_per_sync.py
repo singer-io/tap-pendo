@@ -27,7 +27,8 @@ def feature_events(*hours):
 
 
 class Answers:
-    """Stands in for Stream.request: keeps a copy of each body, since the caller edits it afterwards"""
+    """Stands in for Stream.request: keeps a copy of each body, since the caller edits it afterwards,
+    and answers an empty page once the given pages run out"""
 
     def __init__(self, *answers):
         self.answers = list(answers)
@@ -35,18 +36,16 @@ class Answers:
 
     def __call__(self, endpoint, json=None, **kwargs):
         self.bodies.append(copy.deepcopy(json))
-        return self.answers.pop(0)
+        return self.answers.pop(0) if self.answers else {"results": []}
 
 
-def sync_until_done(stream, answers, *args):
-    """Calls stream.sync until it reports no more pages; returns (ids, more, requests so far) per call"""
-    calls = []
-    more = True
-    while more:
+def sync_calls(stream, answers, calls, *args):
+    """Calls stream.sync a fixed number of times; returns (ids, more, requests so far) per call"""
+    def one_call():
         (_, records), more = stream.sync({}, START_DATE, *args)
-        calls.append(([r.get("account_id") or r.get("visitor_id") or r.get("id") for r in records],
-                      more, len(answers.bodies)))
-    return calls
+        return ([r.get("account_id") or r.get("visitor_id") or r.get("id") for r in records],
+                more, len(answers.bodies))
+    return [one_call() for _ in range(calls)]
 
 
 @mock.patch("singer.write_state")
@@ -58,7 +57,7 @@ class TestOnePagePerSync(unittest.TestCase):
         mocked_request.side_effect = answers = Answers(accounts(1, 2), accounts(2, 3), accounts(3))
         stream = streams.Accounts({"record_limit": 2, "app_ids": APP_IDS})
 
-        self.assertEqual(sync_until_done(stream, answers),
+        self.assertEqual(sync_calls(stream, answers, 3),
                          [(["a1"], True, 1), (["a2"], True, 2), (["a3"], False, 3)])
         self.assertEqual([body["request"]["pipeline"][2]["filter"] for body in answers.bodies],
                          [f"metadata.auto.lastupdated>={T0 + n}" for n in (0, 2, 3)])
@@ -68,7 +67,7 @@ class TestOnePagePerSync(unittest.TestCase):
                                                        feature_events(3))
         stream = streams.FeatureEvents({"period": "hourRange", "record_limit": 2})
 
-        self.assertEqual(sync_until_done(stream, answers, "FEATURE-ID"),
+        self.assertEqual(sync_calls(stream, answers, 3, "FEATURE-ID"),
                          [(["v1"], True, 1), (["v2"], True, 2), (["v3"], False, 3)])
         self.assertEqual([body["request"]["pipeline"][0]["source"]["timeSeries"]["first"] for body in answers.bodies],
                          [T0, T0 + 2 * HOUR_MS, T0 + 3 * HOUR_MS])
@@ -81,7 +80,7 @@ class TestOnePagePerSync(unittest.TestCase):
         mocked_request.side_effect = answers = Answers(features(1, 2), features(2, 3), features(3))
         stream = streams.Features({"record_limit": 2, "app_ids": APP_IDS})
 
-        self.assertEqual(sync_until_done(stream, answers), [(["f1", "f2"], True, 2), (["f3"], False, 3)])
+        self.assertEqual(sync_calls(stream, answers, 2), [(["f1", "f2"], True, 2), (["f3"], False, 3)])
         self.assertEqual([[r["id"] for r in call.args[3]] for call in mocked_substream.call_args_list],
                          [["f1", "f2"], ["f3"]])
 
