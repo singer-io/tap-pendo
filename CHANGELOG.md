@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3
+  * Discover fields of every `metadata` group besides `auto` and `custom` (`agent`, `pendo`, integration groups) for `accounts` and `visitors`, and add `metadata_agent` to the `accounts` schema
+  * Add `guide_step_id` and `url` to the `poll_events` schema
+
 ## 1.4.2
   * Return each full page of `accounts` and the event streams at once and free it before the next request, so a sync keeps one page in memory instead of several; large subscriptions ran out of pod memory (`Tap failed with code -9`)
 
