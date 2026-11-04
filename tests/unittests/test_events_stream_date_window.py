@@ -100,7 +100,7 @@ class TestEventsWindows(unittest.TestCase):
         body = pendo.bodies[0]['request']['pipeline']
         self.assertEqual(body[0]['source']['timeSeries']['period'], 'hourRange')
         self.assertEqual(body[0]['source']['events'], {'appId': 'expandAppIds("*")'})
-        self.assertEqual(body[1:], [{'sort': ['hour']},
+        self.assertEqual(body[1:], [{'sort': ['hour', 'visitorId']},
                                     {'filter': f'hour>={START_MS}&&hour<{START_MS + DAY_MS}'},
                                     {'limit': events.record_limit}])
 
@@ -282,10 +282,11 @@ class TestEventsWindows(unittest.TestCase):
                           ([START_MS + 3 * HOUR_MS], False)])
         self.assertEqual(pendo.windows(), [(START_MS + h * HOUR_MS, START_MS + DAY_MS) for h in (0, 2, 3)])
 
-    def test_failure_after_a_one_value_page_restarts_the_window(self, mocked_send, mocked_now, mocked_sleep,
+    def test_failure_after_a_one_group_page_restarts_the_window(self, mocked_send, mocked_now, mocked_sleep,
                                                                  mocked_write_state):
-        """A page whose rows share one hour adds no records, so a failure on the bigger retry loses none"""
-        mocked_send.side_effect = pendo = FakePendo(rows(1, 1), response(503, ''), rows(1, 1))
+        """A page of one visitor's rows in one hour adds no records, so a failure on the bigger retry loses none"""
+        one_group = response(200, {'results': [{'hour': START_MS + HOUR_MS, 'visitorId': 'v0'}] * 2})
+        mocked_send.side_effect = pendo = FakePendo(one_group, response(503, ''), one_group)
         events = self.events(mocked_now, timedelta(hours=12), record_limit=2)
 
         (_, records), _ = events.sync({}, START)

@@ -78,7 +78,9 @@ class TestPendoParentStreams(unittest.TestCase):
             self.assertIn("timeSeries", body["request"]["pipeline"][0]["source"])
 
         self.assertEqual(body["request"]["pipeline"][0]["source"][exp_event_type], exp_event_type_value)
-        self.assertEqual(body["request"]["pipeline"][sort_index]["sort"], [humps.camelize(exp_filter_key)])
+        # Event streams also sort by visitor, so a full page can end inside one replication key value
+        exp_sort = [humps.camelize(exp_filter_key)] + (["visitorId"] if isinstance(stream_obj, EventsBase) else [])
+        self.assertEqual(body["request"]["pipeline"][sort_index]["sort"], exp_sort)
         self.assertEqual(body["request"]["pipeline"][limit_index]["limit"], stream_obj.record_limit)
 
         if filter_index:
