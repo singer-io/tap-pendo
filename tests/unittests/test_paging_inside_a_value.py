@@ -7,6 +7,7 @@ import unittest
 from datetime import UTC, datetime, timedelta
 from unittest import mock
 
+import humps
 import requests
 from parameterized import parameterized
 
@@ -28,6 +29,7 @@ GROUPS = [(0, 'a', 1),
           (6, 'a b', 2), (6, '_PENDO_T_x', 3), (6, '\U0001F600', 1),
           (30, 'B', 2), (30, 'a', 1),
           (50, 'a', 3)]
+MISSING = object()  # a row without visitorId
 
 
 def dataset(key, size, prefix, groups=GROUPS, **fields):
@@ -51,22 +53,33 @@ def response(status, body):
     return resp
 
 
+class Null:
+    """A missing or null field, which Pendo compares as false"""
+
+    def __ge__(self, other):
+        return False
+
+    __gt__ = __le__ = __lt__ = __ge__
+
+
 def passes(expression, row):
     """Evaluates the filters the tap writes: comparisons joined by && and || with parentheses"""
     tokens = TOKEN.findall(expression)
     assert ''.join(tokens) == expression, expression
     python = ' '.join({'&&': 'and', '||': 'or'}.get(token, repr(json.loads(token)) if token[0] == '"' else token)
                       for token in tokens)
-    return eval(python, {'__builtins__': {}}, row)  # pylint: disable=eval-used
+    names = collections.defaultdict(Null, {name: Null() if value is None else value for name, value in row.items()})
+    return eval(python, {'__builtins__': {}}, names)  # pylint: disable=eval-used
 
 
 class FakePendo:
     """Stands in for Session.send and answers like Pendo: the rows of the timeSeries buckets and the page,
     then sort, filter and limit. Like Pendo, it answers 400 to an escaped surrogate pair in a filter"""
 
-    def __init__(self, rows, fail=None):
+    def __init__(self, rows, fail=None, status=503):
         self.rows = rows
         self.fail = fail
+        self.status = status
         self.bodies = []
 
     def __call__(self, req, **kwargs):
@@ -75,7 +88,7 @@ class FakePendo:
         stages = {name: value for stage in body['request']['pipeline'] for name, value in stage.items()}
         if self.fail and self.fail(stages['filter']):
             self.fail = None
-            return response(503, {})
+            return response(self.status, {})
         if re.search(r'\\ud[89a-f]', stages['filter'], re.IGNORECASE):
             return response(400, {'message': 'invalid filter'})
         series, sort = stages['source']['timeSeries'], stages['sort']
@@ -84,7 +97,9 @@ class FakePendo:
         page_id = stages['source'].get('pageEvents', {}).get('pageId')
         rows = [row for row in self.rows
                 if series['first'] // bucket * bucket <= row[sort[0]] < last and row.get('pageId') == page_id]
-        rows = [row for row in sorted(rows, key=lambda row: [row[k] for k in sort]) if passes(stages['filter'], row)]
+        # Pendo sorts missing and null values first, in no fixed order between them
+        rows = sorted(rows, key=lambda row: [(row.get(k) is not None, row.get(k)) for k in sort])
+        rows = [row for row in rows if passes(stages['filter'], row)]
         return response(200, {'results': rows[:stages['limit']]})
 
     def filters(self):
@@ -156,6 +171,56 @@ class TestPagingInsideAValue(unittest.TestCase):
         self.assertEqual(collections.Counter(call.args[1]['row'] for call in write_record.call_args_list),
                          row_counts(rows))
         self.assertTrue(any('visitorId>=' in flt for flt in pendo.filters()))
+
+    def test_failed_parent_does_not_filter_the_next_parent(self, mocked_sleep, mocked_write_state):
+        """p1 holds back visitor z of hour 1 and its next request fails; p2 still starts at its bookmark"""
+        hour_1 = START_MS + HOUR_MS
+        rows = [{'hour': hour, 'visitorId': visitor, 'pageId': page, 'row': f'{page}-{hour}-{visitor}'}
+                for page, hour, visitor in [('p1', START_MS, 'a'), ('p1', hour_1, 'a'), ('p1', hour_1, 'z'),
+                                            ('p2', START_MS, 'b'), ('p2', hour_1, 'a'), ('p2', hour_1 + HOUR_MS, 'a')]]
+        pendo = FakePendo(rows, fail=lambda flt: 'visitorId>="z"' in flt, status=400)
+        parent = streams.Pages(CONFIG)
+        child = streams.PageEvents(CONFIG)
+        child.stream = CatalogStream('page_events', 'hour')
+
+        with mock.patch('requests.Session.send', side_effect=pendo), mock.patch('singer.write_schema'), \
+                mock.patch('singer.write_record') as write_record:
+            parent.sync_substream({}, parent, child, [{'id': 'p1', 'last_updated_at': 1},
+                                                      {'id': 'p2', 'last_updated_at': 2}])
+
+        self.assertEqual([call.args[1]['row'] for call in write_record.call_args_list],
+                         [row['row'] for row in rows if row['row'] != f'p1-{hour_1}-z'])
+
+    @parameterized.expand([(f'{stream_class.__name__}_{period}', stream_class, period)
+                           for stream_class in (streams.Events, streams.PollEvents, streams.FeatureEvents,
+                                                streams.PageEvents, streams.GuideEvents, streams.TrackEvents)
+                           for period in ('hourRange', 'dayRange')])
+    def test_rows_without_visitor_after_a_cut(self, mocked_sleep, mocked_write_state, _name, stream_class, period):
+        """Pendo sorts missing and null visitor IDs first and compares them as false, so they never follow a cut
+        inside their value, and the next value returns them whatever visitor the cut held back"""
+        stream = stream_class({**CONFIG, 'period': period})
+        key = humps.camelize(stream.replication_key)
+        size = DAY_MS if key == 'day' else HOUR_MS
+        cells = [(0, 'a'), (0, 'b'), (0, 'z'), (1, None), (1, MISSING), (1, ''), (1, 'a'), (1, 'b'),
+                 (2, None), (2, MISSING), (2, ''), (2, 'a')]
+        page = {'pageId': 'p'} if stream_class is streams.PageEvents else {}
+        rows = [{key: START_MS + bucket * size, 'row': str(number), **page,
+                 **({} if visitor is MISSING else {'visitorId': visitor})}
+                for number, (bucket, visitor) in enumerate(cells)]
+        pendo = FakePendo(rows)
+
+        emitted = collections.Counter()
+        with mock.patch('tap_pendo.streams.now', return_value=START + timedelta(days=4)), \
+                mock.patch('requests.Session.send', side_effect=pendo):
+            for _call in range(20):
+                (_, records), more = stream.sync({}, START, 'p')
+                emitted.update(record['row'] for record in records)
+                if not more:
+                    break
+
+        self.assertEqual(emitted, row_counts(rows))
+        self.assertTrue(any('visitorId>="z"' in flt for flt in pendo.filters()))
+        self.assertTrue(any('visitorId>=""' in flt for flt in pendo.filters()))
 
     def test_body_after_a_cut_inside_an_hour(self, mocked_sleep, mocked_write_state):
         groups = [(1, 'A', 1), (1, 'a"b', 2), (1, '\U0001F600', 2), (2, 'B', 1)]

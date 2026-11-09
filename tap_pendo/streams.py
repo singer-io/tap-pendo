@@ -596,6 +596,8 @@ class Stream():
                 LOGGER.warning(
                     "Unable to retrieve %s Event for Stream (ID: %s)",
                     sub_stream.name, record[last_processed_key])
+                # Rows held back for the failed parent would otherwise filter the next parent's first request
+                sub_stream.last_processed = None
 
         # After processing for all parent ids we can remove our resumption state
         if 'last_processed' in state.get('bookmarks').get(sub_stream.name):
