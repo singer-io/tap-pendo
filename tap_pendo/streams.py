@@ -596,6 +596,8 @@ class Stream():
                 LOGGER.warning(
                     "Unable to retrieve %s Event for Stream (ID: %s)",
                     sub_stream.name, record[last_processed_key])
+                # Rows held back for the failed parent would otherwise filter the next parent's first request
+                sub_stream.last_processed = None
 
         # After processing for all parent ids we can remove our resumption state
         if 'last_processed' in state.get('bookmarks').get(sub_stream.name):
@@ -662,8 +664,13 @@ class Stream():
                     # add removed records to be synced at the end
                     self.empty_replication_key_records.append(last_record)
 
+    def same_group(self, record, last):
+        """True when a full page holds back record together with its last row `last`"""
+        return self.get_replication_key_value(record) == self.get_replication_key_value(last)
+
     def remove_last_timestamp_records(self, records):
-        """Removes the overlapping records with last timestamp value. This avoids possibilty of duplicates"""
+        """Removes the records of the last group (see same_group), which the next request starts with.
+        This avoids duplicates"""
         last_processed = []
 
         if len(records) > 0:
@@ -673,12 +680,11 @@ class Stream():
                     record) >= self.get_replication_key_value(self.last_processed[0])]
 
             if records:
-                timestamp = self.get_replication_key_value(records[-1])
-                while records and timestamp == self.get_replication_key_value(records[-1]):
-                    last = records.pop()
-                    last_processed.append(last)
+                last = records[-1]
+                while records and self.same_group(records[-1], last):
+                    last_processed.append(records.pop())
 
-        # This is a corner cases where all records in the set have same timestamp
+        # This is a corner cases where all records in the set belong to one group
         # This can occur if record limit is set very smaller compared to the max record limit
         # In this case we will try to set record limit to max limit to make it harder to run into this issue
         # But still can't completely dismiss the minor possibility of this issue occurring
@@ -916,7 +922,8 @@ class EventsBase(Stream):
                             }
                         }
                     }, {
-                        "sort": [sort_key]
+                        # visitorId orders the rows of one value, so a full page can end inside it
+                        "sort": [sort_key, "visitorId"]
                     }, {
                         "filter": f"{sort_key}>=1"
                     }, {
@@ -965,6 +972,26 @@ class EventsBase(Stream):
         lookback = start_date - timedelta(days=self.lookback_window())
         return int(lookback.timestamp()) * 1000
 
+    def same_group(self, record, last):
+        """A full page holds back the rows of its last visitor in its last replication key value,
+        or the whole value when the last row has no visitor ID to resume from"""
+        visitor_id = last.get('visitor_id')
+        return super().same_group(record, last) and (
+            not isinstance(visitor_id, str) or record.get('visitor_id') == visitor_id)
+
+    def set_request_body_filters(self, body, start_time, records=None):
+        """Starts at the held-back visitor when the previous page ended inside a replication key value"""
+        body = super().set_request_body_filters(body, start_time, records)
+        visitor_id = self.last_processed[0].get('visitor_id') if self.last_processed else None
+        if isinstance(visitor_id, str):
+            key = humps.camelize(self.replication_key)
+            value = self.get_replication_key_value(self.last_processed[0])
+            # Pendo answers 400 to the escaped surrogate pairs that ensure_ascii writes for characters above U+FFFF
+            literal = json.dumps(visitor_id, ensure_ascii=False)
+            body['request']['pipeline'][self.get_pipeline_key_index(body, 'filter')]['filter'] = \
+                f"({key}>{value}||({key}=={value}&&visitorId>={literal}))"
+        return body
+
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
@@ -1012,17 +1039,22 @@ class EventsBase(Stream):
 
                     self.last_processed = removed_records
                 else:
-                    # This block handles race condition where all records have same replication key value
+                    # This block handles race condition where all records belong to one group
                     if self.record_limit <= page_size:
-                        # Pages advance by replication key value, so a value that fills a page stalls paging
+                        # Pages advance by replication key value and visitor, so one group that fills a page stalls paging
+                        visitor_id = removed_records[0].get('visitor_id') if removed_records else None
+                        group = f"{self.replication_key} {self.get_first_parameter_value(body)}"
+                        if isinstance(visitor_id, str):
+                            group += f" and visitor_id {json.dumps(visitor_id, ensure_ascii=False)}"
                         raise RecordLimitTooSmallError(
-                            f"{self.name}: all {page_size} records of a page share {self.replication_key} "
-                            f"{self.get_first_parameter_value(body)}; set record_limit above {page_size}")
+                            f"{self.name}: all {page_size} records of a page share {group}; "
+                            f"set record_limit above {page_size}")
 
                     first = self.last_processed[0][humps.decamelize(
                         self.replication_key)] if self.last_processed else start_time
 
                     body = self.get_body(key_id, period, first)
+                    self.set_request_body_filters(body, first, [])
                     continue
 
             else:
@@ -1199,7 +1231,6 @@ class Events(EventsBase):
         width = self.window_end - self.window_start
         if pending:
             self.window_start = self.get_replication_key_value(pending[0])
-        self.last_processed = None
         self.window_size = max(self.min_window, width // 2 // self.min_window * self.min_window)
         self.dense_window = min(self.dense_window, self.window_size)
         self.window_rows = 0

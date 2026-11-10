@@ -97,7 +97,8 @@ START_DATE = strptime_to_utc("2021-01-01T00:00:00Z")
 @mock.patch("singer.write_state")
 @mock.patch("tap_pendo.streams.Stream.request")
 class TestPageOfOneValue(unittest.TestCase):
-    """Pages advance by replication key value, so a value that fills a whole page needs a bigger page"""
+    """Pages advance by replication key value and visitor, so one visitor that fills a page within one value
+    needs a bigger page; rows without a visitor ID advance by value alone"""
 
     def test_child_stream_raises_when_the_page_cannot_grow(self, mock_request, mock_write_state):
         mock_request.return_value = {"results": [{"hour": 1000}] * 3}
@@ -109,6 +110,25 @@ class TestPageOfOneValue(unittest.TestCase):
                 stream.sync({}, START_DATE, "FEATURE-ID")
         self.assertEqual(mock_request.call_count, 1)
 
+    def test_error_names_the_visitor(self, mock_request, mock_write_state):
+        mock_request.return_value = {"results": [{"hour": 1000, "visitor_id": 'a"\u00e9'}] * 3}
+        with mock.patch("tap_pendo.streams.API_RECORD_LIMIT", 3):
+            stream = FeatureEvents({"period": "hourRange", "record_limit": 3})
+            with self.assertRaises(RecordLimitTooSmallError) as raised:
+                stream.sync({}, START_DATE, "FEATURE-ID")
+        self.assertEqual(str(raised.exception), 'feature_events: all 3 records of a page share hour 1000 '
+                                                'and visitor_id "a\\"\u00e9"; set record_limit above 3')
+
+    def test_one_value_of_several_visitors_pages_on(self, mock_request, mock_write_state):
+        """A page that one hour fills ends at its last visitor instead of raising"""
+        mock_request.return_value = {"results": [{"hour": 1000, "visitor_id": v} for v in ("a", "b", "c")]}
+        with mock.patch("tap_pendo.streams.API_RECORD_LIMIT", 3):
+            stream = FeatureEvents({"period": "hourRange", "record_limit": 3})
+            (_, records), more = stream.sync({}, START_DATE, "FEATURE-ID")
+
+        self.assertEqual(([r["visitor_id"] for r in records], more), (["a", "b"], True))
+        self.assertEqual([r["visitor_id"] for r in stream.last_processed], ["c"])
+
     def test_child_stream_retries_with_a_bigger_page(self, mock_request, mock_write_state):
         mock_request.side_effect = [{"results": [{"hour": 1000}] * 2},
                                     {"results": [{"hour": 1000}, {"hour": 1000}, {"hour": 2000}]}]
@@ -118,6 +138,21 @@ class TestPageOfOneValue(unittest.TestCase):
 
         self.assertEqual((len(records), more), (3, False))
         self.assertEqual(mock_request.call_args_list[1].kwargs["json"]["request"]["pipeline"][3], {"limit": 5})
+
+    def test_bigger_page_resumes_at_the_held_back_visitor(self, mock_request, mock_write_state):
+        """The retry keeps the filter of the page it replaces, so visitors already returned stay out"""
+        mock_request.side_effect = [{"results": [{"hour": 1000, "visitor_id": "a"}, {"hour": 1000, "visitor_id": "b"}]},
+                                    {"results": [{"hour": 1000, "visitor_id": "b"}] * 2},
+                                    {"results": [{"hour": 1000, "visitor_id": "b"}] * 3}]
+        with mock.patch("tap_pendo.streams.API_RECORD_LIMIT", 5):
+            stream = FeatureEvents({"period": "hourRange", "record_limit": 2})
+            stream.sync({}, START_DATE, "FEATURE-ID")
+            (_, records), more = stream.sync({}, START_DATE, "FEATURE-ID")
+
+        self.assertEqual((len(records), more), (3, False))
+        self.assertEqual([call.kwargs["json"]["request"]["pipeline"][2:] for call in mock_request.call_args_list[1:]],
+                         [[{"filter": '(hour>1000||(hour==1000&&visitorId>="b"))'}, {"limit": limit}]
+                          for limit in (2, 5)])
 
     @mock.patch("tap_pendo.streams.now", return_value=START_DATE + timedelta(days=1))
     def test_events_window_raises_too(self, mock_now, mock_request, mock_write_state):
