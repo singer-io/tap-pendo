@@ -32,7 +32,7 @@ class TestPendoBase(unittest.TestCase):
     # After 180 days visitor_history data cannot be synced
     # so We need to manually create test data for visitors and vistor_history streams
     # Once created, we should update this start date to optimise the execution time
-    START_DATE_VISTOR_HISTORY = "2025-11-06T00:00:00Z"
+    START_DATE_VISTOR_HISTORY = "2023-11-06T00:00:00Z"
 
     @staticmethod
     def name():
@@ -148,7 +148,7 @@ class TestPendoBase(unittest.TestCase):
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         return_value = {
-            "start_date": "2022-09-10T00:00:00Z",
+            "start_date": "2019-09-10T00:00:00Z",
             "lookback_window": "1",
             "period": "dayRange" if self.is_day_range else "hourRange",
         }
