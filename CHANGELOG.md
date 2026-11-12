@@ -3,6 +3,10 @@
 ## 1.5.0
   * Custom date-time fields support string schema in case of malformatted data [#146](https://github.com/singer-io/tap-pendo/pull/146)
 
+## 1.4.4
+  * Sort event stream pages by replication key and `visitorId`, so a full page can end inside one `hour`, `day` or `browser_time` value and the next request resumes at its last visitor; a value with `record_limit` rows or more no longer stops the sync with `RecordLimitTooSmallError`
+  * Raise `RecordLimitTooSmallError` only when one visitor fills a page within one value, and name that visitor in the message
+
 ## 1.4.3
   * Discover fields of every `metadata` group besides `auto` and `custom` (`agent`, `pendo`, integration groups) for `accounts` and `visitors`, and add `metadata_agent` to the `accounts` schema
   * Add `guide_step_id` and `url` to the `poll_events` schema
