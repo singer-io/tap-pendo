@@ -43,12 +43,11 @@ jobs:
       - run:
           name: 'Integration Tests'
           command: |
-            pwd
-            echo $(pwd)
             source /usr/local/share/virtualenvs/tap-tester/bin/activate
             uv pip install --upgrade awscli
             aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/tap_tester_sandbox dev_env.sh
             source dev_env.sh
+            which run-test
             echo 'run-test --tap=tap-pendo tests/tap_tester'
 workflows:
   version: 2
