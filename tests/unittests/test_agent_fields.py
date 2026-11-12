@@ -33,7 +33,8 @@ class TestAgentFields(unittest.TestCase):
         agent = schema['properties']['metadata_agent']
         self.assertEqual(agent['properties']['trial_status'], {"type": ["null", "string"]})
         self.assertEqual(agent['properties']['firstvisit'],
-                         {"type": ["null", "string"], "format": "date-time"})
+                         {"anyOf": [{"type": ["null", "string"], "format": "date-time"},
+                                    {"type": ["null", "string"]}]})
         self.assertEqual(agent['properties']['stp'], {"type": ["null", "boolean"]})
         # unknown types must not fail discovery
         self.assertEqual(agent['properties']['tags'], {})
