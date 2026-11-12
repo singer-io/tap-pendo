@@ -10,7 +10,7 @@ class PendoChildStreamStartDateTest(TestPendoBase):
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         return_value = {
-            "start_date": "2020-09-10T00:00:00Z",
+            "start_date": "2025-09-10T00:00:00Z",
             "lookback_window": "1",
             "period": "dayRange",
             "record_limit": 1000
