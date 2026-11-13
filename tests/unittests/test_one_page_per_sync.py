@@ -3,6 +3,7 @@ import unittest
 import weakref
 from unittest import mock
 
+import humps
 from singer.utils import strptime_to_utc
 
 import tap_pendo.streams as streams
@@ -117,6 +118,82 @@ class PagesOfOne(streams.Stream):
         page = Page([{"id": len(self.previous_alive), "lastupdated": "2021-01-02T00:00:00Z"}])
         self.previous = weakref.ref(page)
         return (self.stream, page), not self.previous_alive
+
+
+class FilteringAnswers:
+    """Stands in for Stream.request against a stateless backend: parses the pipeline's
+    'filter' stage (field>=value) and 'limit' stage from the request body, and answers
+    with the matching slice of `all_records`, sorted ascending by `field`. Without an
+    advancing filter in the request body (the bug this guards against), every call
+    returns the exact same page, which the sync loop should NOT mistake for 'no more
+    pages' unless the data has truly been exhausted."""
+
+    def __init__(self, all_records, field):
+        # `field` is the camelCase name as it appears in the request body filter;
+        # records (post-decamelize, matching what Stream.request would hand back) use the snake_case name.
+        self.all_records = all_records
+        self.record_field = humps.decamelize(field)
+
+    def __call__(self, endpoint, json=None, **kwargs):
+        pipeline = json["request"]["pipeline"]
+        limit = next(stage["limit"] for stage in pipeline if "limit" in stage)
+        filter_stage = next((stage["filter"] for stage in pipeline if "filter" in stage), None)
+        threshold = int(filter_stage.split(">=")[1]) if filter_stage else 0
+
+        matching = sorted((r for r in self.all_records if r[self.record_field] >= threshold),
+                          key=lambda r: r[self.record_field])
+        return {"results": matching[:limit]}
+
+
+@mock.patch("singer.write_state")
+@mock.patch("tap_pendo.streams.Stream.request")
+class TestNonEventStreamPaginationNoDataLoss(unittest.TestCase):
+    """Features/Guides/Pages/TrackTypes must advance their request filter across pages,
+    the same way Accounts does, or later pages repeat the first page forever and the
+    sync loop stops early, silently dropping records (regression for data loss bug)."""
+
+    def test_features_pagination_across_multiple_pages(self, mocked_request, mocked_write_state):
+        all_features = [{"id": f"f{i}", "last_updated_at": T0 + i} for i in (1, 2, 3)]
+        mocked_request.side_effect = FilteringAnswers(all_features, "lastUpdatedAt")
+        stream = streams.Features({"record_limit": 2, "app_ids": APP_IDS})
+
+        ids = []
+        state = {}
+        more = True
+        start_date = START_DATE
+        # Loop guarded by a max iteration count per repo loop-safety guidance
+        for _ in range(10):
+            if not more:
+                break
+            (_, records), more = stream.sync(state, start_date)
+            ids += [r["id"] for r in records]
+
+        self.assertEqual(ids, ["f1", "f2", "f3"])
+
+
+class TestOnePagePerSyncPipelineHasFilterStage(unittest.TestCase):
+    """Features/Guides/Pages/TrackTypes bodies must include a 'filter' stage so
+    set_request_body_filters can advance it; Accounts already has one."""
+
+    def test_features_pipeline_has_filter_stage(self):
+        stream = streams.Features({"record_limit": 2, "app_ids": APP_IDS})
+        body = stream.get_body()
+        self.assertIsNotNone(stream.get_pipeline_key_index(body, "filter"))
+
+    def test_guides_pipeline_has_filter_stage(self):
+        stream = streams.Guides({"record_limit": 2, "app_ids": APP_IDS})
+        body = stream.get_body()
+        self.assertIsNotNone(stream.get_pipeline_key_index(body, "filter"))
+
+    def test_pages_pipeline_has_filter_stage(self):
+        stream = streams.Pages({"record_limit": 2, "app_ids": APP_IDS})
+        body = stream.get_body()
+        self.assertIsNotNone(stream.get_pipeline_key_index(body, "filter"))
+
+    def test_track_types_pipeline_has_filter_stage(self):
+        stream = streams.TrackTypes({"record_limit": 2, "app_ids": APP_IDS})
+        body = stream.get_body()
+        self.assertIsNotNone(stream.get_pipeline_key_index(body, "filter"))
 
 
 @mock.patch("singer.write_schema")

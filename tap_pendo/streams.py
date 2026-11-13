@@ -736,13 +736,21 @@ class Stream():
 
             if len(records) > 1:
                 self.remove_empty_replication_key_records(records)
+                previous_record_limit = self.record_limit
                 records, removed_records = self.remove_last_timestamp_records(records)
+                # remove_last_timestamp_records bumps record_limit when the whole page got
+                # consumed re-confirming the held-back boundary group (record_limit set too
+                # small relative to the number of distinct replication-key groups per page).
+                # In that case the held-back group reappearing unchanged does NOT mean sync
+                # is complete, it means the page was too small to see past it - so skip the
+                # duplicate-group completion check this round and retry with the bumped limit.
+                limit_was_bumped = self.record_limit != previous_record_limit
                 stream_records += records
 
                 # Set first and filters for next request
                 self.set_request_body_filters(body, first, records)
 
-                if self.last_processed == removed_records:
+                if self.last_processed == removed_records and not limit_was_bumped:
                     stream_records += removed_records
                     self.last_processed = None
                     break
@@ -1138,6 +1146,8 @@ class Features(Stream):
                 }, {
                     "sort": [f"{self.replication_key}"]
                 }, {
+                    "filter": f"{self.replication_key}>=1"
+                }, {
                     "limit": self.record_limit
                 }],
                 "requestId":
@@ -1336,6 +1346,8 @@ class TrackTypes(Stream):
                 }, {
                     "sort": [f"{self.replication_key}"]
                 }, {
+                    "filter": f"{self.replication_key}>=1"
+                }, {
                     "limit": self.record_limit
                 }],
                 "requestId": "all-track-types"
@@ -1362,6 +1374,8 @@ class Guides(Stream):
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
+                }, {
+                    "filter": f"{self.replication_key}>=1"
                 }, {
                     "limit": self.record_limit
                 }],
@@ -1390,6 +1404,8 @@ class Pages(Stream):
                     }
                 }, {
                     "sort": [f"{self.replication_key}"]
+                }, {
+                    "filter": f"{self.replication_key}>=1"
                 }, {
                     "limit": self.record_limit
                 }],
