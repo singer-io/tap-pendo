@@ -189,6 +189,10 @@ class Stream():
         self.record_limit = self.get_default_record_limit()
         self.empty_replication_key_records = []
         self.fetched_missing_replication_key_records = False
+        # Accumulates the child stream's max event time across every parent batch of a single
+        # full parent-level scan (see sync_substream); reset to None once that scan's final
+        # batch commits it, so it starts fresh on this stream instance's next sync.
+        self.child_running_max_bookmark = None
 
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
@@ -454,7 +458,7 @@ class Stream():
         # On ressuming, once replication of bookmarked parent_id is done, for next parent_id replication should start from original bookmark
         self.update_bookmark(state=state, stream=sub_stream.name, bookmark_value=previous_sync_completed_ts, bookmark_key="previous_sync_completed_ts")
 
-    def sync_substream(self, state, parent, sub_stream, parent_response):
+    def sync_substream(self, state, parent, sub_stream, parent_response, is_last_batch=True):
         # If last sync was interrupted, get last processed parent record
         last_processed = self.get_last_processed(state, sub_stream)
 
@@ -471,8 +475,14 @@ class Stream():
                                                        key="previous_sync_completed_ts")
         previous_sync_completed_ts = previous_sync_completed_ts if previous_sync_completed_ts else last_replication_date
 
-        # Set latest value of this bookmark on successful replication of stream
-        final_bookmark = strptime_to_utc(previous_sync_completed_ts)
+        # Set latest value of this bookmark on successful replication of stream.
+        # sync_substream is invoked once per parent batch (page) of a single full parent-level
+        # scan, each time re-reading previous_sync_completed_ts fresh from state. Carry forward
+        # the max child event time accumulated across earlier batches of this same scan (tracked
+        # on the parent stream instance, which persists across those calls) instead of
+        # recomputing it from the fixed lower bound every time, or progress already made this
+        # scan would be lost.
+        final_bookmark = self.child_running_max_bookmark or strptime_to_utc(previous_sync_completed_ts)
 
         singer.write_schema(sub_stream.name,
                             sub_stream.stream.schema.to_dict(),
@@ -604,11 +614,31 @@ class Stream():
         if 'last_processed' in state.get('bookmarks').get(sub_stream.name):
             state.get('bookmarks').get(sub_stream.name).pop('last_processed')
 
-        self.update_child_stream_bookmarks(state=state,
-                                           sub_stream=sub_stream,
-                                           last_processed_value=None,
-                                           new_bookmark=strftime(final_bookmark),
-                                           previous_sync_completed_ts=strftime(final_bookmark))
+        # Remember the max child event time seen across this batch (and any earlier batches of
+        # this scan) so the next batch's call can keep accumulating from it.
+        self.child_running_max_bookmark = final_bookmark
+
+        if is_last_batch:
+            # Only now, with every parent batch of the full scan processed, is it safe to commit
+            # the accumulated maximum as the new lower bound for the *next* sync. Committing it
+            # after every batch (the bug this guards against) would advance the lower bound past
+            # older child events belonging to parents not yet visited in a later batch, silently
+            # excluding them.
+            self.update_child_stream_bookmarks(state=state,
+                                               sub_stream=sub_stream,
+                                               last_processed_value=None,
+                                               new_bookmark=strftime(final_bookmark),
+                                               previous_sync_completed_ts=strftime(final_bookmark))
+            self.child_running_max_bookmark = None
+        else:
+            # Keep the child's original lower bound fixed in state for the remaining batches of
+            # this scan; only the forward-progress bookmark (used solely to resume a specific
+            # interrupted parent) advances per batch.
+            self.update_child_stream_bookmarks(state=state,
+                                               sub_stream=sub_stream,
+                                               last_processed_value=None,
+                                               new_bookmark=strftime(final_bookmark),
+                                               previous_sync_completed_ts=previous_sync_completed_ts)
         update_currently_syncing(state, None)
 
     def get_pipeline_key_index(self, body, search_key):
@@ -660,35 +690,82 @@ class Stream():
         sync - before remove_empty_replication_key_records ever gets a chance to retain it, and it
         would otherwise be silently dropped forever.
 
-        Retrieve such records once per stream sync, via a single request bounded by record_limit
-        with the filter stage removed entirely, independent of (and before) the advancing
-        timestamped pages below, so they neither disappear nor block that pagination. They are fed
-        into the existing empty_replication_key_records collection so the current
-        unconditional-emission logic (see sync()) picks them up exactly as it already does for any
-        empty-key record found on a normal page.
+        Retrieve such records once per stream sync, independent of (and before) the advancing
+        timestamped pages below, so they neither disappear nor block that pagination. The group
+        of null/missing-key records can itself be larger than one page (record_limit), so this
+        exhausts that whole group using an API-supported pagination strategy: sort secondarily by
+        'id' (always present; KEY_PROPERTIES) so the null/missing group - which the ascending,
+        MongoDB-like primary sort puts first - can be paged through via an `id>{last_id}` cursor,
+        the same string/numeric cursor pattern already used for visitorId pagination within one
+        replication-key value (see EventsBase.set_request_body_filters). Pagination stops as soon
+        as a page is short (no more data at all) or contains a record with a truthy replication
+        key (the null/missing group is exhausted; everything from here on is retrieved normally by
+        the advancing filtered pages below). Collected records are fed into the existing
+        empty_replication_key_records collection so the current unconditional-emission logic (see
+        sync()) picks them up exactly as it already does for any empty-key record found on a
+        normal page.
         """
         if isinstance(self, Accounts):
             # Accounts filters on a differently-shaped compound key (metadata.auto.lastupdated)
             # and wasn't part of this regression; left unchanged.
             return
 
-        body = self.get_body()
-        pipeline = body['request']['pipeline']
-        filter_index = self.get_pipeline_key_index(body, 'filter')
-        if filter_index is None:
+        if self.get_pipeline_key_index(self.get_body(), 'filter') is None:
             # No filter stage to bypass; every page already includes these records
             return
 
-        pipeline.pop(filter_index)
-        limit_index = self.get_pipeline_key_index(body, 'limit')
-        pipeline[limit_index]['limit'] = self.record_limit
+        sort_key = humps.camelize(self.replication_key)
 
-        records = self.request(self.name, json=body).get('results') or []
-        # Ascending sort (Pendo's aggregation API is MongoDB-like) puts null/missing values
-        # first, so one bounded page is enough to capture them without scanning the whole
-        # dataset. Records with a valid replication_key_value are left alone here; they'll
-        # arrive again normally through the advancing filtered pages below.
-        self.remove_empty_replication_key_records(records)
+        def probe_body(last_id):
+            body = self.get_body()
+            pipeline = body['request']['pipeline']
+            sort_index = self.get_pipeline_key_index(body, 'sort')
+            filter_index = self.get_pipeline_key_index(body, 'filter')
+            limit_index = self.get_pipeline_key_index(body, 'limit')
+
+            pipeline[sort_index]['sort'] = [sort_key, 'id']
+            pipeline[limit_index]['limit'] = self.record_limit
+
+            if last_id is None:
+                # First page: drop the filter entirely so null/missing-key records aren't
+                # excluded from the very first request
+                del pipeline[filter_index]
+            else:
+                # Pendo answers 400 to the escaped surrogate pairs that ensure_ascii writes for
+                # characters above U+FFFF (same precaution as the visitorId cursor)
+                pipeline[filter_index]['filter'] = f'id>{json.dumps(last_id, ensure_ascii=False)}'
+
+            return body
+
+        last_id = None
+        fetched = 0
+        # Bounded by the API's own max page size so a misbehaving backend can't loop forever
+        # (loop-safety: explicit upper bound instead of an unconditional while True)
+        while fetched < API_RECORD_LIMIT:
+            records = self.request(self.name, json=probe_body(last_id)).get('results') or []
+            if not records:
+                break
+
+            missing = []
+            exhausted = False
+            for record in records:
+                if self.get_replication_key_value(record):
+                    # Ascending sort puts the null/missing group first; a truthy value here
+                    # means the group is fully exhausted mid-page
+                    exhausted = True
+                    break
+                missing.append(record)
+
+            if missing:
+                # Capture the cursor before remove_empty_replication_key_records, which pops
+                # every entry out of `missing` (all of them, since each has a falsy
+                # replication key) as it transfers them into empty_replication_key_records
+                last_id = missing[-1].get('id')
+                fetched += len(missing)
+                self.remove_empty_replication_key_records(missing)
+
+            if exhausted or len(records) < self.record_limit:
+                break
 
     def remove_empty_replication_key_records(self, records):
         """Removes the none replication_value records to avoid duplicates records"""
@@ -834,7 +911,7 @@ class Stream():
 
         # Sync substream if the current stream has sub-stream and selected in the catalog
         if stream_records and sub_stream and sub_stream.is_selected():
-            self.sync_substream(state, self, sub_stream, stream_records)
+            self.sync_substream(state, self, sub_stream, stream_records, is_last_batch=not loop_for_records)
 
         update_currently_syncing(state, None)
         return (self.stream, stream_records), loop_for_records

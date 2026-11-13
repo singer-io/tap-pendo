@@ -206,6 +206,37 @@ class TestMissingReplicationKeyRecordsAreNotExcludedByFilter(unittest.TestCase):
         # One probe request plus one real page per sync() call = 3 total, not 4
         self.assertEqual(mocked_request.call_count, 3)
 
+    def test_missing_key_group_bigger_than_page_limit_is_fully_retrieved(self, mocked_request, mocked_write_state):
+        """The null/missing-replication-key group can itself span more than one page; the probe
+        must exhaust it via an id cursor instead of marking itself done, and silently dropping
+        every missing-key record past the first page, as soon as the first page fills up
+        (regression for data loss bug: record_limit=2 with 3 such records)."""
+        all_missing = [{"id": f"m{i}"} for i in (1, 2, 3)]
+        bodies = []
+
+        def backend(endpoint, json=None, **kwargs):
+            bodies.append(copy.deepcopy(json))
+            pipeline = json["request"]["pipeline"]
+            limit = next(stage["limit"] for stage in pipeline if "limit" in stage)
+            filter_stage = next((stage["filter"] for stage in pipeline if "filter" in stage), None)
+
+            if filter_stage is None or filter_stage.startswith("id>"):
+                threshold_id = None if filter_stage is None else filter_stage[len("id>"):].strip('"')
+                page = [r for r in all_missing if threshold_id is None or r["id"] > threshold_id]
+                return {"results": page[:limit]}
+
+            # Main advancing (lastUpdatedAt) pagination: no "real" features in this test
+            return {"results": []}
+
+        mocked_request.side_effect = backend
+        stream = streams.Features({"record_limit": 2, "app_ids": APP_IDS})
+
+        (_, records), _ = stream.sync({}, START_DATE)
+
+        self.assertEqual(sorted(r["id"] for r in records), ["m1", "m2", "m3"])
+        # Two probe pages (2 + 1) to exhaust the group, plus one main-pagination request
+        self.assertEqual(len(bodies), 3)
+
     def test_accounts_are_not_probed(self, mocked_request, mocked_write_state):
         """Accounts filters on a differently-shaped compound key and is out of scope for this fix"""
         mocked_request.side_effect = Answers({"results": []})
