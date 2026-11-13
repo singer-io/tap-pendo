@@ -78,10 +78,13 @@ class TestOnePagePerSync(unittest.TestCase):
     def test_parent_of_a_child_stream_keeps_whole_batches(self, mocked_selected, mocked_substream,
                                                           mocked_request, mocked_write_state):
         """sync_substream moves the child bookmark once per call, so it must see every parent of a batch"""
-        mocked_request.side_effect = answers = Answers(features(1, 2), features(2, 3), features(3))
+        # Leading answer accounts for the one-time missing-replication-key probe that now
+        # runs before the first page of the main advancing pagination below
+        mocked_request.side_effect = answers = Answers({"results": []}, features(1, 2), features(2, 3),
+                                                        features(3))
         stream = streams.Features({"record_limit": 2, "app_ids": APP_IDS})
 
-        self.assertEqual(sync_calls(stream, answers, 2), [(["f1", "f2"], True, 2), (["f3"], False, 3)])
+        self.assertEqual(sync_calls(stream, answers, 2), [(["f1", "f2"], True, 3), (["f3"], False, 4)])
         self.assertEqual([[r["id"] for r in call.args[3]] for call in mocked_substream.call_args_list],
                          [["f1", "f2"], ["f3"]])
 
@@ -171,6 +174,48 @@ class TestNonEventStreamPaginationNoDataLoss(unittest.TestCase):
         self.assertEqual(ids, ["f1", "f2", "f3"])
 
 
+@mock.patch("singer.write_state")
+@mock.patch("tap_pendo.streams.Stream.request")
+class TestMissingReplicationKeyRecordsAreNotExcludedByFilter(unittest.TestCase):
+    """A record whose replication key is null or missing can never satisfy the advancing
+    numeric filter (`{replication_key}>={value}`), so the API would exclude it from every
+    page, even the very first page of an initial sync. Features/Guides/Pages/TrackTypes
+    must retrieve such records separately (bypassing the filter) so they are emitted
+    instead of silently dropped (regression for data loss bug)."""
+
+    def test_record_with_missing_replication_key_is_emitted(self, mocked_request, mocked_write_state):
+        # First call (the probe) has no filter stage, so it must return every record,
+        # including ones without last_updated_at, same as a real backend would
+        probe_page = {"results": [{"id": "no-key"}, {"id": "f1", "last_updated_at": T0 + 1}]}
+        mocked_request.side_effect = answers = Answers(probe_page, {"results": []})
+        stream = streams.Features({"record_limit": 10, "app_ids": APP_IDS})
+
+        (_, records), _ = stream.sync({}, START_DATE)
+
+        self.assertIn("no-key", [r["id"] for r in records])
+        # The probe (first body) must have no filter stage at all
+        self.assertIsNone(stream.get_pipeline_key_index(answers.bodies[0], "filter"))
+
+    def test_probe_runs_only_once_per_stream_instance(self, mocked_request, mocked_write_state):
+        mocked_request.side_effect = Answers({"results": []}, {"results": []}, {"results": []})
+        stream = streams.Features({"record_limit": 10, "app_ids": APP_IDS})
+
+        stream.sync({}, START_DATE)
+        stream.sync({}, START_DATE)
+
+        # One probe request plus one real page per sync() call = 3 total, not 4
+        self.assertEqual(mocked_request.call_count, 3)
+
+    def test_accounts_are_not_probed(self, mocked_request, mocked_write_state):
+        """Accounts filters on a differently-shaped compound key and is out of scope for this fix"""
+        mocked_request.side_effect = Answers({"results": []})
+        stream = streams.Accounts({"record_limit": 10, "app_ids": APP_IDS})
+
+        stream.sync({}, START_DATE)
+
+        self.assertEqual(mocked_request.call_count, 1)
+
+
 class TestOnePagePerSyncPipelineHasFilterStage(unittest.TestCase):
     """Features/Guides/Pages/TrackTypes bodies must include a 'filter' stage so
     set_request_body_filters can advance it; Accounts already has one."""
@@ -194,6 +239,67 @@ class TestOnePagePerSyncPipelineHasFilterStage(unittest.TestCase):
         stream = streams.TrackTypes({"record_limit": 2, "app_ids": APP_IDS})
         body = stream.get_body()
         self.assertIsNotNone(stream.get_pipeline_key_index(body, "filter"))
+
+
+@mock.patch("singer.write_state")
+@mock.patch("tap_pendo.streams.Stream.request")
+class TestSelectedChildStreamEnumeratesAllParents(unittest.TestCase):
+    """When a child stream (e.g. feature_events) is selected, Stream.sync must enumerate every
+    parent id via pagination independent of the parent's own bookmark/start_date. Otherwise an
+    unchanged parent definition (older than the bookmark) is excluded from the fetch entirely,
+    sync_substream never visits it, and new child events for it are silently skipped
+    (regression for parent-bookmark-skips-unchanged-definitions-with-new-child-events bug)."""
+
+    @mock.patch("tap_pendo.streams.Stream.sync_substream")
+    @mock.patch("tap_pendo.streams.Stream.is_selected", return_value=True)
+    def test_unchanged_parent_is_still_visited_when_child_selected(self, mocked_selected, mocked_substream,
+                                                                   mocked_request, mocked_write_state):
+        old_feature_time = T0 - 365 * 24 * HOUR_MS  # long before start_date / any parent bookmark
+        all_features = [{"id": "old", "last_updated_at": old_feature_time},
+                        {"id": "new", "last_updated_at": T0 + 1}]
+        bodies = []
+        answers = FilteringAnswers(all_features, "lastUpdatedAt")
+
+        def tracking_request(endpoint, json=None, **kwargs):
+            bodies.append(copy.deepcopy(json))
+            return answers(endpoint, json=json, **kwargs)
+
+        mocked_request.side_effect = tracking_request
+        stream = streams.Features({"record_limit": 2, "app_ids": APP_IDS})
+
+        state = {}
+        more = True
+        # Loop guarded by a max iteration count per repo loop-safety guidance
+        for _ in range(10):
+            if not more:
+                break
+            _, more = stream.sync(state, START_DATE)
+
+        # Both the unchanged ("old") and the new feature must reach sync_substream, or
+        # feature_events for the unchanged one would never be synced
+        visited_ids = [r["id"] for call in mocked_substream.call_args_list for r in call.args[3]]
+        self.assertIn("old", visited_ids)
+        self.assertIn("new", visited_ids)
+
+        # The very first request must enumerate from the beginning (filter>=1), not from the
+        # parent's own bookmark/start_date, or the "old" record above would be excluded upstream.
+        # bodies[0] is the one-time missing-replication-key probe (no filter stage); bodies[1] is
+        # the first page of the main advancing pagination.
+        first_filter = bodies[1]["request"]["pipeline"][2]["filter"]
+        self.assertEqual(first_filter, "lastUpdatedAt>=1")
+
+    def test_parent_bookmark_still_applies_when_no_child_selected(self, mocked_request, mocked_write_state):
+        """Without a selected child stream, the parent keeps its normal incremental filtering
+        (no reason to pay for a full re-scan every sync)"""
+        # Leading answer accounts for the one-time missing-replication-key probe
+        mocked_request.side_effect = answers = Answers({"results": []}, {"results": []})
+        stream = streams.Features({"record_limit": 10, "app_ids": APP_IDS})
+
+        stream.sync({}, START_DATE)
+
+        # bodies[0] is the probe (no filter stage); bodies[1] is the first real page
+        first_filter = answers.bodies[1]["request"]["pipeline"][2]["filter"]
+        self.assertEqual(first_filter, f"lastUpdatedAt>={T0}")
 
 
 @mock.patch("singer.write_schema")

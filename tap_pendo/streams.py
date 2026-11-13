@@ -188,6 +188,7 @@ class Stream():
         self.config = config
         self.record_limit = self.get_default_record_limit()
         self.empty_replication_key_records = []
+        self.fetched_missing_replication_key_records = False
 
         # If value is 0,"0", "" or None then it will set default to default to 300.0 seconds if not passed in config.
         config_request_timeout = self.config.get('request_timeout')
@@ -652,6 +653,43 @@ class Stream():
         decamelized_replication_key = humps.decamelize(self.replication_key)
         return record.get(decamelized_replication_key)
 
+    def fetch_missing_replication_key_records(self):
+        """A record whose replication key is null or missing can never satisfy the advancing
+        numeric filter (`{replication_key}>={value}`) used by the pagination loop below, so the
+        API excludes it from every page it answers - including the very first page of an initial
+        sync - before remove_empty_replication_key_records ever gets a chance to retain it, and it
+        would otherwise be silently dropped forever.
+
+        Retrieve such records once per stream sync, via a single request bounded by record_limit
+        with the filter stage removed entirely, independent of (and before) the advancing
+        timestamped pages below, so they neither disappear nor block that pagination. They are fed
+        into the existing empty_replication_key_records collection so the current
+        unconditional-emission logic (see sync()) picks them up exactly as it already does for any
+        empty-key record found on a normal page.
+        """
+        if isinstance(self, Accounts):
+            # Accounts filters on a differently-shaped compound key (metadata.auto.lastupdated)
+            # and wasn't part of this regression; left unchanged.
+            return
+
+        body = self.get_body()
+        pipeline = body['request']['pipeline']
+        filter_index = self.get_pipeline_key_index(body, 'filter')
+        if filter_index is None:
+            # No filter stage to bypass; every page already includes these records
+            return
+
+        pipeline.pop(filter_index)
+        limit_index = self.get_pipeline_key_index(body, 'limit')
+        pipeline[limit_index]['limit'] = self.record_limit
+
+        records = self.request(self.name, json=body).get('results') or []
+        # Ascending sort (Pendo's aggregation API is MongoDB-like) puts null/missing values
+        # first, so one bounded page is enough to capture them without scanning the whole
+        # dataset. Records with a valid replication_key_value are left alone here; they'll
+        # arrive again normally through the advancing filtered pages below.
+        self.remove_empty_replication_key_records(records)
+
     def remove_empty_replication_key_records(self, records):
         """Removes the none replication_value records to avoid duplicates records"""
         if len(records) > 0:
@@ -713,6 +751,13 @@ class Stream():
     def sync(self, state, start_date=None, key_id=None, parent_last_updated=None):
         update_currently_syncing(state, self.name)
 
+        if not self.fetched_missing_replication_key_records:
+            # Run once per stream sync, before the advancing filter below is computed - that
+            # filter would otherwise exclude null/missing replication-key records from every
+            # page it answers
+            self.fetch_missing_replication_key_records()
+            self.fetched_missing_replication_key_records = True
+
         if STREAMS.get(SUB_STREAMS.get(self.name)):
             sub_stream = STREAMS.get(SUB_STREAMS.get(self.name))(self.config)
         else:
@@ -721,6 +766,16 @@ class Stream():
         # If last processed records exists, then set first to timestamp of first record
         if self.last_processed:
             first = self.get_replication_key_value(self.last_processed[0])
+        elif sub_stream and sub_stream.is_selected():
+            # The parent's own bookmark/start_date only bounds which of its own records are
+            # new; it excludes older, unchanged parent definitions (e.g. a feature that hasn't
+            # been updated) from this fetch entirely. Since sync_substream only visits the
+            # parent ids present in this fetch, those unchanged parents would never be visited
+            # and new child events (e.g. feature_events) for them would be silently skipped.
+            # So when the child stream is selected, enumerate every parent id via pagination
+            # independent of the parent bookmark; the child stream still applies its own
+            # event-time filtering (via its own bookmark) inside sync_substream.
+            first = 1
         else:
             first = int(start_date.timestamp()) * 1000
 
