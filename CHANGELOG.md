@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.5
+  * Fix pagination data loss for `features`, `guides`, `pages` and `track_types`: add the missing `filter` pipeline stage to their request bodies so `set_request_body_filters` can advance it per page (previously every page request was identical, so the API kept returning the same top-`record_limit` rows and the sync falsely reported no more pages)
+  * Fix a related early-exit when `record_limit` is small relative to the number of distinct replication-key groups per page: retry with the self-healed, larger `record_limit` instead of ending the sync on the held-back boundary group
+
 ## 1.4.4
   * Sort event stream pages by replication key and `visitorId`, so a full page can end inside one `hour`, `day` or `browser_time` value and the next request resumes at its last visitor; a value with `record_limit` rows or more no longer stops the sync with `RecordLimitTooSmallError`
   * Raise `RecordLimitTooSmallError` only when one visitor fills a page within one value, and name that visitor in the message
