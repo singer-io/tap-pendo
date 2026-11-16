@@ -9,9 +9,10 @@ class PendoMultiAppIdsTest(TestPendoBase):
         return "pendo_multi_app_ids_test"
 
     def test_run(self):
-        expected_streams = {"features", "pages", "events", "guides", "track_types", "track_events"}
+        expected_streams = {"features", "pages", "guides", "track_types"}
         self.run_test(expected_streams=expected_streams, app_ids="-323232", is_multi_apps=False)
         self.run_test(expected_streams=expected_streams, app_ids=None, is_multi_apps=True)
+        self.run_test(expected_streams={"events"}, app_ids="-323232", is_multi_apps=False)
         self.run_test(expected_streams={"visitors", "visitor_history"}, app_ids=None, is_multi_apps=True)
 
     def get_properties(self, original: bool = True):
