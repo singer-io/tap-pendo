@@ -310,6 +310,7 @@ class TestCustomFields(unittest.TestCase):
                                    'float': {'type': ['null', 'number']},
                                    'integer': {'type': ['null', 'integer', 'number', 'string']},
                                    'string': {'type': ['null', 'string']},
-                                   'time': {'format': 'date-time', 'type': ['null', 'string']}}
+                                   'time': {'anyOf': [{'format': 'date-time', 'type': ['null', 'string']},
+                                                      {'type': ['null', 'string']}]}}
         actual_property_types = {schema_type: get_schema_property_type(schema_type) for schema_type in schema_types}
         self.assertEqual(actual_property_types, expected_property_types)

@@ -30,7 +30,11 @@ class PendoBookMarkTest(TestPendoBase):
         # # visitor_history stream takes long time to execute with default start date so it is handled separately
         self.is_day_range = False
         self.run_test(
-            self.expected_streams() - {"guides", "guide_events", "pages", "page_events", "visitor_history"})
+            self.expected_streams() - {"guides", "guide_events", "pages", "page_events", "visitor_history", "events"}
+            - self.UNREADABLE_EVENT_STREAMS)
+
+        # events runs alone because it needs START_DATE_EVENTS, which is after the data of other streams
+        self.run_test({"events"})
 
         # Test only visitors and visitor_history
         self.is_day_range = True

@@ -26,7 +26,7 @@ class PendoStartDateTest(TestPendoBase):
         # So defining individual start dates for each streams to limit the execution time
         self.run_test("2021-09-09T00:00:00Z", "2022-06-20T00:00:00Z", {"accounts"})
         self.run_test("2021-09-09T00:00:00Z", "2022-05-01T00:00:00Z", {"metadata_visitors", "metadata_accounts"})
-        self.run_test("2020-09-01T00:00:00Z", "2021-03-01T00:00:00Z", {"events"})
+        self.run_test(self.START_DATE_EVENTS, "2026-07-01T00:00:00Z", {"events"})
         self.run_test("2021-09-09T00:00:00Z", "2021-09-16T00:00:00Z", {"guides", "guide_events"})
 
         # All these streams have similar implementation like guides and guide_events so removing this test to limit the execution time
