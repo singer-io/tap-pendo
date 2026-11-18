@@ -55,7 +55,8 @@ def get_schema_property_type(schema_type):
     if schema_type == 'string':
         return {"type": ["null", "string"]}
     elif schema_type == 'time':
-        return {"type": ["null", "string"], "format": "date-time"}
+        return {"anyOf": [{"type": ["null", "string"], "format": "date-time"},
+                          {"type": ["null", "string"]}]}
     elif schema_type == 'boolean':
         return {"type": ["null", "boolean"]}
     elif schema_type == 'integer':

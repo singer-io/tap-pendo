@@ -25,7 +25,9 @@ class PendoAllFieldsTest(TestPendoBase):
         return "pendo_all_fields_test"
 
     def test_run(self):
-        self.run_test(self.expected_streams() - {"visitors", "visitor_history"})
+        # events runs alone because it needs START_DATE_EVENTS, which is after the data of other streams
+        self.run_test(self.expected_streams() - {"visitors", "visitor_history", "events"} - self.UNREADABLE_EVENT_STREAMS)
+        self.run_test({"events"})
         self.run_test({"visitors"})
 
 

@@ -33,6 +33,9 @@ class TestPendoBase(unittest.TestCase):
     # so We need to manually create test data for visitors and vistor_history streams
     # Once created, we should update this start date to optimise the execution time
     START_DATE_VISTOR_HISTORY = "2023-11-06T00:00:00Z"
+    START_DATE_DEFAULT = "2019-09-10T00:00:00Z"
+    START_DATE_EVENTS = "2024-03-01T00:00:00Z"
+    UNREADABLE_EVENT_STREAMS = {"feature_events", "page_events", "track_events"}
 
     @staticmethod
     def name():
@@ -147,8 +150,9 @@ class TestPendoBase(unittest.TestCase):
         
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
+        streams_to_test = getattr(self, "streams_to_test", None) or set()
         return_value = {
-            "start_date": "2019-09-10T00:00:00Z",
+            "start_date": self.START_DATE_EVENTS if "events" in streams_to_test else self.START_DATE_DEFAULT,
             "lookback_window": "1",
             "period": "dayRange" if self.is_day_range else "hourRange",
         }
