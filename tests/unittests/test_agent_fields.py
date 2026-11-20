@@ -57,6 +57,21 @@ class TestAgentFields(unittest.TestCase):
             transformed = transformer.transform(record, schema)
         self.assertEqual(transformed['metadata_agent'], {"trial_status": "active", "licensedays": 5})
 
+    def test_malformed_date_time_in_time_field_is_kept_as_string(self):
+        """SAC-32574: a Pendo 'time' agent field holding a non date-time value must
+        pass the transformer as a string instead of raising SchemaMismatch (which
+        previously made the target exit abnormally)."""
+        schema = load_schema('accounts')
+        build_account_visitor_metadata({}, schema, {}, {'agent': self.agent_fields})
+
+        valid = {"account_id": "a1", "metadata_agent": {"firstvisit": "2024-01-02T03:04:05Z"}}
+        malformed = {"account_id": "a2", "metadata_agent": {"firstvisit": "not-a-date"}}
+        with Transformer() as transformer:
+            transformed_valid = transformer.transform(valid, schema)
+            transformed_malformed = transformer.transform(malformed, schema)
+        self.assertEqual(transformed_valid['metadata_agent']['firstvisit'], "2024-01-02T03:04:05.000000Z")
+        self.assertEqual(transformed_malformed['metadata_agent']['firstvisit'], "not-a-date")
+
     def test_accounts_transform_keeps_agent_metadata(self):
         record = {"accountId": "a1", "metadata": {"auto": {"lastupdated": 1}, "agent": {"locale": "en"}}}
         transformed = STREAMS['accounts']({"app_ids": []}).transform(record)
