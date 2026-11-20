@@ -1,6 +1,7 @@
 # pylint: disable=E1101,R0904,W0222,W0613
 
 #!/usr/bin/env python3
+import hashlib
 import json
 import os
 import sys
@@ -174,6 +175,7 @@ class Stream():
     replication_method = None
     replication_key = None
     key_properties = KEY_PROPERTIES
+    record_hash_fields = None
     stream = None
     period = None
     request_retry_count = 1
@@ -432,7 +434,19 @@ class Stream():
         return self.stream is not None
 
     def transform(self, record):
-        return humps.decamelize(record)
+        record = humps.decamelize(record)
+        if self.record_hash_fields:
+            record = self.generate_record_hash(record)
+        return record
+
+    def generate_record_hash(self, record):
+        """Adds '_sdc_record_hash', a hash of record_hash_fields, to use as the primary key.
+        The values are serialized as JSON rather than joined, so ('ab', 'c') and ('a', 'bc')
+        hash differently, and a missing field hashes the same as a null one."""
+        values = [record.get(key) for key in self.record_hash_fields]
+        hash_string = json.dumps(values, sort_keys=True, separators=(',', ':'))
+        record['_sdc_record_hash'] = hashlib.sha256(hash_string.encode('utf-8')).hexdigest()
+        return record
 
     def get_last_processed(self, state, sub_stream):
         return self.get_bookmark(state,
@@ -894,6 +908,11 @@ class EventsBase(Stream):
     DATE_WINDOW_SIZE = 1
     key_properties = ['visitor_id', 'account_id', 'remote_ip']
     replication_method = "INCREMENTAL"
+    SUMMARY_ROW_FIELDS = ('visitor_id', 'account_id', 'app_id', 'server', 'remote_ip',
+                          'user_agent', 'analytics_session_id', 'tab_id', 'day', 'hour')
+    SINGLE_EVENT_FIELDS = ('visitor_id', 'account_id', 'app_id', 'server_name', 'remote_ip',
+                           'user_agent', 'analytics_session_id', 'tab_id', 'event_id', 'type',
+                           'browser_time', 'url', 'guide_id', 'guide_step_id', 'poll_id')
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -1149,11 +1168,8 @@ class Features(Stream):
 class FeatureEvents(EventsBase):
     name = "feature_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['feature_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent']
-
-    def __init__(self, config):
-        super().__init__(config=config)
-        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
+    key_properties = ['_sdc_record_hash']
+    record_hash_fields = EventsBase.SUMMARY_ROW_FIELDS + ('feature_id', 'parameters')
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
@@ -1163,12 +1179,12 @@ class FeatureEvents(EventsBase):
 
 class Events(EventsBase):
     name = "events"
-    key_properties = ['visitor_id', 'account_id', 'remote_ip', 'user_agent']
+    key_properties = ['_sdc_record_hash']
     replication_method = "INCREMENTAL"
+    record_hash_fields = EventsBase.SUMMARY_ROW_FIELDS + ('page_id', 'feature_id')
 
     def __init__(self, config):
         super().__init__(config=config)
-        self.key_properties.append(self.replication_key)
         self.window_size = self.get_window_size()
         self.dense_window = self.window_size
         self.window_rows = 0
@@ -1249,9 +1265,6 @@ class Events(EventsBase):
                 raise WindowTooLargeError(err) from err
             raise
 
-    def transform(self, record):
-        return humps.decamelize(record)
-
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
         body['request']['pipeline'][0]['source'].update({"events": {"appId": self.config["app_ids"]}})
@@ -1274,7 +1287,8 @@ class Events(EventsBase):
 class PollEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "poll_events"
-    key_properties = ['visitor_id', 'account_id', 'poll_id', 'browser_time']
+    key_properties = ['_sdc_record_hash']
+    record_hash_fields = EventsBase.SINGLE_EVENT_FIELDS
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -1291,11 +1305,8 @@ class PollEvents(EventsBase):
 class TrackEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "track_events"
-    key_properties = ['track_type_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent']
-
-    def __init__(self, config):
-        super().__init__(config=config)
-        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
+    key_properties = ['_sdc_record_hash']
+    record_hash_fields = EventsBase.SUMMARY_ROW_FIELDS + ('track_type_id',)
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
@@ -1305,7 +1316,8 @@ class TrackEvents(EventsBase):
 class GuideEvents(EventsBase):
     replication_method = "INCREMENTAL"
     name = "guide_events"
-    key_properties = ['guide_id', 'guide_step_id', 'visitor_id', 'type', 'account_id', 'browser_time', 'url']
+    key_properties = ['_sdc_record_hash']
+    record_hash_fields = EventsBase.SINGLE_EVENT_FIELDS
 
     def __init__(self, config):
         super().__init__(config=config)
@@ -1402,11 +1414,8 @@ class Pages(Stream):
 class PageEvents(EventsBase):
     name = "page_events"
     replication_method = "INCREMENTAL"
-    key_properties = ['page_id', 'visitor_id', 'account_id', 'remote_ip', 'user_agent',]
-
-    def __init__(self, config):
-        super().__init__(config=config)
-        self.key_properties.append("day" if self.period == 'dayRange' else "hour")
+    key_properties = ['_sdc_record_hash']
+    record_hash_fields = EventsBase.SUMMARY_ROW_FIELDS + ('page_id', 'parameters')
 
     def get_body(self, key_id, period, first):
         body = super().get_body(key_id, period, first)
@@ -1443,8 +1452,15 @@ class VisitorHistory(Stream):
     name = "visitor_history"
     replication_method = "INCREMENTAL"
     replication_key = "modified_ts"
-    key_properties = ['visitor_id']
+    key_properties = ['_sdc_record_hash']
     DATE_WINDOW_SIZE = 1
+    # History entries have no ID of their own. '_sdc_record_hash' hashes the fields that
+    # never change once Pendo creates an entry. 'last_ts' and 'duration' are left out
+    # because they grow while a page entry is still open, and a re-sync should update
+    # that entry rather than create a new one.
+    record_hash_fields = ('visitor_id', 'type', 'ts', 'uri', 'untagged_url', 'page_id',
+                          'feature_id', 'guide_id', 'guide_step_id', 'app_id',
+                          'parsed_user_agent')
     headers = {
         'content-type': 'application/x-www-form-urlencoded'
     }
@@ -1483,9 +1499,10 @@ class VisitorHistory(Stream):
             window_next = window_next + timedelta(days=self.DATE_WINDOW_SIZE) # Update window for next call
 
     def transform(self, record):
+        record = super().transform(record)
         max_value = max(record.get('ts', 0), record.get('last_ts', 0))
         record['modified_ts'] = max_value
-        return super().transform(record)
+        return record
 
 
 class Visitors(LazyAggregationStream):
