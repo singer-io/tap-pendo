@@ -175,7 +175,7 @@ class Stream():
     replication_method = None
     replication_key = None
     key_properties = KEY_PROPERTIES
-    record_hash_fields = None
+    record_hash_fields = ()
     stream = None
     period = None
     request_retry_count = 1
