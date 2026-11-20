@@ -76,7 +76,7 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_KEYS: {'last_updated_at'}
             },
             "visitor_history": {
-                self.PRIMARY_KEYS: {'visitor_id'},
+                self.PRIMARY_KEYS: {'_sdc_record_hash'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'modified_ts'},
                 self.PARENT_TAP_STREAM_ID: 'visitors'
@@ -92,35 +92,35 @@ class TestPendoBase(unittest.TestCase):
                 self.REPLICATION_KEYS: {'last_updated_at'}
             },
             "feature_events":{
-                self.PRIMARY_KEYS: {"feature_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key},
                 self.PARENT_TAP_STREAM_ID: 'features'
             },
             "events": {
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key}
             },
             "page_events": {
-                self.PRIMARY_KEYS: {"page_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key},
                 self.PARENT_TAP_STREAM_ID: 'pages'
             },
             "guide_events": {
-                self.PRIMARY_KEYS: {"guide_id", "guide_step_id", "visitor_id", "type", "account_id", "browser_time", "url"},
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'browser_time'},
                 self.PARENT_TAP_STREAM_ID: 'guides'
             },
             "poll_events":{
-                self.PRIMARY_KEYS: {"visitor_id", "account_id", "poll_id", "browser_time"},
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'browser_time'}
             },
             "track_events": {
-                self.PRIMARY_KEYS: {"track_type_id", "visitor_id", "account_id", "remote_ip", "user_agent", event_replication_key},
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {event_replication_key},
                 self.PARENT_TAP_STREAM_ID: 'track_types'

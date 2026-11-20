@@ -96,65 +96,79 @@ This tap:
 
 - US Subscription Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - EU Subscription Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
-- Primary key fields: `visitor_id`
+- Primary key fields: `_sdc_record_hash`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `modified_ts` (Max from `ts` or `lastTs`)
-- Transformations: Camel to snake case.
+- Transformations:
+  - Camel to snake case.
+  - `_sdc_record_hash`: SHA-256 hash of the fields that do not change once an entry exists (`visitor_id`, `type`, `ts`, `uri`, `untagged_url`, `page_id`, `feature_id`, `guide_id`, `guide_step_id`, `app_id`, `parsed_user_agent`)
 
 **[feature_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - US Subscription Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - EU Subscription Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
-- Primary key fields: `feature_id`, `visitor_id`, `account_id`, `remote_ip`, `user_agent`, `day` or `hour`
+- Primary key fields: `_sdc_record_hash`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
-- Transformations: Camel to snake case.
+- Transformations:
+  - Camel to snake case.
+  - `_sdc_record_hash`: SHA-256 hash of `visitor_id`, `account_id`, `app_id`, `server`, `remote_ip`, `user_agent`, `analytics_session_id`, `tab_id`, `day`, `hour`, `feature_id`, `parameters`
 
 **[events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - US Subscription Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - EU Subscription Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
-- Primary key fields: `visitor_id`, `account_id`, `remote_ip`, `user_agent`, `day` or `hour`
+- Primary key fields: `_sdc_record_hash`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
   - Requested in time windows from the bookmark to the sync start time; the bookmark is written after each window that has records. A window starts at `events_date_window` days, doubles after a window with fewer than 1,000 records (up to 32 days), and returns to `events_date_window` days after a larger one
-- Transformations: Camel to snake case.
+- Transformations:
+  - Camel to snake case.
+  - `_sdc_record_hash`: SHA-256 hash of `visitor_id`, `account_id`, `app_id`, `server`, `remote_ip`, `user_agent`, `analytics_session_id`, `tab_id`, `day`, `hour`, `page_id`, `feature_id`
 
 **[page_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - US Subscription Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - EU Subscription Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
-- Primary key fields: `page_id`, `visitor_id`, `account_id`, `remote_ip`, `user_agent`, `day` or `hour`
+- Primary key fields: `_sdc_record_hash`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
-- Transformations: Camel to snake case.
+- Transformations:
+  - Camel to snake case.
+  - `_sdc_record_hash`: SHA-256 hash of `visitor_id`, `account_id`, `app_id`, `server`, `remote_ip`, `user_agent`, `analytics_session_id`, `tab_id`, `day`, `hour`, `page_id`, `parameters`
 
 **[guide_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - US Subscription Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - EU Subscription Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
-- Primary key fields: `guide_id`, `guide_step_id`, `visitor_id`, `type`, `account_id`, `browser_time`, `url`
+- Primary key fields: `_sdc_record_hash`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `browserTime`
-- Transformations: Camel to snake case.
+- Transformations:
+  - Camel to snake case.
+  - `_sdc_record_hash`: SHA-256 hash of `visitor_id`, `account_id`, `app_id`, `server_name`, `remote_ip`, `user_agent`, `analytics_session_id`, `tab_id`, `event_id`, `type`, `browser_time`, `url`, `guide_id`, `guide_step_id`, `poll_id`
 
 **[poll_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - US Subscription Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - EU Subscription Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
-- Primary key fields: `visitor_id`, `account_id`, `poll_id`, `browser_time`
+- Primary key fields: `_sdc_record_hash`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `browserTime`
-- Transformations: Camel to snake case.
+- Transformations:
+  - Camel to snake case.
+  - `_sdc_record_hash`: SHA-256 hash of `visitor_id`, `account_id`, `app_id`, `server_name`, `remote_ip`, `user_agent`, `analytics_session_id`, `tab_id`, `event_id`, `type`, `browser_time`, `url`, `guide_id`, `guide_step_id`, `poll_id`
 
 **[track_events](https://developers.pendo.io/docs/?bash#get-an-account-by-id)**
 
 - US Subscription Endpoint: [https://app.pendo.io/api/v1/aggregation](https://app.pendo.io/api/v1/aggregation)
 - EU Subscription Endpoint: [https://app.eu.pendo.io/api/v1/aggregation](https://app.eu.pendo.io/api/v1/aggregation)
-- Primary key fields: `track_type_id`, `visitor_id`, `account_id`, `remote_ip`, `user_agent`, `day` or `hour`
+- Primary key fields: `_sdc_record_hash`
 - Replication strategy: INCREMENTAL (query filtered)
   - Bookmark: `day` or `hour`
-- Transformations: Camel to snake case.
+- Transformations:
+  - Camel to snake case.
+  - `_sdc_record_hash`: SHA-256 hash of `visitor_id`, `account_id`, `app_id`, `server`, `remote_ip`, `user_agent`, `analytics_session_id`, `tab_id`, `day`, `hour`, `track_type_id`
 
 **[guides](https://developers.pendo.io/docs/?bash#entities)**
 

@@ -2,6 +2,18 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+      "_sdc_record_hash": {
+        "type": ["null", "string"]
+      },
+      "event_id": {
+        "type": ["null", "string"]
+      },
+      "analytics_session_id": {
+        "type": ["null", "string"]
+      },
+      "tab_id": {
+        "type": ["null", "string"]
+      },
       "app_id": {
         "type": ["null", "number"]
       },

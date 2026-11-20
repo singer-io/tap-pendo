@@ -5,6 +5,9 @@
     "visitor_id": {
       "type": ["null", "string"]
     },
+    "_sdc_record_hash": {
+      "type": ["null", "string"]
+    },
     "type": {
       "type": ["null", "string"]
     },
