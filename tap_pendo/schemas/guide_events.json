@@ -2,6 +2,18 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+        "_sdc_record_hash": {
+            "type": "string"
+        },
+        "event_id": {
+            "type": ["null", "string"]
+        },
+        "analytics_session_id": {
+            "type": ["null", "string"]
+        },
+        "tab_id": {
+            "type": ["null", "string"]
+        },
         "app_id": {
             "type": ["null", "number"]
         },
@@ -19,17 +31,17 @@
             ]
         },
         "browser_time": {
-            "type": ["null", "string"],
+            "type": "string",
             "format": "date-time"
         },
         "country": {
             "type": ["null", "string"]
         },
         "type": {
-            "type": ["null", "string"]
+            "type": "string"
         },
         "guide_id": {
-            "type": ["null", "string"]
+            "type": "string"
         },
         "guide_step_id": {
             "type": ["null", "string"]
@@ -62,7 +74,7 @@
             "type": ["null", "string"]
         },
         "visitor_id": {
-            "type": ["null", "string"]
+            "type": "string"
         },
         "account_id": {
             "type": ["null", "string"]

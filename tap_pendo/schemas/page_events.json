@@ -2,6 +2,15 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+      "_sdc_record_hash": {
+        "type": "string"
+      },
+      "analytics_session_id": {
+        "type": ["null", "string"]
+      },
+      "tab_id": {
+        "type": ["null", "string"]
+      },
       "app_id": {
         "type": ["null", "number"]
       },
@@ -17,7 +26,7 @@
         "format": "date-time"
       },
       "visitor_id": {
-        "type": ["null", "string"]
+        "type": "string"
       },
       "num_events": {
         "type": ["null", "integer"]
@@ -38,7 +47,7 @@
         "type": ["null", "string"]
       },
       "page_id": {
-        "type": ["null", "string"]
+        "type": "string"
       }
     }
   }

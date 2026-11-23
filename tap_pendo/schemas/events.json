@@ -2,6 +2,15 @@
     "additional_properties": false,
     "type": "object",
     "properties": {
+      "_sdc_record_hash": {
+        "type": "string"
+      },
+      "analytics_session_id": {
+        "type": ["null", "string"]
+      },
+      "tab_id": {
+        "type": ["null", "string"]
+      },
       "account_id": {
         "type": ["null", "string"]
       },
@@ -38,7 +47,7 @@
         "type": ["null", "string"]
       },
       "visitor_id": {
-        "type": ["null", "string"]
+        "type": "string"
       },
       "parameters": {
         "type": ["null", "string"]

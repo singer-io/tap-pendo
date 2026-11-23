@@ -46,7 +46,7 @@ class PendoStartDateTest(TestPendoBase):
             #   - Added filtering visitors based on last updated which will reduce the execution time
             #   - Testing visitors streams separately with latest start time
             "visitor_history": {
-                self.PRIMARY_KEYS: {'visitor_id'},
+                self.PRIMARY_KEYS: {'_sdc_record_hash'},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
                 self.REPLICATION_KEYS: {'modified_ts'}
             }

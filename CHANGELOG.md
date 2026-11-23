@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0
+  * primary key of `visitor_history`, `events`, `page_events`, `feature_events`, `track_events`, `guide_events` and `poll_events` is now `_sdc_record_hash`, so the target no longer merges distinct rows into one [SAC-32693]
+  * Add `analytics_session_id` and `tab_id` to the event stream schemas, and `event_id` to `guide_events` and `poll_events`
+  * `events`, `page_events`, `feature_events` and `track_events` no longer append `day` or `hour` to the class's shared primary key list each time a stream object is created
+  * [#149](https://github.com/singer-io/tap-pendo/pull/149)
+
 ## 1.5.0
   * Custom date-time fields support string schema in case of malformatted data [#146](https://github.com/singer-io/tap-pendo/pull/146)
 

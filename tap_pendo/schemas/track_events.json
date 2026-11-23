@@ -2,11 +2,20 @@
   "additional_properties": false,
   "type": ["null", "object"],
   "properties": {
+    "_sdc_record_hash": {
+      "type": "string"
+    },
+    "analytics_session_id": {
+      "type": ["null", "string"]
+    },
+    "tab_id": {
+      "type": ["null", "string"]
+    },
     "app_id": {
       "type": ["null", "number"]
     },
     "track_type_id": {
-      "type": ["null", "string"]
+      "type": "string"
     },
     "account_id": {
       "type": ["null", "string"]
@@ -20,7 +29,7 @@
       "format": "date-time"
     },
     "visitor_id": {
-      "type": ["null", "string"]
+      "type": "string"
     },
     "num_events": {
       "type": ["null", "integer"]

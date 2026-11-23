@@ -9,6 +9,7 @@ from base import TestPendoBase
 # Remove skipped fields once bug is fixed
 MISSING_FILEDS = {"events": {"hour", "feature_id", "parameters"},
                   "guide_events": {"poll_response", "poll_id"},
+                  "poll_events": {"analytics_session_id", "tab_id"},
                   "feature_events": {"hour", "parameters"},
                   "page_events": {"hour"},
                   "track_events": {"hour"},

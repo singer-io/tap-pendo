@@ -3,13 +3,16 @@
   "additional_properties": false,
   "properties": {
     "visitor_id": {
-      "type": ["null", "string"]
+      "type": "string"
+    },
+    "_sdc_record_hash": {
+      "type": "string"
     },
     "type": {
-      "type": ["null", "string"]
+      "type": "string"
     },
     "ts": {
-      "type": ["null", "string"],
+      "type": "string",
       "format": "date-time"
     },
     "parsed_user_agent": {
