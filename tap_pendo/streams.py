@@ -443,7 +443,7 @@ class Stream():
         """Adds '_sdc_record_hash', a hash of record_hash_fields, to use as the primary key.
         The values are serialized as JSON rather than joined, so ('ab', 'c') and ('a', 'bc')
         hash differently, and a missing field hashes the same as a null one."""
-        values = [record.get(key) for key in self.record_hash_fields]
+        values = [(key, record.get(key)) for key in sorted(self.record_hash_fields)]
         hash_string = json.dumps(values, sort_keys=True, separators=(',', ':'))
         record['_sdc_record_hash'] = hashlib.sha256(hash_string.encode('utf-8')).hexdigest()
         return record
