@@ -3,7 +3,7 @@
     "type": "object",
     "properties": {
       "_sdc_record_hash": {
-        "type": ["null", "string"]
+        "type": "string"
       },
       "event_id": {
         "type": ["null", "string"]
@@ -34,7 +34,7 @@
         ]
       },
       "poll_id": {
-        "type": ["null", "string"]
+        "type": "string"
       },
       "guide_id": {
         "type": ["null", "string"]
@@ -46,14 +46,14 @@
         "type": ["null", "string"]
       },
       "browser_time": {
-        "type": ["null", "string"],
+        "type": "string",
         "format": "date-time"
       },
       "country": {
         "type": ["null", "string"]
       },
       "type": {
-        "type": ["null", "string"]
+        "type": "string"
       },
       "latitude": {
         "type": ["null", "number"]
@@ -77,7 +77,7 @@
         "type": ["null", "string"]
       },
       "visitor_id": {
-        "type": ["null", "string"]
+        "type": "string"
       },
       "poll_response": {
         "type": ["null", "string"]
